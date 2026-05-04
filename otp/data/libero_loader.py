@@ -161,36 +161,40 @@ class LIBEROOTPDataset:
 
         # 1. Load all per-frame data from npz cache.
         npz = np.load(record["npz_path"], allow_pickle=False)
-        action = np.asarray(npz["actions"][frame_idx], dtype=np.float32)
-        ee_pose = self._build_ee_pose(
-            npz["ee_pos"][frame_idx], npz["ee_ori"][frame_idx],
-        )
-        # object_poses npz layout: (N_obj, T, 4, 4) — transpose to (N_obj, 4, 4)
+        actions_arr = np.asarray(npz["actions"], dtype=np.float32)
+        ee_pos_arr  = np.asarray(npz["ee_pos"], dtype=np.float32)
+        ee_ori_arr  = np.asarray(npz["ee_ori"], dtype=np.float32)
         object_poses_full = np.asarray(npz["object_poses"], dtype=np.float32)
-        object_poses = object_poses_full[:, frame_idx, :, :]
         object_names = [str(n) for n in npz["object_names"]]
-        instruction = str(npz["instruction"].item()) if npz["instruction"].ndim == 0 \
-                      else str(npz["instruction"])
+        instruction = (
+            str(npz["instruction"].item()) if npz["instruction"].ndim == 0
+            else str(npz["instruction"])
+        )
 
-        # 2. Load image from hdf5 (npz doesn't store images).
+        # Per-frame slices.
+        ee_pose = self._build_ee_pose(
+            ee_pos_arr[frame_idx], ee_ori_arr[frame_idx],
+        )
+        object_poses = object_poses_full[:, frame_idx, :, :]   # (N_obj, 4, 4)
+
+        # H-step windows (§B/§C).
+        H = self.horizon
+        action_chunk = actions_arr[frame_idx:frame_idx + H]    # (H, 7)
+
+        # Trajectory window: (N_obj, H, 6) Lie algebra, derived from npz.
+        gt_trajectory = self._load_trajectory_window(
+            object_poses_full, frame_idx, H,
+        )
+
+        # 2. Image from hdf5 (npz doesn't store images).
         with h5py.File(record["hdf5_path"], "r") as f:
             obs = f["data"][record["demo_key"]]["obs"]
             image = self._load_image(obs, frame_idx)
-            instruction = self._read_instruction(f)
 
-            # §B: action chunk — horizon consecutive steps.
-            action_chunk = actions[frame_idx:frame_idx + self.horizon].astype(np.float32)
-
-            ee_pose = self._load_ee_pose(obs, frame_idx)
-            object_poses, object_names = self._load_object_poses(obs, frame_idx)
-
-            # §C: trajectory window — H SE(3) poses per object, in Lie algebra.
-            gt_trajectory = self._load_trajectory_window(
-                obs, frame_idx, self.horizon, object_names
-            )
-
-        # Affordance lookup (fail-loud per §5.1).
-        affordance, affordance_mask, point_clouds = self._lookup_affordance(object_names)
+        # 3. Affordance lookup (fail-loud per §5.1).
+        affordance, affordance_mask, point_clouds = self._lookup_affordance(
+            object_names
+        )
 
         return {
             "image":                 image,
@@ -204,10 +208,6 @@ class LIBEROOTPDataset:
             "object_point_clouds":   point_clouds,
             "gt_trajectory":         gt_trajectory,
         }
-
-    # ------------------------------------------------------------------
-    # Init helpers
-    # ------------------------------------------------------------------
 
     def _scan_demos(self) -> List[Dict[str, Any]]:
         """
@@ -269,33 +269,21 @@ class LIBEROOTPDataset:
             return sorted(preferred) + sorted(k for k in candidates if k not in preferred)
         return sorted(candidates)
 
-    def _build_index(self) -> List[Tuple[Path, int]]:
+    def _build_index(self) -> List[Tuple[int, int]]:
         """
-        Build (demo_path, frame_idx) pairs.
-
+        Build (demo_idx, frame_idx) pairs using the npz cache.
         §B: frame_idx is capped so that [frame_idx, frame_idx+horizon) always
         lies within the demo.  Demos shorter than horizon are skipped.
         """
-        try:
-            import h5py
-        except ImportError:
-            return []
-
-        index: List[Tuple[Path, int]] = []
-        for path in self.demo_paths:
-            with h5py.File(path, "r") as f:
-                key = sorted(f["data"].keys())[0]
-                T = len(f["data"][key]["actions"])
+        index: List[Tuple[int, int]] = []
+        for demo_idx, record in enumerate(self.demo_records):
+            with np.load(record["npz_path"]) as npz:
+                T = len(npz["actions"])
             # Need at least horizon frames; valid start indices: [0, T-horizon].
             num_valid = max(0, T - self.horizon + 1)
             for i in range(num_valid):
-                index.append((path, i))
+                index.append((demo_idx, i))
         return index
-
-    # ------------------------------------------------------------------
-    # Per-frame loaders
-    # ------------------------------------------------------------------
-
     def _load_image(self, obs, frame_idx: int) -> np.ndarray:
         view = self.view_keys[0]
         img = np.asarray(obs[view][frame_idx])
@@ -345,58 +333,35 @@ class LIBEROOTPDataset:
         return np.zeros((0, 4, 4), dtype=np.float32), names
 
     @staticmethod
+    @staticmethod
     def _load_trajectory_window(
-        obs,
+        object_poses_full: np.ndarray,
         frame_idx: int,
         horizon: int,
-        object_names: List[str],
     ) -> np.ndarray:
         """
-        Load a horizon-step SE(3) trajectory window for each object and
-        convert to Lie algebra representation (§C).
+        Convert a horizon-step SE(3) trajectory window into Lie algebra (§C).
 
         Args:
-            obs:          HDF5 obs group (open file handle).
-            frame_idx:    Start frame; caller ensures frame_idx+horizon <= T.
-            horizon:      Window length H.
-            object_names: Object name list in the same order as object_poses.
+            object_poses_full: (N_obj, T, 4, 4) — from npz["object_poses"].
+            frame_idx:         Start frame; caller ensures frame_idx+horizon <= T.
+            horizon:           Window length H.
 
         Returns:
-            gt_trajectory: (N_obj, H, 6) float32  SE(3) Lie algebra.
+            gt_trajectory: (N_obj, H, 6) float32 — SE(3) Lie algebra
+                           (each xi = log_SE3(T) flattened to 6-vec).
         """
-        from otp.utils.lie_algebra import quat_to_so3, se3_to_lie
+        from otp.utils.lie_algebra import se3_to_lie
         import torch
 
-        N = len(object_names)
-        H = horizon
-        trajectories = np.zeros((N, H, 6), dtype=np.float32)
+        # Slice and convert.
+        T_mats = object_poses_full[:, frame_idx:frame_idx + horizon, :, :]
+        # Shape: (N_obj, H, 4, 4)
+        N, H = T_mats.shape[0], T_mats.shape[1]
 
-        for i, name in enumerate(object_names):
-            pose_key = f"{name}_pose"
-            if pose_key in obs:
-                # (H, 4, 4) directly stored.
-                T_mats = np.asarray(
-                    obs[pose_key][frame_idx:frame_idx + H], dtype=np.float32
-                )                                                           # (H, 4, 4)
-            else:
-                # Build from pos + quat fields.
-                pos = np.asarray(
-                    obs[f"{name}_pos"][frame_idx:frame_idx + H], dtype=np.float32
-                )                                                           # (H, 3)
-                quat = np.asarray(
-                    obs[f"{name}_quat"][frame_idx:frame_idx + H], dtype=np.float32
-                )                                                           # (H, 4)
-                R = quat_to_so3(
-                    torch.from_numpy(quat)
-                ).numpy()                                                   # (H, 3, 3)
-                T_mats = np.tile(np.eye(4, dtype=np.float32), (H, 1, 1))
-                T_mats[:, :3, :3] = R
-                T_mats[:, :3, 3] = pos
-
-            xi = se3_to_lie(torch.from_numpy(T_mats)).numpy()              # (H, 6)
-            trajectories[i] = xi
-
-        return trajectories                                                  # (N, H, 6)
+        T_flat = torch.from_numpy(T_mats).reshape(-1, 4, 4)
+        xi_flat = se3_to_lie(T_flat)                          # (N*H, 6)
+        return xi_flat.reshape(N, H, 6).numpy().astype(np.float32)
 
     # ------------------------------------------------------------------
     # Grasp affordance loader (cache-backed)

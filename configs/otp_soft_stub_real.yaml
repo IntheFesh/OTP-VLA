@@ -1,0 +1,70 @@
+# =============================================================================
+# OTP-Soft stub sanity — REAL DATA edition
+#
+# Identical to otp_soft_stub.yaml in spirit (small/fast verification of
+# train pipeline correctness), but uses the REAL LIBEROOTPDataset rather
+# than the SyntheticDataset whose per-sample independent RNG seeding makes
+# input→output unlearnable by construction.
+#
+# This is the only sanity run that can confirm the train pipeline actually
+# learns — synthetic data sanity is mechanically incapable of showing
+# loss reduction beyond unit-test single-batch overfitting.
+#
+# Pass criterion (manual check): total_loss at step 200 ≤ 0.5 × initial loss.
+#
+# Usage:
+#   python -m otp.train.train_otp_soft --config-name otp_soft_stub_real
+# =============================================================================
+
+defaults:
+  - otp_soft_frozen          # inherit full config (model dims, optimizer, …)
+  - _self_                   # let our overrides win
+
+# ---------------------------------------------------------------------------
+# Use real data, not synthetic.
+# ---------------------------------------------------------------------------
+synthetic_data: false
+
+# ---------------------------------------------------------------------------
+# Model: stub backbone (4.8M params), real backbone_dim (4096 matches
+# the future OpenVLA-OFT hidden width so dims propagate correctly).
+# ---------------------------------------------------------------------------
+model:
+  backbone_mode: stub
+  backbone_dim: 4096
+
+# ---------------------------------------------------------------------------
+# Training: enough steps to see real signal, constant lr (no cosine
+# annealing to zero), small batch.
+# ---------------------------------------------------------------------------
+train:
+  precision: bf16
+  lr: 5.0e-4                  # moderate; cosine retains > 50 % at step 200
+  weight_decay: 1.0e-4
+  warmup_steps: 20            # short warmup so most of 200 steps is at full lr
+  lr_schedule: cosine
+  batch_size: 8               # small enough for stub on GPU; large enough to be stable
+  num_steps: 200              # 200 optimizer steps total
+  grad_clip: 1.0
+  log_every: 10
+  ckpt_every: 999999          # no checkpoints during sanity
+  eval_every: 999999
+
+# ---------------------------------------------------------------------------
+# Data: real LIBEROOTPDataset with all paths fixed.
+# ---------------------------------------------------------------------------
+data:
+  suite: libero_spatial
+  root: data/object_poses
+  grasp_affordance_dir: data/grasp_affordances
+  view_keys: [agentview_rgb, eye_in_hand_rgb]
+  normalizer_path: data/object_poses/meta/stats_qpace.json
+  num_workers: 4
+
+# ---------------------------------------------------------------------------
+# Output
+# ---------------------------------------------------------------------------
+output_dir: results/stub_sanity_real
+
+wandb:
+  enabled: false

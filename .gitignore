@@ -27,3 +27,6 @@ venv/
 .vscode/
 .idea/
 *.swp
+logs/
+results/
+outputs/
