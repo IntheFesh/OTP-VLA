@@ -222,6 +222,44 @@ empirical anchor for paper §III.
 
 ---
 
+### `otp/data/grasp_affordance.py`
+**Status**: Stage 3 (otp-soft-implementation branch)
+**Purpose**: Antipodal grasp pre-computation for OTP-Soft.
+
+| Function | Input | Output |
+|---|---|---|
+| `sample_antipodal_grasps(verts, normals, num_grasps, gripper_width, friction_coef, seed)` | `(N,3)`, `(N,3)`, int, float, float, int | `(num_grasps, 7) float32` — invalid rows are all-zero pads |
+| `extract_object_meshes(bddl_path, output_dir)` | Path, Path | dict[name, npz path] |
+| `precompute_all_affordances(libero_object_dir, grasp_output_dir, num_grasps)` | Path, Path, int | dict[name, npz path] |
+
+**Output npz layout** (per object): `{grasps:(K,7), mesh_vertices:(P,3), valid_mask:(K,)}`.
+**§5.1**: `LIBEROOTPDataset` raises `FileNotFoundError` if any object lacks an affordance npz — silent zero-fill is forbidden.
+
+---
+
+### `otp/data/libero_loader.py` (UPDATED)
+**Status**: Stage 3 — extended with grasp affordance.
+
+`LIBEROOTPDataset.__init__` now requires `grasp_affordance_dir`.
+`__getitem__` returns the original keys plus:
+- `grasp_affordance: (N_obj, K, 7) float32`
+- `grasp_affordance_mask: (N_obj, K) bool`
+- `object_point_clouds: (N_obj, P, 3) float32`
+
+`LiberoDataset` is kept as a deprecated alias of `LIBEROOTPDataset`.
+
+---
+
+### `scripts/03c_extract_grasp_affordances.py`
+CLI for `precompute_all_affordances`.  §1.2 startup snapshot.
+
+### `scripts/03d_smoke_test_dataloader.py`
+Iterates the first N samples of `LIBEROOTPDataset`, prints per-key shapes,
+verifies `grasp_affordance` is non-zero and `object_point_clouds` lie inside
+a 5 m bounding box.  Exits non-zero on either violation.
+
+---
+
 ### `otp/data/perturbation_protocol.py`
 **Status**: Stage 3
 **Purpose**: Structured perturbation generation + validation + manifest writer.
