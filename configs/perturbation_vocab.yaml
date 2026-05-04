@@ -1,0 +1,59 @@
+# =============================================================================
+# Perturbation Vocabulary Tables
+#
+# Public, version-controlled vocabulary for PerturbationProtocol generators.
+# Paper §V.B references this file as the canonical source for all
+# instruction_rephrase / spatial_relation_perturb operations.
+#
+# Distinction from community benchmarks: these tables are part of our
+# "controlled perturbation suite" and are reproducible to the token.
+# =============================================================================
+
+# Synonym groups for instruction_rephrase generator.
+# Each key is a canonical word; values are interchangeable substitutes.
+synonyms:
+  pick:        [grab, take, grasp, lift, fetch]
+  place:       [put, set, position, deposit]
+  move:        [shift, push, transfer]
+  open:        [unseal]
+  close:       [shut]
+  push:        [shove, slide]
+  the:         [that]                  # mild article variation
+  red:         [crimson, scarlet]
+  blue:        [navy, cobalt]
+  green:       [emerald, olive]
+  yellow:      [amber]
+  large:       [big, sizeable]
+  small:       [tiny, little]
+  bowl:        [dish]                  # avoid changing distinct object IDs aggressively
+  cup:         [mug]
+  plate:       [platter]
+  block:       [cube]
+  box:         [container]
+  cabinet:     [cupboard]
+  drawer:      [compartment]
+
+# Spatial-relation inversions (used by gen_spatial_relation_perturb).
+# Keys are mapped to values bidirectionally — mapping (a → b) implies (b → a).
+spatial_inversions:
+  "left":        "right"
+  "on":          "under"
+  "above":       "below"
+  "in_front_of": "behind"
+  "near":        "far_from"
+  "inside":      "outside"
+  "top":         "bottom"
+
+# Templates for distractor injection.
+# {obj} is replaced with a randomly-chosen distractor name at generation time.
+distractor_templates:
+  - " (ignore the {obj})"
+  - " — not the {obj}"
+  - ", avoiding the {obj}"
+  - " while {obj} stays put"
+
+# Visual style perturbation parameter ranges (numpy-only; no cv2 required).
+visual_style:
+  hue_shift_range:    [-30, 30]        # degrees on 0-360 scale
+  brightness_range:   [0.6, 1.4]       # multiplicative factor on RGB
+  contrast_range:     [0.6, 1.4]       # multiplicative factor around 128
