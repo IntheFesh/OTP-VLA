@@ -1,0 +1,373 @@
+{
+  "suite": "libero_spatial",
+  "num_episodes_per_task": 1,
+  "horizon": 8,
+  "max_control_steps": 400,
+  "task_pass_threshold": 0.8,
+  "tasks_passed": 0,
+  "tasks_total": 10,
+  "global_verdict": "FAIL",
+  "elapsed_sec": 112.93,
+  "per_task_results": {
+    "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "APPROACH",
+          "timeout_reason": "max_steps_at_phase_APPROACH",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06866657897294254,
+                "z_above_object": 0.07166805504166496,
+                "z_dist_to_pregrasp": 0.08359577520949191,
+                "z_dist_to_grasp": 0.06640426055329496,
+                "gripper_state": -0.9838638774242592,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.10179939159373641,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.0750255286693573,
+            0.2007368952035904
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "APPROACH",
+          "timeout_reason": "max_steps_at_phase_APPROACH",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09284146409798685,
+                "z_above_object": 0.03755527311606255,
+                "z_dist_to_pregrasp": 0.1267959867564169,
+                "z_dist_to_grasp": 0.023204049006369964,
+                "gripper_state": -0.9800860741109378,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.2651720201126496,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.06300907582044601,
+            0.1854107528924942
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "APPROACH",
+          "timeout_reason": "max_steps_at_phase_APPROACH",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19765171347851734,
+                "z_above_object": -0.10616007256559346,
+                "z_dist_to_pregrasp": 0.10267747046580145,
+                "z_dist_to_grasp": 0.04732256529698542,
+                "gripper_state": -0.9807603594215641,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.39100219475423503,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.0624784491956234,
+            0.21251127123832703
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "APPROACH",
+          "timeout_reason": "max_steps_at_phase_APPROACH",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11710248964925098,
+                "z_above_object": 0.038440607602113985,
+                "z_dist_to_pregrasp": 0.12218070436950457,
+                "z_dist_to_grasp": 0.0278193313932823,
+                "gripper_state": -0.9846198760099909,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.2406280030274417,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.060965366661548615,
+            0.20722270011901855
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "APPROACH",
+          "timeout_reason": "max_steps_at_phase_APPROACH",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07736305542335024,
+                "z_above_object": 0.06234706133894341,
+                "z_dist_to_pregrasp": 0.09570015752427952,
+                "z_dist_to_grasp": 0.05429987823850735,
+                "gripper_state": -0.9859973334548995,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.10612534086373687,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.055459219962358475,
+            0.2123628854751587
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "PRE_GRASP",
+          "timeout_reason": "max_steps_at_phase_PRE_GRASP",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.049739215384618785,
+                "z_above_object": 0.07206683279370418,
+                "z_dist_to_pregrasp": 0.08572361617895197,
+                "z_dist_to_grasp": 0.06427635997919012,
+                "gripper_state": -0.9877275290815344,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.23241488707483063,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.04910558462142944,
+            0.21401824057102203
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "APPROACH",
+          "timeout_reason": "max_steps_at_phase_APPROACH",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09926270715658117,
+                "z_above_object": 0.02075602840508528,
+                "z_dist_to_pregrasp": 0.12100732548376658,
+                "z_dist_to_grasp": 0.028992710279020284,
+                "gripper_state": -0.9868144235349785,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.1364344155349464,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.048367973417043686,
+            0.18937724828720093
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "PRE_GRASP",
+          "timeout_reason": "max_steps_at_phase_PRE_GRASP",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.04795435096825289,
+                "z_above_object": 0.07934478373815634,
+                "z_dist_to_pregrasp": 0.05017564147436926,
+                "z_dist_to_grasp": 0.09982433468377283,
+                "gripper_state": -0.9874241168011668,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.23373997575968977,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.07152154296636581,
+            0.21176347136497498
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "APPROACH",
+          "timeout_reason": "max_steps_at_phase_APPROACH",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06084127755340548,
+                "z_above_object": 0.10482821844673429,
+                "z_dist_to_pregrasp": 0.027584176860760756,
+                "z_dist_to_grasp": 0.12241585890202611,
+                "gripper_state": -0.9877828210156798,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.4166073036295218,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.058990079909563065,
+            0.20287293195724487
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "APPROACH",
+          "timeout_reason": "max_steps_at_phase_APPROACH",
+          "control_steps": 400,
+          "phase_trace_tail": [
+            {
+              "t": 0,
+              "phase": "APPROACH",
+              "phase_step_count": 0,
+              "transition_signals": {
+                "xy_dist_to_object": 0.060247586772196535,
+                "z_above_object": 0.11974653706337501,
+                "z_dist_to_pregrasp": 0.18871649323994255,
+                "z_dist_to_grasp": 0.33871646939808464,
+                "gripper_state": -0.9807474684528272,
+                "gripper_recent_std": 1.0,
+                "xy_dist_to_release": 0.4432125345826701,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.05312104895710945,
+            0.18596117198467255
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -8,11 +8,22 @@ Interface contract (§REPO_LAYOUT.md Stage 2):
   phase_trace  — property, proxies PhaseScheduler.phase_trace
 
 Action format (LIBERO): [dx, dy, dz, dax, day, daz, gripper]
-  dx/dy/dz   : Cartesian EE delta [m], clipped to ±0.1
-  dax/day/daz: axis-angle EE delta [rad], clipped to ±0.5
+  dx/dy/dz   : Cartesian EE delta [m], clipped to ±pos_clip
+  dax/day/daz: axis-angle EE delta [rad], clipped to ±ori_clip
   gripper    : exactly ±1.0 (M8 — discrete)
 
 NaN guard (§2.3): NaN trajectory → zero action returned, phase stays APPROACH.
+
+Note on rotation control: when targeting LIBERO's Panda OSC_POSE controller,
+setting ori_clip=0.0 (no rotation delta) is recommended.  LIBERO's home
+pose already has the gripper pointing down, so attempting to rotate to
+_R_TOPDOWN injects a ~180-degree axis-angle delta that severely couples
+into the OSC position controller, preventing convergence.
+
+Note on gripper timing: the gripper command for the GRASP phase is gated
+on `ee_at_grasp_height` — the gripper does NOT close until the EE has
+actually descended to the grasp height (within `grasp_z_tolerance`).
+This prevents the controller from closing on empty space above the object.
 """
 
 from __future__ import annotations
@@ -54,6 +65,8 @@ class FixedManipulationController:
         z_pregrasp_threshold:   PhaseScheduler Z distance threshold [m].
         gripper_hold_threshold: PhaseScheduler gripper hold threshold.
         grasp_min_steps:        PhaseScheduler minimum GRASP steps.
+        grasp_z_tolerance:      EE-to-grasp z tolerance for GRASP→TRANSPORT
+                                AND for closing the gripper [m].
         transport_xy_threshold: PhaseScheduler TRANSPORT→RELEASE XY threshold [m].
         trajectory_done_threshold: PhaseScheduler trajectory completion fraction.
         release_min_steps:      PhaseScheduler minimum RELEASE steps.
@@ -61,6 +74,7 @@ class FixedManipulationController:
         max_phase_steps:        PhaseScheduler per-phase timeout.
         pos_clip:               Maximum absolute Cartesian delta [m].
         ori_clip:               Maximum absolute axis-angle delta [rad].
+                                Set to 0.0 for LIBERO Panda — see module docstring.
     """
 
     def __init__(
@@ -73,6 +87,7 @@ class FixedManipulationController:
         z_pregrasp_threshold: float = 0.03,
         gripper_hold_threshold: float = 0.5,
         grasp_min_steps: int = 5,
+        grasp_z_tolerance: float = 0.025,
         transport_xy_threshold: float = 0.05,
         trajectory_done_threshold: float = 0.9,
         release_min_steps: int = 5,
@@ -91,6 +106,7 @@ class FixedManipulationController:
             z_pregrasp_threshold=z_pregrasp_threshold,
             gripper_hold_threshold=gripper_hold_threshold,
             grasp_min_steps=grasp_min_steps,
+            grasp_z_tolerance=grasp_z_tolerance,
             transport_xy_threshold=transport_xy_threshold,
             trajectory_done_threshold=trajectory_done_threshold,
             release_min_steps=release_min_steps,
@@ -106,6 +122,7 @@ class FixedManipulationController:
 
         self._pos_clip = pos_clip
         self._ori_clip = ori_clip
+        self._grasp_z_tolerance = grasp_z_tolerance
 
         # Runtime state.
         self._trajectory: Optional[np.ndarray] = None   # (N_obj, H, 4, 4)
@@ -135,10 +152,9 @@ class FixedManipulationController:
         self.reset()
 
         if torch.isnan(xi).any() or torch.isinf(xi).any():
-            # NaN trajectory: leave _trajectory as None → step() returns zeros.
             return
 
-        T = self._trajectory_parser.parse(xi)          # (N_obj, H, 4, 4)
+        T = self._trajectory_parser.parse(xi)
         self._trajectory = T.detach().cpu().numpy()
         self._grasp_targets = self._grasp_estimator.estimate_grasp(object_pose)
         self._release_target_xy = np.asarray(release_target_xy, dtype=np.float64)
@@ -169,27 +185,21 @@ class FixedManipulationController:
 
         Returns:
             (7,) ndarray [dx, dy, dz, dax, day, daz, gripper].
-            All position deltas clipped to ±pos_clip.
-            All orientation deltas clipped to ±ori_clip.
-            Gripper is exactly ±1.0 (M8).
-            Returns zeros on NaN trajectory (§2.3).
         """
-        # NaN guard (§2.3): no trajectory set or trajectory is invalid.
+        # NaN guard (§2.3).
         if self._trajectory is None or self._grasp_targets is None:
             return _ZERO_ACTION.copy()
 
-        # Default release site if not set.
         release_xy = (
             self._release_target_xy
             if self._release_target_xy is not None
             else np.zeros(2, dtype=np.float64)
         )
 
-        # Compute trajectory_progress for phase transitions.
         H = self._trajectory.shape[1]
         trajectory_progress = min(self._trajectory_step / max(H, 1), 1.0)
 
-        # Phase update (all signals computed inside, trace logged).
+        # Phase update.
         current_phase = self._phase_scheduler.step(
             self._control_step,
             ee_pose,
@@ -223,15 +233,25 @@ class FixedManipulationController:
         delta_pos = np.clip(delta_pos, -self._pos_clip, self._pos_clip)
 
         # Compute orientation delta via SO(3) log map.
-        R_target = target_pose[:3, :3]
-        R_ee = ee_pose[:3, :3]
-        R_delta = R_target @ R_ee.T
-        R_delta_t = torch.from_numpy(R_delta).float().unsqueeze(0)
-        delta_ori = so3_log(R_delta_t).squeeze(0).numpy()
-        delta_ori = np.clip(delta_ori, -self._ori_clip, self._ori_clip)
+        # Note: when ori_clip=0.0 we skip the expensive log computation.
+        if self._ori_clip > 0.0:
+            R_target = target_pose[:3, :3]
+            R_ee = ee_pose[:3, :3]
+            R_delta = R_target @ R_ee.T
+            R_delta_t = torch.from_numpy(R_delta).float().unsqueeze(0)
+            delta_ori = so3_log(R_delta_t).squeeze(0).numpy()
+            delta_ori = np.clip(delta_ori, -self._ori_clip, self._ori_clip)
+        else:
+            delta_ori = np.zeros(3, dtype=np.float64)
 
-        # Discrete gripper command (M8).
-        gripper_cmd = self._gripper_ctrl.get_command(current_phase)
+        # Gripper command — gated on EE being at grasp height during GRASP.
+        grasp_pos = self._grasp_targets["grasp_ee_pose"][:3, 3]
+        ee_at_grasp_height = (
+            abs(ee_pose[2, 3] - grasp_pos[2]) < self._grasp_z_tolerance
+        )
+        gripper_cmd = self._gripper_ctrl.get_command(
+            current_phase, ee_at_grasp_height=ee_at_grasp_height,
+        )
 
         # Advance trajectory step during TRANSPORT.
         if current_phase == "TRANSPORT":

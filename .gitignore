@@ -1,70 +1,28 @@
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-*.egg
-*.egg-info/
-dist/
-build/
-.eggs/
-.Python
-
-# Virtual environments
-.venv/
-venv/
-env/
-ENV/
-
-# Testing
+*.pyc
+*.pyo
 .pytest_cache/
-.coverage
-coverage.xml
-htmlcov/
+*.egg-info/
 
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb_checkpoints
+# Backup files
+*.bak
 
-# Model checkpoints & large files
-checkpoints/
-*.pt
-*.pth
-*.ckpt
-*.safetensors
-*.pkl
-*.pickle
-*.bin
-
-# Data
-data/raw/
-data/processed/
-*.tfrecord
-*.tfrecords
-
-# Experiment tracking
-wandb/
-runs/
-outputs/
-logs/
-*.log
-
-# Third-party clones (installed from source)
+# Third-party clones — too large, anyone can re-clone
 third_party/
 
-# IDE
+# Data — too large for git, regenerate with scripts/
+data/
+
+# Results — keep in branch but exclude large binary artifacts
+# (We DO want gt_replay_smoke*.json in this branch as evidence)
+
+# Environments
+.venv/
+venv/
+.conda/
+
+# Editor
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
-.DS_Store
-Thumbs.db
-
-# Environment variables
-.env
-.env.*
-*.pem
-
-# Hydra
-.hydra/
-multirun/
+*.swp

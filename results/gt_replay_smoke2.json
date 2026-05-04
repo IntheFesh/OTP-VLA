@@ -1,0 +1,4723 @@
+{
+  "suite": "libero_spatial",
+  "num_episodes_per_task": 1,
+  "horizon": 8,
+  "max_control_steps": 400,
+  "task_pass_threshold": 0.8,
+  "tasks_passed": 0,
+  "tasks_total": 10,
+  "global_verdict": "FAIL",
+  "elapsed_sec": 70.16,
+  "per_task_results": {
+    "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08644590367759784,
+                "z_above_object": 0.07098502067627022,
+                "z_dist_to_pregrasp": 0.07894007943474857,
+                "z_dist_to_grasp": 0.0710599563280383,
+                "gripper_state": -0.9848049656733728,
+                "gripper_recent_std": 0.00010752734433606102,
+                "xy_dist_to_release": 0.13877930362504573,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09567449506654391,
+                "z_above_object": 0.06021693218542201,
+                "z_dist_to_pregrasp": 0.08963065542154691,
+                "z_dist_to_grasp": 0.06036938034123995,
+                "gripper_state": -0.9849263600989264,
+                "gripper_recent_std": 0.00010407859803506812,
+                "xy_dist_to_release": 0.14860588684394405,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08925005593200853,
+                "z_above_object": 0.06270534316914778,
+                "z_dist_to_pregrasp": 0.08713752125097196,
+                "z_dist_to_grasp": 0.0628625145118149,
+                "gripper_state": -0.9849160143458451,
+                "gripper_recent_std": 0.00010265170834903771,
+                "xy_dist_to_release": 0.1425054634903488,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07928190863052163,
+                "z_above_object": 0.07171756778653993,
+                "z_dist_to_pregrasp": 0.07647561691918459,
+                "z_dist_to_grasp": 0.07352441884360228,
+                "gripper_state": -0.9848232712660236,
+                "gripper_recent_std": 0.000101269628710579,
+                "xy_dist_to_release": 0.13037144878755177,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08856846809786818,
+                "z_above_object": 0.06929278436777142,
+                "z_dist_to_pregrasp": 0.08082111024966465,
+                "z_dist_to_grasp": 0.06917892551312221,
+                "gripper_state": -0.9849277904466354,
+                "gripper_recent_std": 0.00010640043029620153,
+                "xy_dist_to_release": 0.13435633998815433,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09801524529519877,
+                "z_above_object": 0.05831025915646704,
+                "z_dist_to_pregrasp": 0.09155438010796946,
+                "z_dist_to_grasp": 0.05844565565481741,
+                "gripper_state": -0.9850412652300156,
+                "gripper_recent_std": 0.00010318903055833142,
+                "xy_dist_to_release": 0.14420409468701226,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09165166991570456,
+                "z_above_object": 0.0607952541186193,
+                "z_dist_to_pregrasp": 0.08904837596327486,
+                "z_dist_to_grasp": 0.060951659799512004,
+                "gripper_state": -0.9850231407054275,
+                "gripper_recent_std": 0.00010027522836522702,
+                "xy_dist_to_release": 0.1381004010968616,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07988424196940785,
+                "z_above_object": 0.07151901253882575,
+                "z_dist_to_pregrasp": 0.07832367776508709,
+                "z_dist_to_grasp": 0.07167635799769978,
+                "gripper_state": -0.9849280821919701,
+                "gripper_recent_std": 9.83707947885298e-05,
+                "xy_dist_to_release": 0.12591348295691232,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0840985160541584,
+                "z_above_object": 0.0671238381354291,
+                "z_dist_to_pregrasp": 0.08271881024819461,
+                "z_dist_to_grasp": 0.06728122551459226,
+                "gripper_state": -0.9850327776882499,
+                "gripper_recent_std": 0.0001022134165037209,
+                "xy_dist_to_release": 0.1298715374438559,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09351718894635463,
+                "z_above_object": 0.05633921853615731,
+                "z_dist_to_pregrasp": 0.09350342797987032,
+                "z_dist_to_grasp": 0.05649660778291654,
+                "gripper_state": -0.9851438303275084,
+                "gripper_recent_std": 9.87057754040844e-05,
+                "xy_dist_to_release": 0.1397494770261682,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08721439157142584,
+                "z_above_object": 0.058874223575962725,
+                "z_dist_to_pregrasp": 0.09096842285692452,
+                "z_dist_to_grasp": 0.05903161290586234,
+                "gripper_state": -0.9851206568796458,
+                "gripper_recent_std": 9.554544390740203e-05,
+                "xy_dist_to_release": 0.13370233116463962,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07605171993922043,
+                "z_above_object": 0.0690622459297362,
+                "z_dist_to_pregrasp": 0.08017204122354127,
+                "z_dist_to_grasp": 0.0698279945392456,
+                "gripper_state": -0.9850180400209816,
+                "gripper_recent_std": 9.35378246490297e-05,
+                "xy_dist_to_release": 0.12154701171637666,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08211456517465293,
+                "z_above_object": 0.0653343259794843,
+                "z_dist_to_pregrasp": 0.08460417165944112,
+                "z_dist_to_grasp": 0.06539586410334575,
+                "gripper_state": -0.9851228347106564,
+                "gripper_recent_std": 9.606772215204219e-05,
+                "xy_dist_to_release": 0.1255654369731915,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09161205539457053,
+                "z_above_object": 0.054403541576881875,
+                "z_dist_to_pregrasp": 0.09542234460474097,
+                "z_dist_to_grasp": 0.05457769115804589,
+                "gripper_state": -0.9852349764914075,
+                "gripper_recent_std": 9.184789525820571e-05,
+                "xy_dist_to_release": 0.13549909043277178,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08537964817447727,
+                "z_above_object": 0.05696736946809278,
+                "z_dist_to_pregrasp": 0.09285773962921218,
+                "z_dist_to_grasp": 0.05714229613357469,
+                "gripper_state": -0.9852085438040767,
+                "gripper_recent_std": 9.024128879980054e-05,
+                "xy_dist_to_release": 0.12949356337171813,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0742280068592294,
+                "z_above_object": 0.06727570487617862,
+                "z_dist_to_pregrasp": 0.08199765743536502,
+                "z_dist_to_grasp": 0.06800237832742184,
+                "gripper_state": -0.9851087370992313,
+                "gripper_recent_std": 8.905308174892157e-05,
+                "xy_dist_to_release": 0.11734599530027215,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0809285072687395,
+                "z_above_object": 0.0634774751674384,
+                "z_dist_to_pregrasp": 0.0864699592007866,
+                "z_dist_to_grasp": 0.06353007656200027,
+                "gripper_state": -0.9852146053059827,
+                "gripper_recent_std": 9.225031877034178e-05,
+                "xy_dist_to_release": 0.12139235522391915,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09057188904903334,
+                "z_above_object": 0.05252626662197646,
+                "z_dist_to_pregrasp": 0.09732518141996604,
+                "z_dist_to_grasp": 0.05267485434282082,
+                "gripper_state": -0.9853232520274606,
+                "gripper_recent_std": 8.902405896136484e-05,
+                "xy_dist_to_release": 0.13136175026138813,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0844028896861266,
+                "z_above_object": 0.055112129251134845,
+                "z_dist_to_pregrasp": 0.09473091068955442,
+                "z_dist_to_grasp": 0.05526912507323245,
+                "gripper_state": -0.9852911331172163,
+                "gripper_recent_std": 8.791793398588075e-05,
+                "xy_dist_to_release": 0.1253859634322551,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07320641927987707,
+                "z_above_object": 0.0653488717379137,
+                "z_dist_to_pregrasp": 0.08380771191667513,
+                "z_dist_to_grasp": 0.06619232384611173,
+                "gripper_state": -0.9851868827948007,
+                "gripper_recent_std": 8.71577326984908e-05,
+                "xy_dist_to_release": 0.11323571802640583,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07957668193702067,
+                "z_above_object": 0.061643910186193085,
+                "z_dist_to_pregrasp": 0.08831554068530889,
+                "z_dist_to_grasp": 0.061684495077477974,
+                "gripper_state": -0.9852966996336721,
+                "gripper_recent_std": 9.050880191738449e-05,
+                "xy_dist_to_release": 0.11729757643441115,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08923343990096178,
+                "z_above_object": 0.05062677666526472,
+                "z_dist_to_pregrasp": 0.09920522971734747,
+                "z_dist_to_grasp": 0.0507948060454394,
+                "gripper_state": -0.985402795509553,
+                "gripper_recent_std": 8.642472559545607e-05,
+                "xy_dist_to_release": 0.127296574608101,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08312178854150147,
+                "z_above_object": 0.05325369817234016,
+                "z_dist_to_pregrasp": 0.0965792507419656,
+                "z_dist_to_grasp": 0.05342078502082126,
+                "gripper_state": -0.985365527030742,
+                "gripper_recent_std": 8.443621208079101e-05,
+                "xy_dist_to_release": 0.12135250491299325,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0717162743573789,
+                "z_above_object": 0.06385791043662292,
+                "z_dist_to_pregrasp": 0.0855927990692339,
+                "z_dist_to_grasp": 0.06440723669355297,
+                "gripper_state": -0.9852648302118552,
+                "gripper_recent_std": 8.390758168262001e-05,
+                "xy_dist_to_release": 0.10920356851860509,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0776830370354206,
+                "z_above_object": 0.05980897596371271,
+                "z_dist_to_pregrasp": 0.09013850066169371,
+                "z_dist_to_grasp": 0.059861535101093155,
+                "gripper_state": -0.9853749445428812,
+                "gripper_recent_std": 8.723734470339513e-05,
+                "xy_dist_to_release": 0.11328843211746896,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0874832085563034,
+                "z_above_object": 0.048787799290777256,
+                "z_dist_to_pregrasp": 0.10106211800598819,
+                "z_dist_to_grasp": 0.04893791775679868,
+                "gripper_state": -0.9854764382032568,
+                "gripper_recent_std": 8.347305077636601e-05,
+                "xy_dist_to_release": 0.12332181913237139,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08143797125965374,
+                "z_above_object": 0.05144232845257757,
+                "z_dist_to_pregrasp": 0.09840063481599737,
+                "z_dist_to_grasp": 0.0515994009467895,
+                "gripper_state": -0.9854329854350528,
+                "gripper_recent_std": 8.166546122526761e-05,
+                "xy_dist_to_release": 0.117413991941214,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07063927328930057,
+                "z_above_object": 0.06136197794489917,
+                "z_dist_to_pregrasp": 0.08735023234470018,
+                "z_dist_to_grasp": 0.06264980341808668,
+                "gripper_state": -0.9853197444410338,
+                "gripper_recent_std": 8.175078213386441e-05,
+                "xy_dist_to_release": 0.10527440436571597,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08082606086921365,
+                "z_above_object": 0.057999614374618313,
+                "z_dist_to_pregrasp": 0.09192547202304147,
+                "z_dist_to_grasp": 0.0580745637397454,
+                "gripper_state": -0.9854320632675948,
+                "gripper_recent_std": 8.402127796004828e-05,
+                "xy_dist_to_release": 0.10938386526341133,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09070769774662542,
+                "z_above_object": 0.04681213704192255,
+                "z_dist_to_pregrasp": 0.1028798711931429,
+                "z_dist_to_grasp": 0.04712016456964396,
+                "gripper_state": -0.9855357575271764,
+                "gripper_recent_std": 7.9139852649584e-05,
+                "xy_dist_to_release": 0.11942442106863772,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.0750255286693573,
+            0.2007368952035904
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07996725522310297,
+                "z_above_object": 0.04512563046789375,
+                "z_dist_to_pregrasp": 0.10462587560699121,
+                "z_dist_to_grasp": 0.04537416015579565,
+                "gripper_state": -0.908285345185657,
+                "gripper_recent_std": 0.02651683479741666,
+                "xy_dist_to_release": 0.27346121263630335,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06372204157032244,
+                "z_above_object": 0.05754105398596465,
+                "z_dist_to_pregrasp": 0.09221039980371104,
+                "z_dist_to_grasp": 0.057789635959075825,
+                "gripper_state": -0.9380058220708141,
+                "gripper_recent_std": 0.028082032358299508,
+                "xy_dist_to_release": 0.26130010022148087,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.05465103737051432,
+                "z_above_object": 0.06679435500780884,
+                "z_dist_to_pregrasp": 0.08153932486121362,
+                "z_dist_to_grasp": 0.06846071090157324,
+                "gripper_state": -0.954647028757895,
+                "gripper_recent_std": 0.027687583863099417,
+                "xy_dist_to_release": 0.2530353121177143,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06262494394128824,
+                "z_above_object": 0.06341857138800022,
+                "z_dist_to_pregrasp": 0.0860813257903369,
+                "z_dist_to_grasp": 0.06391870997244997,
+                "gripper_state": -0.9620874519817844,
+                "gripper_recent_std": 0.026791123729434475,
+                "xy_dist_to_release": 0.2594259423199508,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07701181714838998,
+                "z_above_object": 0.05193553504683546,
+                "z_dist_to_pregrasp": 0.09784360064448794,
+                "z_dist_to_grasp": 0.05215643511829893,
+                "gripper_state": -0.9666381400682793,
+                "gripper_recent_std": 0.02569716384906615,
+                "xy_dist_to_release": 0.2699278676034554,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0739581586328759,
+                "z_above_object": 0.051953176283135005,
+                "z_dist_to_pregrasp": 0.09779958269322797,
+                "z_dist_to_grasp": 0.052200453069558894,
+                "gripper_state": -0.9712258869765735,
+                "gripper_recent_std": 0.024590809800412304,
+                "xy_dist_to_release": 0.2644784797989484,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06108396132446285,
+                "z_above_object": 0.061460248404482165,
+                "z_dist_to_pregrasp": 0.08829126207124727,
+                "z_dist_to_grasp": 0.0617087736915396,
+                "gripper_state": -0.975467693400498,
+                "gripper_recent_std": 0.023616398575359205,
+                "xy_dist_to_release": 0.2539328001648377,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06551885080682637,
+                "z_above_object": 0.057700216034052954,
+                "z_dist_to_pregrasp": 0.09205123794593961,
+                "z_dist_to_grasp": 0.05794879781684725,
+                "gripper_state": -0.9767341635734959,
+                "gripper_recent_std": 0.022644156710042353,
+                "xy_dist_to_release": 0.25969069217856394,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07882768328462744,
+                "z_above_object": 0.046896140452128976,
+                "z_dist_to_pregrasp": 0.10285531098929146,
+                "z_dist_to_grasp": 0.047144724773495406,
+                "gripper_state": -0.9777366931202001,
+                "gripper_recent_std": 0.021669034483350152,
+                "xy_dist_to_release": 0.26975876821081296,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07501642930593863,
+                "z_above_object": 0.04760428684093709,
+                "z_dist_to_pregrasp": 0.10214716448688,
+                "z_dist_to_grasp": 0.04785287127590687,
+                "gripper_state": -0.9791160108591346,
+                "gripper_recent_std": 0.02133225661975599,
+                "xy_dist_to_release": 0.26380916965399454,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06169165645742873,
+                "z_above_object": 0.05751358799038131,
+                "z_dist_to_pregrasp": 0.09223786333236461,
+                "z_dist_to_grasp": 0.057762172430422254,
+                "gripper_state": -0.9803737395738987,
+                "gripper_recent_std": 0.012760442800985908,
+                "xy_dist_to_release": 0.25302386557835294,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06553845685823617,
+                "z_above_object": 0.05430140165943609,
+                "z_dist_to_pregrasp": 0.09545004966308379,
+                "z_dist_to_grasp": 0.054549986099703074,
+                "gripper_state": -0.9812207123778596,
+                "gripper_recent_std": 0.008361249169078875,
+                "xy_dist_to_release": 0.25870932260679563,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07807537625007485,
+                "z_above_object": 0.044280370637159616,
+                "z_dist_to_pregrasp": 0.10547108068535005,
+                "z_dist_to_grasp": 0.044528955077436816,
+                "gripper_state": -0.9822939818174667,
+                "gripper_recent_std": 0.006312640766101078,
+                "xy_dist_to_release": 0.26858408935611605,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07315070002278153,
+                "z_above_object": 0.049173582912898306,
+                "z_dist_to_pregrasp": 0.10057786840961136,
+                "z_dist_to_grasp": 0.049422167353175506,
+                "gripper_state": -0.983455710930329,
+                "gripper_recent_std": 0.004952062837497851,
+                "xy_dist_to_release": 0.2641656659854444,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.05984206463241606,
+                "z_above_object": 0.06047715399381026,
+                "z_dist_to_pregrasp": 0.0892742973286994,
+                "z_dist_to_grasp": 0.06072573843408746,
+                "gripper_state": -0.9841712812296657,
+                "gripper_recent_std": 0.003789452123626696,
+                "xy_dist_to_release": 0.25426372703505207,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0639984852863199,
+                "z_above_object": 0.05754240358757612,
+                "z_dist_to_pregrasp": 0.09220904773493355,
+                "z_dist_to_grasp": 0.05779098802785332,
+                "gripper_state": -0.9848522554811541,
+                "gripper_recent_std": 0.003065118190667169,
+                "xy_dist_to_release": 0.2601222878330172,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07690540848070754,
+                "z_above_object": 0.047196319405707565,
+                "z_dist_to_pregrasp": 0.1025551319168021,
+                "z_dist_to_grasp": 0.047444903845984765,
+                "gripper_state": -0.9854199821835419,
+                "gripper_recent_std": 0.0028650715420815527,
+                "xy_dist_to_release": 0.2699993915535933,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07367720511049211,
+                "z_above_object": 0.04884926326069239,
+                "z_dist_to_pregrasp": 0.10090218806181728,
+                "z_dist_to_grasp": 0.04909784770096959,
+                "gripper_state": -0.985536008372992,
+                "gripper_recent_std": 0.002593375328841439,
+                "xy_dist_to_release": 0.26568967006622773,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.060497821312844306,
+                "z_above_object": 0.05935913559011963,
+                "z_dist_to_pregrasp": 0.09039231573239004,
+                "z_dist_to_grasp": 0.05960772003039683,
+                "gripper_state": -0.9854788265143246,
+                "gripper_recent_std": 0.0022072953912570634,
+                "xy_dist_to_release": 0.2556891390820633,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06478081779178212,
+                "z_above_object": 0.056305054188449,
+                "z_dist_to_pregrasp": 0.09344639713406067,
+                "z_dist_to_grasp": 0.0565536386287262,
+                "gripper_state": -0.9855085947704028,
+                "gripper_recent_std": 0.001827288872169595,
+                "xy_dist_to_release": 0.2616925105420852,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07744277181832886,
+                "z_above_object": 0.04627682036184877,
+                "z_dist_to_pregrasp": 0.1034746309606609,
+                "z_dist_to_grasp": 0.04652540480212597,
+                "gripper_state": -0.985571278013875,
+                "gripper_recent_std": 0.0014752351374698333,
+                "xy_dist_to_release": 0.27161870629107554,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07239088764407434,
+                "z_above_object": 0.0510947008409155,
+                "z_dist_to_pregrasp": 0.09865675048159417,
+                "z_dist_to_grasp": 0.051343285281192697,
+                "gripper_state": -0.9854807948576996,
+                "gripper_recent_std": 0.0010689835583033958,
+                "xy_dist_to_release": 0.2671660723773036,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.059206731740345575,
+                "z_above_object": 0.06220452810151844,
+                "z_dist_to_pregrasp": 0.08741728874618815,
+                "z_dist_to_grasp": 0.06258274701659872,
+                "gripper_state": -0.9853700386418136,
+                "gripper_recent_std": 0.0006832387952098855,
+                "xy_dist_to_release": 0.25733217040177775,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0660459989456863,
+                "z_above_object": 0.059424542478217046,
+                "z_dist_to_pregrasp": 0.09036557390919087,
+                "z_dist_to_grasp": 0.059634461853596,
+                "gripper_state": -0.9853753359303463,
+                "gripper_recent_std": 0.00041609808027294763,
+                "xy_dist_to_release": 0.26326752631057304,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07897584007742306,
+                "z_above_object": 0.04901994354573558,
+                "z_dist_to_pregrasp": 0.10073724976136378,
+                "z_dist_to_grasp": 0.04926278600142309,
+                "gripper_state": -0.985451232704617,
+                "gripper_recent_std": 0.00019409434644474959,
+                "xy_dist_to_release": 0.2730911671745452,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07540532995503878,
+                "z_above_object": 0.05055491903392073,
+                "z_dist_to_pregrasp": 0.0991967908039798,
+                "z_dist_to_grasp": 0.05080324495880706,
+                "gripper_state": -0.9854021598423077,
+                "gripper_recent_std": 6.449023651176566e-05,
+                "xy_dist_to_release": 0.2684025593083559,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06214279268718491,
+                "z_above_object": 0.06100332505181938,
+                "z_dist_to_pregrasp": 0.08874813781271529,
+                "z_dist_to_grasp": 0.06125189795007158,
+                "gripper_state": -0.9852591472043393,
+                "gripper_recent_std": 8.806738078986777e-05,
+                "xy_dist_to_release": 0.25836246296755927,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06656533761754027,
+                "z_above_object": 0.05799310370354882,
+                "z_dist_to_pregrasp": 0.09175834813341655,
+                "z_dist_to_grasp": 0.05824168762937032,
+                "gripper_state": -0.9852391438653871,
+                "gripper_recent_std": 0.0001009234445691029,
+                "xy_dist_to_release": 0.2643892519427781,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07926963614730728,
+                "z_above_object": 0.047879453787520676,
+                "z_dist_to_pregrasp": 0.10187199755789655,
+                "z_dist_to_grasp": 0.04812803820489031,
+                "gripper_state": -0.9852882220956041,
+                "gripper_recent_std": 0.0001047418678547231,
+                "xy_dist_to_release": 0.27427947183764023,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07438325337817649,
+                "z_above_object": 0.05236882734442483,
+                "z_dist_to_pregrasp": 0.09738262397910391,
+                "z_dist_to_grasp": 0.052617411783682955,
+                "gripper_state": -0.9851892637608768,
+                "gripper_recent_std": 0.00011343553108573565,
+                "xy_dist_to_release": 0.2699848522239887,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.06300907582044601,
+            0.1854107528924942
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1952515131147109,
+                "z_above_object": -0.010970063788279694,
+                "z_dist_to_pregrasp": 0.16096966040369787,
+                "z_dist_to_grasp": 0.010969684245555777,
+                "gripper_state": -0.9841843341504233,
+                "gripper_recent_std": 9.871089779985591e-05,
+                "xy_dist_to_release": 0.3832575746826483,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2042998503030782,
+                "z_above_object": -0.02155782896928682,
+                "z_dist_to_pregrasp": 0.171557425584705,
+                "z_dist_to_grasp": 0.021557449426562902,
+                "gripper_state": -0.9842915352636596,
+                "gripper_recent_std": 0.00010269677689584038,
+                "xy_dist_to_release": 0.38720870223391196,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19829384526154822,
+                "z_above_object": -0.017280008349227716,
+                "z_dist_to_pregrasp": 0.1672796049646459,
+                "z_dist_to_grasp": 0.0172796288065038,
+                "gripper_state": -0.9841796998020096,
+                "gripper_recent_std": 0.00010172601395364131,
+                "xy_dist_to_release": 0.38711100118359804,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.189838216958879,
+                "z_above_object": -0.00799296113052006,
+                "z_dist_to_pregrasp": 0.15799255774593823,
+                "z_dist_to_grasp": 0.007992581587796144,
+                "gripper_state": -0.9841077153705227,
+                "gripper_recent_std": 9.558473687482541e-05,
+                "xy_dist_to_release": 0.3836984764900907,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19554507394429485,
+                "z_above_object": -0.014530650309827475,
+                "z_dist_to_pregrasp": 0.16453024692524565,
+                "z_dist_to_grasp": 0.01453027076710356,
+                "gripper_state": -0.9842634067450653,
+                "gripper_recent_std": 8.554065658504635e-05,
+                "xy_dist_to_release": 0.3841145249873519,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2054939247982082,
+                "z_above_object": -0.026072424632518132,
+                "z_dist_to_pregrasp": 0.1760720212479363,
+                "z_dist_to_grasp": 0.026072045089794216,
+                "gripper_state": -0.9843726216957627,
+                "gripper_recent_std": 0.00010030680280995172,
+                "xy_dist_to_release": 0.38862580128901925,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20004089367089292,
+                "z_above_object": -0.022637213016773572,
+                "z_dist_to_pregrasp": 0.17263680963219175,
+                "z_dist_to_grasp": 0.022636833474049656,
+                "gripper_state": -0.9842551045893206,
+                "gripper_recent_std": 9.854603311186129e-05,
+                "xy_dist_to_release": 0.3889559243229247,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1898918943922462,
+                "z_above_object": -0.01195786873698701,
+                "z_dist_to_pregrasp": 0.16195746535240518,
+                "z_dist_to_grasp": 0.011957489194263093,
+                "gripper_state": -0.9841516149262002,
+                "gripper_recent_std": 9.579381230328594e-05,
+                "xy_dist_to_release": 0.3850149839204351,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1957555642657158,
+                "z_above_object": -0.018169524099322487,
+                "z_dist_to_pregrasp": 0.16816912071474066,
+                "z_dist_to_grasp": 0.01816914455659857,
+                "gripper_state": -0.9842975246122267,
+                "gripper_recent_std": 9.88021471196916e-05,
+                "xy_dist_to_release": 0.38555593156270224,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2056599839406165,
+                "z_above_object": -0.029394120480049413,
+                "z_dist_to_pregrasp": 0.1793937170954676,
+                "z_dist_to_grasp": 0.029393740937325497,
+                "gripper_state": -0.9844026555628842,
+                "gripper_recent_std": 9.039035682792576e-05,
+                "xy_dist_to_release": 0.39010435530921217,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2001128183520162,
+                "z_above_object": -0.025857255725358907,
+                "z_dist_to_pregrasp": 0.17585685234077708,
+                "z_dist_to_grasp": 0.02585687618263499,
+                "gripper_state": -0.9842806671793527,
+                "gripper_recent_std": 8.791185069564608e-05,
+                "xy_dist_to_release": 0.39047268994012757,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1903582404944555,
+                "z_above_object": -0.015654225388875398,
+                "z_dist_to_pregrasp": 0.16565382200429357,
+                "z_dist_to_grasp": 0.015653845846151482,
+                "gripper_state": -0.9841782125097949,
+                "gripper_recent_std": 9.041744808674468e-05,
+                "xy_dist_to_release": 0.38671547627002106,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19613373704032985,
+                "z_above_object": -0.02191638043475863,
+                "z_dist_to_pregrasp": 0.1719159770501768,
+                "z_dist_to_grasp": 0.021916000892034715,
+                "gripper_state": -0.9843192134736432,
+                "gripper_recent_std": 8.941802826245293e-05,
+                "xy_dist_to_release": 0.3872292331019375,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20607751495516588,
+                "z_above_object": -0.03311303020110645,
+                "z_dist_to_pregrasp": 0.18311262681652463,
+                "z_dist_to_grasp": 0.033112650658382536,
+                "gripper_state": -0.9844199005734573,
+                "gripper_recent_std": 8.413871308884194e-05,
+                "xy_dist_to_release": 0.391823269193363,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20054129021785305,
+                "z_above_object": -0.029658319444128445,
+                "z_dist_to_pregrasp": 0.17965791605954662,
+                "z_dist_to_grasp": 0.02965793990140453,
+                "gripper_state": -0.9842932107023037,
+                "gripper_recent_std": 8.352459727407436e-05,
+                "xy_dist_to_release": 0.3922400740056566,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1907792360220409,
+                "z_above_object": -0.01957857758734116,
+                "z_dist_to_pregrasp": 0.16957817420275934,
+                "z_dist_to_grasp": 0.019578198044617245,
+                "gripper_state": -0.9841851316661607,
+                "gripper_recent_std": 8.548183000616527e-05,
+                "xy_dist_to_release": 0.3884871235870446,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19655562721186745,
+                "z_above_object": -0.02577595920749043,
+                "z_dist_to_pregrasp": 0.1757755558229086,
+                "z_dist_to_grasp": 0.025775579664766513,
+                "gripper_state": -0.9843202982086003,
+                "gripper_recent_std": 8.594716969814933e-05,
+                "xy_dist_to_release": 0.38899383174467406,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20653093199799538,
+                "z_above_object": -0.03686108125102283,
+                "z_dist_to_pregrasp": 0.186860677866441,
+                "z_dist_to_grasp": 0.036860701708298915,
+                "gripper_state": -0.9844173203076958,
+                "gripper_recent_std": 8.161481074479337e-05,
+                "xy_dist_to_release": 0.3936042826187951,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20099188264020199,
+                "z_above_object": -0.03344157686010507,
+                "z_dist_to_pregrasp": 0.18344117347552324,
+                "z_dist_to_grasp": 0.033441197317381155,
+                "gripper_state": -0.9842870670610384,
+                "gripper_recent_std": 8.185272429889734e-05,
+                "xy_dist_to_release": 0.3940434926445186,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1912158427853734,
+                "z_above_object": -0.023461897027253098,
+                "z_dist_to_pregrasp": 0.17346149364267127,
+                "z_dist_to_grasp": 0.023461517484529182,
+                "gripper_state": -0.9841746693792868,
+                "gripper_recent_std": 8.467461871022731e-05,
+                "xy_dist_to_release": 0.39027431946381974,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19698390139996352,
+                "z_above_object": -0.02959285297216252,
+                "z_dist_to_pregrasp": 0.1795924495875807,
+                "z_dist_to_grasp": 0.029592473429438604,
+                "gripper_state": -0.9843052772544219,
+                "gripper_recent_std": 8.479580583982537e-05,
+                "xy_dist_to_release": 0.3907568772270181,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20698457688940214,
+                "z_above_object": -0.040564295643364945,
+                "z_dist_to_pregrasp": 0.19056389225878312,
+                "z_dist_to_grasp": 0.04056391610064103,
+                "gripper_state": -0.9843995687618277,
+                "gripper_recent_std": 8.154689863252788e-05,
+                "xy_dist_to_release": 0.3953688240587062,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20144794892801313,
+                "z_above_object": -0.0371776248969784,
+                "z_dist_to_pregrasp": 0.18717722151239657,
+                "z_dist_to_grasp": 0.037177245354254485,
+                "gripper_state": -0.9842668144131326,
+                "gripper_recent_std": 8.260234427032825e-05,
+                "xy_dist_to_release": 0.39581816944840725,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19165027967759554,
+                "z_above_object": -0.027285114317606496,
+                "z_dist_to_pregrasp": 0.17728471093302467,
+                "z_dist_to_grasp": 0.02728473477488258,
+                "gripper_state": -0.9841509803732864,
+                "gripper_recent_std": 8.517943395904751e-05,
+                "xy_dist_to_release": 0.3920197437403899,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19739555626550398,
+                "z_above_object": -0.03335172292583932,
+                "z_dist_to_pregrasp": 0.1833513195412575,
+                "z_dist_to_grasp": 0.033351343383115406,
+                "gripper_state": -0.984278268971075,
+                "gripper_recent_std": 8.506616155159098e-05,
+                "xy_dist_to_release": 0.39246241233205625,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2074210095431116,
+                "z_above_object": -0.04421655888548237,
+                "z_dist_to_pregrasp": 0.19421615550090054,
+                "z_dist_to_grasp": 0.044216179342758455,
+                "gripper_state": -0.984370818413075,
+                "gripper_recent_std": 8.288840939827743e-05,
+                "xy_dist_to_release": 0.3970703681679475,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2018880295778405,
+                "z_above_object": -0.040862617749537034,
+                "z_dist_to_pregrasp": 0.1908622143649552,
+                "z_dist_to_grasp": 0.04086223820681312,
+                "gripper_state": -0.9842365655843117,
+                "gripper_recent_std": 8.433944501410775e-05,
+                "xy_dist_to_release": 0.3975237729800275,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1920614805874364,
+                "z_above_object": -0.03104713737409659,
+                "z_dist_to_pregrasp": 0.18104673398951476,
+                "z_dist_to_grasp": 0.031046757831372673,
+                "gripper_state": -0.9841181505580638,
+                "gripper_recent_std": 8.645580806499163e-05,
+                "xy_dist_to_release": 0.393689554996443,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19777603338105723,
+                "z_above_object": -0.03705014590605593,
+                "z_dist_to_pregrasp": 0.1870497425214741,
+                "z_dist_to_grasp": 0.037049766363332015,
+                "gripper_state": -0.9842430689913384,
+                "gripper_recent_std": 8.6024713346641e-05,
+                "xy_dist_to_release": 0.39408282371745595,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20782867780370412,
+                "z_above_object": -0.04781501708820701,
+                "z_dist_to_pregrasp": 0.1978146137036252,
+                "z_dist_to_grasp": 0.047814637545483096,
+                "gripper_state": -0.9843347744756232,
+                "gripper_recent_std": 8.457918366500561e-05,
+                "xy_dist_to_release": 0.3986867382496703,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.0624784491956234,
+            0.21251127123832703
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.22596320124357797,
+                "z_above_object": 0.053791854441744835,
+                "z_dist_to_pregrasp": 0.09595959688076483,
+                "z_dist_to_grasp": 0.054040438882022035,
+                "gripper_state": -0.9748753327861277,
+                "gripper_recent_std": 0.0061833104420140365,
+                "xy_dist_to_release": 0.28005662341636994,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.22049261986366514,
+                "z_above_object": 0.055609921602610246,
+                "z_dist_to_pregrasp": 0.09414152971989942,
+                "z_dist_to_grasp": 0.055858506042887446,
+                "gripper_state": -0.9733449614914944,
+                "gripper_recent_std": 0.006175809267541729,
+                "xy_dist_to_release": 0.2795155540449645,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2074371052412264,
+                "z_above_object": 0.0662710642009261,
+                "z_dist_to_pregrasp": 0.08348038712158357,
+                "z_dist_to_grasp": 0.0665196486412033,
+                "gripper_state": -0.9753540449215705,
+                "gripper_recent_std": 0.005781459045449765,
+                "xy_dist_to_release": 0.27427852817541754,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.21532414691010426,
+                "z_above_object": 0.05949149703040779,
+                "z_dist_to_pregrasp": 0.09025995429210187,
+                "z_dist_to_grasp": 0.05974008147068499,
+                "gripper_state": -0.9764298535832037,
+                "gripper_recent_std": 0.0051276547413840814,
+                "xy_dist_to_release": 0.2756060956125944,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.22665296056142675,
+                "z_above_object": 0.04908489739354538,
+                "z_dist_to_pregrasp": 0.10066655392896429,
+                "z_dist_to_grasp": 0.04933348183382258,
+                "gripper_state": -0.9756729871015535,
+                "gripper_recent_std": 0.0041804553738748656,
+                "xy_dist_to_release": 0.2801093820825695,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2327673310226858,
+                "z_above_object": 0.04369813898290675,
+                "z_dist_to_pregrasp": 0.10605331233960291,
+                "z_dist_to_grasp": 0.04394672342318395,
+                "gripper_state": -0.9687176335444145,
+                "gripper_recent_std": 0.003073129605172,
+                "xy_dist_to_release": 0.2812390126037304,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.22356296995049255,
+                "z_above_object": 0.04979689980118174,
+                "z_dist_to_pregrasp": 0.09995455152132793,
+                "z_dist_to_grasp": 0.05004548424145894,
+                "gripper_state": -0.9635572197843059,
+                "gripper_recent_std": 0.0037946780754094557,
+                "xy_dist_to_release": 0.27658284581663156,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.21007618499828523,
+                "z_above_object": 0.06175676229825866,
+                "z_dist_to_pregrasp": 0.087994689024251,
+                "z_dist_to_grasp": 0.06200534673853586,
+                "gripper_state": -0.9671299821556982,
+                "gripper_recent_std": 0.004058967534923821,
+                "xy_dist_to_release": 0.2690215005278373,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20463427069720416,
+                "z_above_object": 0.06728530795169518,
+                "z_dist_to_pregrasp": 0.08246614337081448,
+                "z_dist_to_grasp": 0.06753389239197238,
+                "gripper_state": -0.9701660117904425,
+                "gripper_recent_std": 0.004095967970918502,
+                "xy_dist_to_release": 0.26669784015071474,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2133988676394734,
+                "z_above_object": 0.059354278631207236,
+                "z_dist_to_pregrasp": 0.09039717269130243,
+                "z_dist_to_grasp": 0.059602863071484435,
+                "gripper_state": -0.9708299362210315,
+                "gripper_recent_std": 0.004042355506323612,
+                "xy_dist_to_release": 0.26879350446822653,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.22454516270284197,
+                "z_above_object": 0.04928217954857639,
+                "z_dist_to_pregrasp": 0.10046927177393328,
+                "z_dist_to_grasp": 0.04953076398885359,
+                "gripper_state": -0.9411895011556295,
+                "gripper_recent_std": 0.009821042421719503,
+                "xy_dist_to_release": 0.2727882704459081,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.230401867184857,
+                "z_above_object": 0.04483942403942698,
+                "z_dist_to_pregrasp": 0.10491202728308269,
+                "z_dist_to_grasp": 0.04508800847970418,
+                "gripper_state": -0.9160160084189488,
+                "gripper_recent_std": 0.018267627940064552,
+                "xy_dist_to_release": 0.2734227491588182,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2214170821391055,
+                "z_above_object": 0.05177795919463102,
+                "z_dist_to_pregrasp": 0.09797349212787865,
+                "z_dist_to_grasp": 0.05202654363490822,
+                "gripper_state": -0.935012788481278,
+                "gripper_recent_std": 0.01940399617634933,
+                "xy_dist_to_release": 0.26909435462557246,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20891741256129165,
+                "z_above_object": 0.06334990503021842,
+                "z_dist_to_pregrasp": 0.08640154629229124,
+                "z_dist_to_grasp": 0.06359848947049562,
+                "gripper_state": -0.9541035935087763,
+                "gripper_recent_std": 0.018471360373437346,
+                "xy_dist_to_release": 0.2632458649880236,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2164832064122179,
+                "z_above_object": 0.057000615035059266,
+                "z_dist_to_pregrasp": 0.0927508362874504,
+                "z_dist_to_grasp": 0.057249199475336465,
+                "gripper_state": -0.9593685158759455,
+                "gripper_recent_std": 0.017370838900080305,
+                "xy_dist_to_release": 0.265298151871689,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.22604239911775093,
+                "z_above_object": 0.048226567545278876,
+                "z_dist_to_pregrasp": 0.10152488377723079,
+                "z_dist_to_grasp": 0.048475151985556075,
+                "gripper_state": -0.9347588497390711,
+                "gripper_recent_std": 0.017598646409918383,
+                "xy_dist_to_release": 0.26942926056048355,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.21807051859753737,
+                "z_above_object": 0.053665985034858754,
+                "z_dist_to_pregrasp": 0.09608546628765091,
+                "z_dist_to_grasp": 0.053914569475135954,
+                "gripper_state": -0.9461616565493629,
+                "gripper_recent_std": 0.017146450582673473,
+                "xy_dist_to_release": 0.26623208015708644,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2085811163086205,
+                "z_above_object": 0.06280402816869446,
+                "z_dist_to_pregrasp": 0.0869474231538152,
+                "z_dist_to_grasp": 0.06305261260897166,
+                "gripper_state": -0.9596909551228647,
+                "gripper_recent_std": 0.016513998710043214,
+                "xy_dist_to_release": 0.26188261027554216,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.21639540609850896,
+                "z_above_object": 0.05618242778326166,
+                "z_dist_to_pregrasp": 0.09356902353924801,
+                "z_dist_to_grasp": 0.05643101222353886,
+                "gripper_state": -0.9611638885709186,
+                "gripper_recent_std": 0.015537415372732191,
+                "xy_dist_to_release": 0.2642061700327997,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.22537401710708269,
+                "z_above_object": 0.04863799481021991,
+                "z_dist_to_pregrasp": 0.10111345651228976,
+                "z_dist_to_grasp": 0.04888657925049711,
+                "gripper_state": -0.8979214984686896,
+                "gripper_recent_std": 0.019607007421043453,
+                "xy_dist_to_release": 0.26749082544052577,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.21776689554447667,
+                "z_above_object": 0.05480020555795739,
+                "z_dist_to_pregrasp": 0.09495124576455227,
+                "z_dist_to_grasp": 0.05504878999823459,
+                "gripper_state": -0.8918053685836509,
+                "gripper_recent_std": 0.024443781870420973,
+                "xy_dist_to_release": 0.2640448477301777,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20835196767516287,
+                "z_above_object": 0.06440371044646553,
+                "z_dist_to_pregrasp": 0.08534774087604413,
+                "z_dist_to_grasp": 0.06465229488674273,
+                "gripper_state": -0.9023571867101463,
+                "gripper_recent_std": 0.025841611446638095,
+                "xy_dist_to_release": 0.2592535739072545,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.21560828758670544,
+                "z_above_object": 0.05850050349075819,
+                "z_dist_to_pregrasp": 0.09125094783175147,
+                "z_dist_to_grasp": 0.05874908793103539,
+                "gripper_state": -0.9106324598910214,
+                "gripper_recent_std": 0.02678599622625024,
+                "xy_dist_to_release": 0.261190195623389,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.22375056102596724,
+                "z_above_object": 0.052305931383614945,
+                "z_dist_to_pregrasp": 0.09744551993889472,
+                "z_dist_to_grasp": 0.052554515823892145,
+                "gripper_state": -0.8561929300675877,
+                "gripper_recent_std": 0.033814966201437424,
+                "xy_dist_to_release": 0.2631790403590496,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.21607296910305773,
+                "z_above_object": 0.05903457542121493,
+                "z_dist_to_pregrasp": 0.09071687590129474,
+                "z_dist_to_grasp": 0.05928315986149213,
+                "gripper_state": -0.8666213264642473,
+                "gripper_recent_std": 0.034993850380037196,
+                "xy_dist_to_release": 0.2598239325014668,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20788853126786555,
+                "z_above_object": 0.06772392155634899,
+                "z_dist_to_pregrasp": 0.08202752976616068,
+                "z_dist_to_grasp": 0.06797250599662619,
+                "gripper_state": -0.9052226302798982,
+                "gripper_recent_std": 0.03424847931050431,
+                "xy_dist_to_release": 0.25583246814221927,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2145383876990536,
+                "z_above_object": 0.062301228685836874,
+                "z_dist_to_pregrasp": 0.08745022263667279,
+                "z_dist_to_grasp": 0.06254981312611407,
+                "gripper_state": -0.9290991026604534,
+                "gripper_recent_std": 0.032787147415521724,
+                "xy_dist_to_release": 0.25804271354575303,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.2223961574385268,
+                "z_above_object": 0.05622596496654031,
+                "z_dist_to_pregrasp": 0.09352548635596936,
+                "z_dist_to_grasp": 0.05647454940681751,
+                "gripper_state": -0.876195627497806,
+                "gripper_recent_std": 0.02898999600307253,
+                "xy_dist_to_release": 0.26016314576706356,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.21451328400684636,
+                "z_above_object": 0.06317760995560517,
+                "z_dist_to_pregrasp": 0.08657384136690449,
+                "z_dist_to_grasp": 0.06342619439588237,
+                "gripper_state": -0.8868244819050326,
+                "gripper_recent_std": 0.02059778043483455,
+                "xy_dist_to_release": 0.2569218151297988,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.20759864075429113,
+                "z_above_object": 0.07099756563602178,
+                "z_dist_to_pregrasp": 0.07875388568648789,
+                "z_dist_to_grasp": 0.07124615007629898,
+                "gripper_state": -0.9210655307532976,
+                "gripper_recent_std": 0.022328379098835893,
+                "xy_dist_to_release": 0.25356304879082664,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.060965366661548615,
+            0.20722270011901855
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12866896200479688,
+                "z_above_object": 0.08164946890286773,
+                "z_dist_to_pregrasp": 0.06830112322528337,
+                "z_dist_to_grasp": 0.0816989125375035,
+                "gripper_state": -0.9848929696485291,
+                "gripper_recent_std": 0.00012586881719901848,
+                "xy_dist_to_release": 0.1027945065444485,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.13388785365011116,
+                "z_above_object": 0.06927104002017748,
+                "z_dist_to_pregrasp": 0.08049844327614097,
+                "z_dist_to_grasp": 0.06950159248664589,
+                "gripper_state": -0.9850046054852799,
+                "gripper_recent_std": 0.00014513126641997408,
+                "xy_dist_to_release": 0.11348444791247882,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.13607643987586515,
+                "z_above_object": 0.06137361075773107,
+                "z_dist_to_pregrasp": 0.08837865314392723,
+                "z_dist_to_grasp": 0.06162138261885963,
+                "gripper_state": -0.9850498461121395,
+                "gripper_recent_std": 0.00014516670236123928,
+                "xy_dist_to_release": 0.12020863737598,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1290218370215548,
+                "z_above_object": 0.06663661370750962,
+                "z_dist_to_pregrasp": 0.08311487390272687,
+                "z_dist_to_grasp": 0.06688516186006,
+                "gripper_state": -0.984990297645469,
+                "gripper_recent_std": 0.00012000744879139067,
+                "xy_dist_to_release": 0.11238183300622233,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12530460372339422,
+                "z_above_object": 0.07711284175969424,
+                "z_dist_to_pregrasp": 0.07105491866429547,
+                "z_dist_to_grasp": 0.07894511709849139,
+                "gripper_state": -0.9849125321751064,
+                "gripper_recent_std": 0.00010595325055213884,
+                "xy_dist_to_release": 0.09944426852764594,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12150678152323609,
+                "z_above_object": 0.08497838714396122,
+                "z_dist_to_pregrasp": 0.06224935481719329,
+                "z_dist_to_grasp": 0.08775068094559357,
+                "gripper_state": -0.9849252102953174,
+                "gripper_recent_std": 0.00010356375732061693,
+                "xy_dist_to_release": 0.0910605324444108,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12520793818677056,
+                "z_above_object": 0.07956882631028317,
+                "z_dist_to_pregrasp": 0.06895792246433197,
+                "z_dist_to_grasp": 0.0810421132984549,
+                "gripper_state": -0.9850775182593885,
+                "gripper_recent_std": 0.00011666470822793456,
+                "xy_dist_to_release": 0.09639946499997568,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.13065442936594568,
+                "z_above_object": 0.06864201146277948,
+                "z_dist_to_pregrasp": 0.08119187470666922,
+                "z_dist_to_grasp": 0.06880816105611764,
+                "gripper_state": -0.9851811785316937,
+                "gripper_recent_std": 0.00013516185807988632,
+                "xy_dist_to_release": 0.10701818713490167,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.13305202913905234,
+                "z_above_object": 0.06073966108851725,
+                "z_dist_to_pregrasp": 0.08901583806337066,
+                "z_dist_to_grasp": 0.06098419769941621,
+                "gripper_state": -0.985219026098002,
+                "gripper_recent_std": 0.0001346501154764784,
+                "xy_dist_to_release": 0.11375076601243034,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12602540210079105,
+                "z_above_object": 0.06611150628858453,
+                "z_dist_to_pregrasp": 0.08364012651639574,
+                "z_dist_to_grasp": 0.06635990924639112,
+                "gripper_state": -0.9851503220901887,
+                "gripper_recent_std": 0.00010973685073196931,
+                "xy_dist_to_release": 0.10606563971783319,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12076752848846456,
+                "z_above_object": 0.07657137992908725,
+                "z_dist_to_pregrasp": 0.07150010214371982,
+                "z_dist_to_grasp": 0.07849993361906704,
+                "gripper_state": -0.9850740674032932,
+                "gripper_recent_std": 9.826382346544823e-05,
+                "xy_dist_to_release": 0.09324710981817183,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1168436650918257,
+                "z_above_object": 0.08422940191069028,
+                "z_dist_to_pregrasp": 0.06270253251821234,
+                "z_dist_to_grasp": 0.08729750324457453,
+                "gripper_state": -0.985087087284233,
+                "gripper_recent_std": 9.684865016321572e-05,
+                "xy_dist_to_release": 0.08503006342523627,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12036195091462736,
+                "z_above_object": 0.07868446135513307,
+                "z_dist_to_pregrasp": 0.06949542267900555,
+                "z_dist_to_grasp": 0.08050461308378132,
+                "gripper_state": -0.9852407171715414,
+                "gripper_recent_std": 0.00010961207859556415,
+                "xy_dist_to_release": 0.09028767055582602,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12590033042719165,
+                "z_above_object": 0.06809378047312709,
+                "z_dist_to_pregrasp": 0.08177088987242143,
+                "z_dist_to_grasp": 0.06822914589036544,
+                "gripper_state": -0.9853366987917522,
+                "gripper_recent_std": 0.00012727183055495972,
+                "xy_dist_to_release": 0.10082216524356293,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1284592675642514,
+                "z_above_object": 0.06021513893169861,
+                "z_dist_to_pregrasp": 0.0895423153398145,
+                "z_dist_to_grasp": 0.06045772042297237,
+                "gripper_state": -0.985367565073894,
+                "gripper_recent_std": 0.00012614461790105028,
+                "xy_dist_to_release": 0.1075654742021626,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12152613213965605,
+                "z_above_object": 0.06570001229946953,
+                "z_dist_to_pregrasp": 0.0840517085123712,
+                "z_dist_to_grasp": 0.06594832725041566,
+                "gripper_state": -0.985289654766665,
+                "gripper_recent_std": 0.00010158635627367312,
+                "xy_dist_to_release": 0.1000750143627595,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11612927683708223,
+                "z_above_object": 0.07617665133806517,
+                "z_dist_to_pregrasp": 0.07183161910931923,
+                "z_dist_to_grasp": 0.07816841665346763,
+                "gripper_state": -0.9852155613518863,
+                "gripper_recent_std": 9.266855062226058e-05,
+                "xy_dist_to_release": 0.08747274732754068,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11193285276414856,
+                "z_above_object": 0.08400370273985047,
+                "z_dist_to_pregrasp": 0.06304263302254864,
+                "z_dist_to_grasp": 0.08695740274023822,
+                "gripper_state": -0.9852291073753032,
+                "gripper_recent_std": 9.19707271362933e-05,
+                "xy_dist_to_release": 0.07952222403150096,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11579367944139395,
+                "z_above_object": 0.07829113599157889,
+                "z_dist_to_pregrasp": 0.06992362225350757,
+                "z_dist_to_grasp": 0.0800764135092793,
+                "gripper_state": -0.9853846973334432,
+                "gripper_recent_std": 0.00010423087488546343,
+                "xy_dist_to_release": 0.08468996038138607,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12152346540639355,
+                "z_above_object": 0.06760487032561946,
+                "z_dist_to_pregrasp": 0.0822434310125082,
+                "z_dist_to_grasp": 0.06775660475027867,
+                "gripper_state": -0.9854729665479998,
+                "gripper_recent_std": 0.00012084884326939098,
+                "xy_dist_to_release": 0.09507609858203708,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.12431554062637479,
+                "z_above_object": 0.05978840735796398,
+                "z_dist_to_pregrasp": 0.0899682864240946,
+                "z_dist_to_grasp": 0.060031749338692264,
+                "gripper_state": -0.9854970391171123,
+                "gripper_recent_std": 0.00011894110958546585,
+                "xy_dist_to_release": 0.10178454262643596,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11746805375617786,
+                "z_above_object": 0.06538768017094176,
+                "z_dist_to_pregrasp": 0.08436400640735575,
+                "z_dist_to_grasp": 0.06563602935543111,
+                "gripper_state": -0.9854094200348296,
+                "gripper_recent_std": 9.482319857784926e-05,
+                "xy_dist_to_release": 0.09450142613454565,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11164748643922529,
+                "z_above_object": 0.07594296569948056,
+                "z_dist_to_pregrasp": 0.07206643818942249,
+                "z_dist_to_grasp": 0.07793359757336438,
+                "gripper_state": -0.9853377579332045,
+                "gripper_recent_std": 8.847474045955942e-05,
+                "xy_dist_to_release": 0.08218413795159842,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10708860952415111,
+                "z_above_object": 0.08364271190735506,
+                "z_dist_to_pregrasp": 0.06328566398978763,
+                "z_dist_to_grasp": 0.08671437177299923,
+                "gripper_state": -0.9853518004172628,
+                "gripper_recent_std": 8.829444090365895e-05,
+                "xy_dist_to_release": 0.07458209651742208,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11048009712611782,
+                "z_above_object": 0.07789946255658498,
+                "z_dist_to_pregrasp": 0.07025527633895878,
+                "z_dist_to_grasp": 0.07974475942382808,
+                "gripper_state": -0.985510032827114,
+                "gripper_recent_std": 9.982382760500052e-05,
+                "xy_dist_to_release": 0.07962730174235151,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11642873064692551,
+                "z_above_object": 0.06722898352086881,
+                "z_dist_to_pregrasp": 0.08261850151740413,
+                "z_dist_to_grasp": 0.06738153424538273,
+                "gripper_state": -0.9855901987851063,
+                "gripper_recent_std": 0.00011522386668281921,
+                "xy_dist_to_release": 0.08978175589368617,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11947949940583043,
+                "z_above_object": 0.059459092816062875,
+                "z_dist_to_pregrasp": 0.09029746622499801,
+                "z_dist_to_grasp": 0.05970256953778885,
+                "gripper_state": -0.9856073927321132,
+                "gripper_recent_std": 0.00011247999242622958,
+                "xy_dist_to_release": 0.09640445746491744,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.11275392425184508,
+                "z_above_object": 0.06517935464673474,
+                "z_dist_to_pregrasp": 0.08457232604201148,
+                "z_dist_to_grasp": 0.06542770972077538,
+                "gripper_state": -0.9855097981221057,
+                "gripper_recent_std": 8.920371447099194e-05,
+                "xy_dist_to_release": 0.08934405749637256,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10686711384711839,
+                "z_above_object": 0.07594141132559962,
+                "z_dist_to_pregrasp": 0.07219243348989723,
+                "z_dist_to_grasp": 0.07780760227288963,
+                "gripper_state": -0.9854413489087652,
+                "gripper_recent_std": 8.551247233191984e-05,
+                "xy_dist_to_release": 0.07740340821341482,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10178334129392452,
+                "z_above_object": 0.0841342882550119,
+                "z_dist_to_pregrasp": 0.06341666067227103,
+                "z_dist_to_grasp": 0.08658337509051584,
+                "gripper_state": -0.985456207839402,
+                "gripper_recent_std": 8.565640438209218e-05,
+                "xy_dist_to_release": 0.07024958671146732,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.055459219962358475,
+            0.2123628854751587
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10683163348552857,
+                "z_above_object": 0.0854373989709526,
+                "z_dist_to_pregrasp": 0.06431405235155707,
+                "z_dist_to_grasp": 0.0856859834112298,
+                "gripper_state": -0.9728635321426746,
+                "gripper_recent_std": 0.029829254069089414,
+                "xy_dist_to_release": 0.25979370675494823,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10350454889257939,
+                "z_above_object": 0.08340551913502214,
+                "z_dist_to_pregrasp": 0.06634593218748752,
+                "z_dist_to_grasp": 0.08365410357529934,
+                "gripper_state": -0.9744587018856175,
+                "gripper_recent_std": 0.030591788149328277,
+                "xy_dist_to_release": 0.2639395105984632,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10746565664066694,
+                "z_above_object": 0.07451584339253292,
+                "z_dist_to_pregrasp": 0.07523560792997674,
+                "z_dist_to_grasp": 0.07476442783281012,
+                "gripper_state": -0.9291656067703709,
+                "gripper_recent_std": 0.02998599518514977,
+                "xy_dist_to_release": 0.27767671105007197,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10799595494296735,
+                "z_above_object": 0.07637649265263335,
+                "z_dist_to_pregrasp": 0.07337495866987631,
+                "z_dist_to_grasp": 0.07662507709291055,
+                "gripper_state": -0.9145972108062748,
+                "gripper_recent_std": 0.029424822119590945,
+                "xy_dist_to_release": 0.2728627137649412,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10223387826951422,
+                "z_above_object": 0.08695156028671991,
+                "z_dist_to_pregrasp": 0.06279989103578976,
+                "z_dist_to_grasp": 0.08720014472699711,
+                "gripper_state": -0.9301112567908263,
+                "gripper_recent_std": 0.02548316337699039,
+                "xy_dist_to_release": 0.25717471237860895,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09875968710561851,
+                "z_above_object": 0.08509155233377386,
+                "z_dist_to_pregrasp": 0.06465989898873581,
+                "z_dist_to_grasp": 0.08534013677405106,
+                "gripper_state": -0.9476562815758844,
+                "gripper_recent_std": 0.019735752248272287,
+                "xy_dist_to_release": 0.2612479428394089,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10281708988608002,
+                "z_above_object": 0.07500286224674257,
+                "z_dist_to_pregrasp": 0.07474858907576709,
+                "z_dist_to_grasp": 0.07525144668701977,
+                "gripper_state": -0.9579555889799878,
+                "gripper_recent_std": 0.019042997396420656,
+                "xy_dist_to_release": 0.2763899479052969,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.10378834155301409,
+                "z_above_object": 0.07534718470805002,
+                "z_dist_to_pregrasp": 0.07440426661445965,
+                "z_dist_to_grasp": 0.07559576914832722,
+                "gripper_state": -0.9666413669725911,
+                "gripper_recent_std": 0.01965874650852045,
+                "xy_dist_to_release": 0.2727599636417088,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09781353753395623,
+                "z_above_object": 0.08562949665609765,
+                "z_dist_to_pregrasp": 0.06412195466641202,
+                "z_dist_to_grasp": 0.08587808109637485,
+                "gripper_state": -0.9727063873551054,
+                "gripper_recent_std": 0.020590154444150768,
+                "xy_dist_to_release": 0.25704829595258616,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09417215692076275,
+                "z_above_object": 0.08382143178962875,
+                "z_dist_to_pregrasp": 0.06593001953288091,
+                "z_dist_to_grasp": 0.08407001622990595,
+                "gripper_state": -0.9743222700153027,
+                "gripper_recent_std": 0.021196661502130298,
+                "xy_dist_to_release": 0.26114559720056396,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09826919718261844,
+                "z_above_object": 0.07383495958657116,
+                "z_dist_to_pregrasp": 0.07591649173593851,
+                "z_dist_to_grasp": 0.07408354402684836,
+                "gripper_state": -0.9754293376249066,
+                "gripper_recent_std": 0.021437034597628423,
+                "xy_dist_to_release": 0.2763037356397069,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09902367056601773,
+                "z_above_object": 0.07427552303539253,
+                "z_dist_to_pregrasp": 0.07547592828711713,
+                "z_dist_to_grasp": 0.07452410747566973,
+                "gripper_state": -0.9776748953401166,
+                "gripper_recent_std": 0.021758709280804537,
+                "xy_dist_to_release": 0.27263329260381025,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09269188237349521,
+                "z_above_object": 0.08470939355585094,
+                "z_dist_to_pregrasp": 0.06504205776665872,
+                "z_dist_to_grasp": 0.08495797799612814,
+                "gripper_state": -0.9792945719116917,
+                "gripper_recent_std": 0.021079439675372902,
+                "xy_dist_to_release": 0.25685829056395004,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08898353544245839,
+                "z_above_object": 0.08301144063243893,
+                "z_dist_to_pregrasp": 0.06674001069007074,
+                "z_dist_to_grasp": 0.08326002507271613,
+                "gripper_state": -0.9801900700455377,
+                "gripper_recent_std": 0.015513800569443046,
+                "xy_dist_to_release": 0.26094154959241495,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09323612188375321,
+                "z_above_object": 0.07308683291413309,
+                "z_dist_to_pregrasp": 0.07666461840837657,
+                "z_dist_to_grasp": 0.07333541735441029,
+                "gripper_state": -0.9810419455457153,
+                "gripper_recent_std": 0.010322090950726014,
+                "xy_dist_to_release": 0.2760996158856875,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09388567589842378,
+                "z_above_object": 0.07358347993124148,
+                "z_dist_to_pregrasp": 0.07616797139126819,
+                "z_dist_to_grasp": 0.07383206437151868,
+                "gripper_state": -0.9820865697652039,
+                "gripper_recent_std": 0.007105187223896594,
+                "xy_dist_to_release": 0.27239646405559637,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08732029838718053,
+                "z_above_object": 0.08413748658190723,
+                "z_dist_to_pregrasp": 0.06561396474060244,
+                "z_dist_to_grasp": 0.08438607102218443,
+                "gripper_state": -0.9829039318799913,
+                "gripper_recent_std": 0.004772971792689065,
+                "xy_dist_to_release": 0.2565690457407413,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08363810143064311,
+                "z_above_object": 0.08248606329251096,
+                "z_dist_to_pregrasp": 0.06726538802999871,
+                "z_dist_to_grasp": 0.08273464773278816,
+                "gripper_state": -0.983628821709986,
+                "gripper_recent_std": 0.00357505812143601,
+                "xy_dist_to_release": 0.2606561953883432,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08811041850603725,
+                "z_above_object": 0.07256202923286714,
+                "z_dist_to_pregrasp": 0.07718942208964252,
+                "z_dist_to_grasp": 0.07281061367314434,
+                "gripper_state": -0.9843332076177111,
+                "gripper_recent_std": 0.003237324573215048,
+                "xy_dist_to_release": 0.2758376833080992,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08873449204199269,
+                "z_above_object": 0.07306524933299341,
+                "z_dist_to_pregrasp": 0.07668620198951626,
+                "z_dist_to_grasp": 0.07331383377327061,
+                "gripper_state": -0.9847682838889609,
+                "gripper_recent_std": 0.002872258169908736,
+                "xy_dist_to_release": 0.27213233829723604,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08202116519483336,
+                "z_above_object": 0.08370207834605836,
+                "z_dist_to_pregrasp": 0.0660493729764513,
+                "z_dist_to_grasp": 0.08395066278633556,
+                "gripper_state": -0.9847634467552691,
+                "gripper_recent_std": 0.0023322542843392125,
+                "xy_dist_to_release": 0.2562700994681839,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07841479830997118,
+                "z_above_object": 0.08204786060084035,
+                "z_dist_to_pregrasp": 0.06770359072166932,
+                "z_dist_to_grasp": 0.08229644504111755,
+                "gripper_state": -0.9848944284890808,
+                "gripper_recent_std": 0.0019458409381638063,
+                "xy_dist_to_release": 0.26036937490457956,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08315080218640492,
+                "z_above_object": 0.07207537928601115,
+                "z_dist_to_pregrasp": 0.07767607203649851,
+                "z_dist_to_grasp": 0.07232396372628835,
+                "gripper_state": -0.9850691855716573,
+                "gripper_recent_std": 0.0016582800545413504,
+                "xy_dist_to_release": 0.2756026235821462,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08379071502725148,
+                "z_above_object": 0.07254390034064229,
+                "z_dist_to_pregrasp": 0.07720755098186738,
+                "z_dist_to_grasp": 0.07279248478091949,
+                "gripper_state": -0.9850912338845159,
+                "gripper_recent_std": 0.001340417453709808,
+                "xy_dist_to_release": 0.27193065700277297,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07697866916858932,
+                "z_above_object": 0.08321976054216496,
+                "z_dist_to_pregrasp": 0.06653169078034471,
+                "z_dist_to_grasp": 0.08346834498244216,
+                "gripper_state": -0.984939969696011,
+                "gripper_recent_std": 0.0009842460790216655,
+                "xy_dist_to_release": 0.256073195155667,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07350039824103306,
+                "z_above_object": 0.08152223515672419,
+                "z_dist_to_pregrasp": 0.06822921616578548,
+                "z_dist_to_grasp": 0.08177081959700139,
+                "gripper_state": -0.9850273523557547,
+                "gripper_recent_std": 0.0006898357913965657,
+                "xy_dist_to_release": 0.2602094655050451,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07854189174527529,
+                "z_above_object": 0.07147749314455065,
+                "z_dist_to_pregrasp": 0.07827395817795901,
+                "z_dist_to_grasp": 0.07172607758482785,
+                "gripper_state": -0.9851824332442265,
+                "gripper_recent_std": 0.00044345550782836724,
+                "xy_dist_to_release": 0.2755146225076957,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07921854676414908,
+                "z_above_object": 0.07188792183248094,
+                "z_dist_to_pregrasp": 0.07786352949002873,
+                "z_dist_to_grasp": 0.07213650627275814,
+                "gripper_state": -0.9851973883872658,
+                "gripper_recent_std": 0.00024522931267511206,
+                "xy_dist_to_release": 0.2718901163548985,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07231163067787678,
+                "z_above_object": 0.0825763415662597,
+                "z_dist_to_pregrasp": 0.06717510975624996,
+                "z_dist_to_grasp": 0.0828249260065369,
+                "gripper_state": -0.9850674762444367,
+                "gripper_recent_std": 0.00014664724864199634,
+                "xy_dist_to_release": 0.25603535138546063,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06898944904511883,
+                "z_above_object": 0.0808127630954355,
+                "z_dist_to_pregrasp": 0.06893868822707416,
+                "z_dist_to_grasp": 0.0810613475357127,
+                "gripper_state": -0.9851480332820766,
+                "gripper_recent_std": 0.00012990906990603568,
+                "xy_dist_to_release": 0.26021079470422753,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.04910558462142944,
+            0.21401824057102203
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18615521188170228,
+                "z_above_object": 0.1742369212358228,
+                "z_dist_to_pregrasp": 0.024504276510509237,
+                "z_dist_to_grasp": 0.1745043122732961,
+                "gripper_state": -0.9808187266958488,
+                "gripper_recent_std": 9.848448646294285e-05,
+                "xy_dist_to_release": 0.2336558893357001,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1921552109527244,
+                "z_above_object": 0.1669271929430296,
+                "z_dist_to_pregrasp": 0.017194548217716044,
+                "z_dist_to_grasp": 0.1671945839805029,
+                "gripper_state": -0.9808779873615292,
+                "gripper_recent_std": 0.00010473876112275794,
+                "xy_dist_to_release": 0.2319919000678103,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1958793625095543,
+                "z_above_object": 0.1611519386546103,
+                "z_dist_to_pregrasp": 0.011419293929296748,
+                "z_dist_to_grasp": 0.1614193296920836,
+                "gripper_state": -0.9809111133556578,
+                "gripper_recent_std": 9.876668580854335e-05,
+                "xy_dist_to_release": 0.2318192578469087,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1867403834157042,
+                "z_above_object": 0.16805000271190362,
+                "z_dist_to_pregrasp": 0.018317357986590066,
+                "z_dist_to_grasp": 0.16831739374937693,
+                "gripper_state": -0.9809115648491338,
+                "gripper_recent_std": 7.407231336545996e-05,
+                "xy_dist_to_release": 0.22827166460689724,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.17312318377948818,
+                "z_above_object": 0.18213869931254512,
+                "z_dist_to_pregrasp": 0.03240605458723156,
+                "z_dist_to_grasp": 0.18240609035001842,
+                "gripper_state": -0.9807932821974912,
+                "gripper_recent_std": 7.594408275606981e-05,
+                "xy_dist_to_release": 0.22124151929639368,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.17434555891724246,
+                "z_above_object": 0.1812354298065031,
+                "z_dist_to_pregrasp": 0.03150278508118953,
+                "z_dist_to_grasp": 0.1815028208439764,
+                "gripper_state": -0.9807758844416683,
+                "gripper_recent_std": 8.692038722800272e-05,
+                "xy_dist_to_release": 0.21606805990914318,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18197981840289745,
+                "z_above_object": 0.17192300447852604,
+                "z_dist_to_pregrasp": 0.022190359753212485,
+                "z_dist_to_grasp": 0.17219039551599935,
+                "gripper_state": -0.9808653008517467,
+                "gripper_recent_std": 8.270012744945066e-05,
+                "xy_dist_to_release": 0.21552470618301792,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18693849482994754,
+                "z_above_object": 0.1649343452867007,
+                "z_dist_to_pregrasp": 0.015201700561387144,
+                "z_dist_to_grasp": 0.165201736324174,
+                "gripper_state": -0.9809180076835902,
+                "gripper_recent_std": 7.176109002709574e-05,
+                "xy_dist_to_release": 0.21601982034014788,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.17733513245413102,
+                "z_above_object": 0.1722499155395667,
+                "z_dist_to_pregrasp": 0.022517270814253143,
+                "z_dist_to_grasp": 0.17251730657704,
+                "gripper_state": -0.9809198931220382,
+                "gripper_recent_std": 5.2167428025187556e-05,
+                "xy_dist_to_release": 0.2118267306963268,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1627737748274517,
+                "z_above_object": 0.18734676923193505,
+                "z_dist_to_pregrasp": 0.037614124506621494,
+                "z_dist_to_grasp": 0.18761416026940836,
+                "gripper_state": -0.9808318427172407,
+                "gripper_recent_std": 5.151944243610362e-05,
+                "xy_dist_to_release": 0.20408695855691078,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.16515450476896293,
+                "z_above_object": 0.18472057372459716,
+                "z_dist_to_pregrasp": 0.0349879289992836,
+                "z_dist_to_grasp": 0.18498796476207047,
+                "gripper_state": -0.9809057151977776,
+                "gripper_recent_std": 5.0755867140423856e-05,
+                "xy_dist_to_release": 0.20013856239053643,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.17424616914037536,
+                "z_above_object": 0.17332175240151226,
+                "z_dist_to_pregrasp": 0.023589107676198706,
+                "z_dist_to_grasp": 0.17358914343898557,
+                "gripper_state": -0.9810322252417252,
+                "gripper_recent_std": 7.022047319569635e-05,
+                "xy_dist_to_release": 0.20125615987939927,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.16730346479837657,
+                "z_above_object": 0.177525799076235,
+                "z_dist_to_pregrasp": 0.027793154350921334,
+                "z_dist_to_grasp": 0.1777931901137082,
+                "gripper_state": -0.9810541576455123,
+                "gripper_recent_std": 8.647029766478082e-05,
+                "xy_dist_to_release": 0.1983139832691239,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1538580997762678,
+                "z_above_object": 0.19123087805265448,
+                "z_dist_to_pregrasp": 0.04149823332734082,
+                "z_dist_to_grasp": 0.19149826909012768,
+                "gripper_state": -0.9809892083917702,
+                "gripper_recent_std": 9.048225847949806e-05,
+                "xy_dist_to_release": 0.19135211394052754,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.15756772993262674,
+                "z_above_object": 0.18663833184151712,
+                "z_dist_to_pregrasp": 0.036905687116203456,
+                "z_dist_to_grasp": 0.18690572287899032,
+                "gripper_state": -0.981112780888753,
+                "gripper_recent_std": 0.00010004245179277153,
+                "xy_dist_to_release": 0.18842348044836335,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.16802492279829118,
+                "z_above_object": 0.17318193696430206,
+                "z_dist_to_pregrasp": 0.023449292238988395,
+                "z_dist_to_grasp": 0.17344932800177526,
+                "gripper_state": -0.9812615979700436,
+                "gripper_recent_std": 0.00012348976104021786,
+                "xy_dist_to_release": 0.19078948712619626,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1753408021806158,
+                "z_above_object": 0.16298888639979336,
+                "z_dist_to_pregrasp": 0.013256241674479696,
+                "z_dist_to_grasp": 0.16325627743726656,
+                "gripper_state": -0.9813572247193267,
+                "gripper_recent_std": 0.00015764341849260906,
+                "xy_dist_to_release": 0.1935601319319911,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1666243590932124,
+                "z_above_object": 0.16863498687564216,
+                "z_dist_to_pregrasp": 0.01890234215032849,
+                "z_dist_to_grasp": 0.16890237791311535,
+                "gripper_state": -0.9813790380940839,
+                "gripper_recent_std": 0.0001813625428827334,
+                "xy_dist_to_release": 0.1898532526340846,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.15128552436663362,
+                "z_above_object": 0.18420944022007057,
+                "z_dist_to_pregrasp": 0.03447679549475691,
+                "z_dist_to_grasp": 0.18447683125754377,
+                "gripper_state": -0.9813298184059212,
+                "gripper_recent_std": 0.00018582611094243942,
+                "xy_dist_to_release": 0.18163481081135913,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.15429284696694984,
+                "z_above_object": 0.1800352230523513,
+                "z_dist_to_pregrasp": 0.030302578327037644,
+                "z_dist_to_grasp": 0.1803026140898245,
+                "gripper_state": -0.981507410135122,
+                "gripper_recent_std": 0.00018960035842394339,
+                "xy_dist_to_release": 0.17959197487653455,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.16474629023708476,
+                "z_above_object": 0.1661283864841384,
+                "z_dist_to_pregrasp": 0.016395741758824744,
+                "z_dist_to_grasp": 0.1663957775216116,
+                "gripper_state": -0.9816861373144465,
+                "gripper_recent_std": 0.0002143262583770034,
+                "xy_dist_to_release": 0.18345384456846864,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.15854983914284052,
+                "z_above_object": 0.16860742813144192,
+                "z_dist_to_pregrasp": 0.018874783406128248,
+                "z_dist_to_grasp": 0.1688748191689151,
+                "gripper_state": -0.9817303567939293,
+                "gripper_recent_std": 0.00023762785610276647,
+                "xy_dist_to_release": 0.1815625083180956,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.14443033944837524,
+                "z_above_object": 0.18247911765389813,
+                "z_dist_to_pregrasp": 0.03274647292858446,
+                "z_dist_to_grasp": 0.18274650869137132,
+                "gripper_state": -0.9816949071549093,
+                "gripper_recent_std": 0.0002380917005760163,
+                "xy_dist_to_release": 0.17456749159434992,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.14834988791152057,
+                "z_above_object": 0.1766301965908178,
+                "z_dist_to_pregrasp": 0.026897551865504132,
+                "z_dist_to_grasp": 0.176897587628291,
+                "gripper_state": -0.9818917990326954,
+                "gripper_recent_std": 0.00023447273624242838,
+                "xy_dist_to_release": 0.1735709746526681,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.15973802108813656,
+                "z_above_object": 0.16126471067353954,
+                "z_dist_to_pregrasp": 0.011532065948225867,
+                "z_dist_to_grasp": 0.16153210171101273,
+                "gripper_state": -0.9820725784480053,
+                "gripper_recent_std": 0.00025395933239474123,
+                "xy_dist_to_release": 0.1783794772809569,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.15429852891706172,
+                "z_above_object": 0.1624489277555553,
+                "z_dist_to_pregrasp": 0.012716283030241637,
+                "z_dist_to_grasp": 0.1627163187930285,
+                "gripper_state": -0.9821132210141326,
+                "gripper_recent_std": 0.00027138321263831704,
+                "xy_dist_to_release": 0.17739629413638883,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.14044567794416632,
+                "z_above_object": 0.17559746021568012,
+                "z_dist_to_pregrasp": 0.025864815490366455,
+                "z_dist_to_grasp": 0.17586485125315332,
+                "gripper_state": -0.9820684818000041,
+                "gripper_recent_std": 0.00027165598410720544,
+                "xy_dist_to_release": 0.17096487601958132,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.14465961092132357,
+                "z_above_object": 0.1692652766256263,
+                "z_dist_to_pregrasp": 0.019532631900312625,
+                "z_dist_to_grasp": 0.1695326676630995,
+                "gripper_state": -0.98225584342607,
+                "gripper_recent_std": 0.000279992742562471,
+                "xy_dist_to_release": 0.17039901722538808,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1564267818767397,
+                "z_above_object": 0.15353691720534657,
+                "z_dist_to_pregrasp": 0.0038042724800328998,
+                "z_dist_to_grasp": 0.15380430824281976,
+                "gripper_state": -0.982428265884397,
+                "gripper_recent_std": 0.0002756691922382734,
+                "xy_dist_to_release": 0.17563440984708442,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.15121806172744662,
+                "z_above_object": 0.1542355992079648,
+                "z_dist_to_pregrasp": 0.004502954482651145,
+                "z_dist_to_grasp": 0.154502990245438,
+                "gripper_state": -0.9824638146247575,
+                "gripper_recent_std": 0.0002731920377022279,
+                "xy_dist_to_release": 0.17507384541806575,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.048367973417043686,
+            0.18937724828720093
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08556703450391007,
+                "z_above_object": 0.1492759592288182,
+                "z_dist_to_pregrasp": 0.006731931215152587,
+                "z_dist_to_grasp": 0.1432680449429895,
+                "gripper_state": -0.9814602790576132,
+                "gripper_recent_std": 0.0001628807151784513,
+                "xy_dist_to_release": 0.32537221472846756,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08611628683662383,
+                "z_above_object": 0.14615168931732758,
+                "z_dist_to_pregrasp": 0.010436487628189495,
+                "z_dist_to_grasp": 0.1395634885299526,
+                "gripper_state": -0.9814302615241606,
+                "gripper_recent_std": 0.00015680933353017553,
+                "xy_dist_to_release": 0.3262369997418624,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08378854464289252,
+                "z_above_object": 0.14652956272835538,
+                "z_dist_to_pregrasp": 0.008179846782205402,
+                "z_dist_to_grasp": 0.1418201293759367,
+                "gripper_state": -0.9813336542753321,
+                "gripper_recent_std": 0.00014928432692452455,
+                "xy_dist_to_release": 0.3224480350049784,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08025727265477273,
+                "z_above_object": 0.15203972214720074,
+                "z_dist_to_pregrasp": 0.0022315577163711797,
+                "z_dist_to_grasp": 0.1477684184417709,
+                "gripper_state": -0.981176860115913,
+                "gripper_recent_std": 0.000162797057683758,
+                "xy_dist_to_release": 0.3170710514048183,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08165652872534684,
+                "z_above_object": 0.15433092421109573,
+                "z_dist_to_pregrasp": 0.001965681424709542,
+                "z_dist_to_grasp": 0.14803429473343255,
+                "gripper_state": -0.9811087389222486,
+                "gripper_recent_std": 0.00018469425352528573,
+                "xy_dist_to_release": 0.3178688298902199,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08517862309130185,
+                "z_above_object": 0.15104313203853004,
+                "z_dist_to_pregrasp": 0.006766939963098961,
+                "z_dist_to_grasp": 0.14323303619504313,
+                "gripper_state": -0.9811358584752181,
+                "gripper_recent_std": 0.00019055577075212577,
+                "xy_dist_to_release": 0.32112021333235313,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0864777758956791,
+                "z_above_object": 0.14750892101288415,
+                "z_dist_to_pregrasp": 0.010648546211006638,
+                "z_dist_to_grasp": 0.13935142994713545,
+                "gripper_state": -0.981116796617189,
+                "gripper_recent_std": 0.00017977325138368377,
+                "xy_dist_to_release": 0.32252623407900927,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0838092514805726,
+                "z_above_object": 0.14871878544532202,
+                "z_dist_to_pregrasp": 0.007517832692451654,
+                "z_dist_to_grasp": 0.14248214346569044,
+                "gripper_state": -0.9810187294950001,
+                "gripper_recent_std": 0.00017121245844449925,
+                "xy_dist_to_release": 0.3183003153822426,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07832223704599375,
+                "z_above_object": 0.15704117510974502,
+                "z_dist_to_pregrasp": 0.00046409657877011234,
+                "z_dist_to_grasp": 0.14953587957937198,
+                "gripper_state": -0.9808600222281456,
+                "gripper_recent_std": 0.0001911451407424817,
+                "xy_dist_to_release": 0.3124052981777316,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07863055398011218,
+                "z_above_object": 0.16055985132270334,
+                "z_dist_to_pregrasp": 0.0009469781123698784,
+                "z_dist_to_grasp": 0.1490529980457722,
+                "gripper_state": -0.9808143282700628,
+                "gripper_recent_std": 0.00020641504181157595,
+                "xy_dist_to_release": 0.3140419274720405,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0757940341303063,
+                "z_above_object": 0.16079070202843582,
+                "z_dist_to_pregrasp": 0.006873098201029437,
+                "z_dist_to_grasp": 0.14312687795711265,
+                "gripper_state": -0.980868229081888,
+                "gripper_recent_std": 0.00019206127174100656,
+                "xy_dist_to_release": 0.3183830045317801,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06865726588218536,
+                "z_above_object": 0.16524683293105502,
+                "z_dist_to_pregrasp": 0.0050630376834239765,
+                "z_dist_to_grasp": 0.1449369384747181,
+                "gripper_state": -0.9808140734878175,
+                "gripper_recent_std": 0.00016934087713727582,
+                "xy_dist_to_release": 0.31513942430038194,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.06571972574049348,
+                "z_above_object": 0.17224981175716836,
+                "z_dist_to_pregrasp": 0.0018642955725685084,
+                "z_dist_to_grasp": 0.1518642717307106,
+                "gripper_state": -0.9806755864176544,
+                "gripper_recent_std": 0.00016429359109303228,
+                "xy_dist_to_release": 0.3094544501411834,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07285043560377552,
+                "z_above_object": 0.17076275908515648,
+                "z_dist_to_pregrasp": 0.00037930171375033517,
+                "z_dist_to_grasp": 0.15037927787189243,
+                "gripper_state": -0.980650619796239,
+                "gripper_recent_std": 0.0001702305810524981,
+                "xy_dist_to_release": 0.3119103442864241,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07893790665554563,
+                "z_above_object": 0.16366475367988642,
+                "z_dist_to_pregrasp": 0.006718568765121002,
+                "z_dist_to_grasp": 0.1432814073930211,
+                "gripper_state": -0.9807300707376143,
+                "gripper_recent_std": 0.00016294768493723135,
+                "xy_dist_to_release": 0.31722664384751975,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08042959217347984,
+                "z_above_object": 0.15827618324765935,
+                "z_dist_to_pregrasp": 0.012107118691192076,
+                "z_dist_to_grasp": 0.13789285746695001,
+                "gripper_state": -0.9807661859512431,
+                "gripper_recent_std": 0.00013812698464210247,
+                "xy_dist_to_release": 0.31995075528125944,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07458425671188991,
+                "z_above_object": 0.1623276068549312,
+                "z_dist_to_pregrasp": 0.008055688377700099,
+                "z_dist_to_grasp": 0.141944287780442,
+                "gripper_state": -0.9807143066930686,
+                "gripper_recent_std": 0.00010339348372232697,
+                "xy_dist_to_release": 0.3149499764661832,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07083085157688554,
+                "z_above_object": 0.17107459681586012,
+                "z_dist_to_pregrasp": 0.0006913031289295102,
+                "z_dist_to_grasp": 0.1506912792870716,
+                "gripper_state": -0.9805925309784027,
+                "gripper_recent_std": 8.743585432767588e-05,
+                "xy_dist_to_release": 0.30792469301956094,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07781678046925497,
+                "z_above_object": 0.16926109407157985,
+                "z_dist_to_pregrasp": 0.001122200681690888,
+                "z_dist_to_grasp": 0.1488777754764512,
+                "gripper_state": -0.9806033309233158,
+                "gripper_recent_std": 8.862677665706783e-05,
+                "xy_dist_to_release": 0.31070271732910765,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08371274852264887,
+                "z_above_object": 0.16140108903190997,
+                "z_dist_to_pregrasp": 0.008982208150710713,
+                "z_dist_to_grasp": 0.14101776800743138,
+                "gripper_state": -0.9807189541006507,
+                "gripper_recent_std": 8.324594751857499e-05,
+                "xy_dist_to_release": 0.316742099894932,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.0789766299237223,
+                "z_above_object": 0.16390738532169158,
+                "z_dist_to_pregrasp": 0.006475915003022914,
+                "z_dist_to_grasp": 0.14352406115511918,
+                "gripper_state": -0.9807268627888917,
+                "gripper_recent_std": 6.595943839323966e-05,
+                "xy_dist_to_release": 0.3128763063595363,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07532966240243229,
+                "z_above_object": 0.17226158568070948,
+                "z_dist_to_pregrasp": 0.0018782818411975377,
+                "z_dist_to_grasp": 0.15187825799933963,
+                "gripper_state": -0.9806385703620171,
+                "gripper_recent_std": 5.560997513819015e-05,
+                "xy_dist_to_release": 0.3060166972172946,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08243063858016626,
+                "z_above_object": 0.1694568514351108,
+                "z_dist_to_pregrasp": 0.0009264561140771566,
+                "z_dist_to_grasp": 0.14907352004406493,
+                "gripper_state": -0.9806742777446644,
+                "gripper_recent_std": 5.562575031283559e-05,
+                "xy_dist_to_release": 0.30940371224139834,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08846456900801275,
+                "z_above_object": 0.16055228770035312,
+                "z_dist_to_pregrasp": 0.009831023660403782,
+                "z_dist_to_grasp": 0.1401689524977383,
+                "gripper_state": -0.9808130540485285,
+                "gripper_recent_std": 6.680835644631378e-05,
+                "xy_dist_to_release": 0.3162145168292387,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09011204200023712,
+                "z_above_object": 0.1540138549465394,
+                "z_dist_to_pregrasp": 0.016369460279059167,
+                "z_dist_to_grasp": 0.13363051587908292,
+                "gripper_state": -0.9809085257373114,
+                "gripper_recent_std": 9.209111295523145e-05,
+                "xy_dist_to_release": 0.3200639025857774,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08356542627082378,
+                "z_above_object": 0.1587990296366366,
+                "z_dist_to_pregrasp": 0.01158428948165402,
+                "z_dist_to_grasp": 0.13841568667648807,
+                "gripper_state": -0.9809325686000367,
+                "gripper_recent_std": 0.00011248817877935494,
+                "xy_dist_to_release": 0.31404827350856723,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.07908870986386536,
+                "z_above_object": 0.16892829141972854,
+                "z_dist_to_pregrasp": 0.0014550316058115076,
+                "z_dist_to_grasp": 0.14854494455233058,
+                "gripper_state": -0.9808692330865358,
+                "gripper_recent_std": 0.00011939981342395517,
+                "xy_dist_to_release": 0.3055390680031271,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08542082834815129,
+                "z_above_object": 0.16608782287775326,
+                "z_dist_to_pregrasp": 0.004295504062644673,
+                "z_dist_to_grasp": 0.14570447209549742,
+                "gripper_state": -0.9809416257552079,
+                "gripper_recent_std": 0.00011993447791929762,
+                "xy_dist_to_release": 0.30881125469350024,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.09066168828732558,
+                "z_above_object": 0.15676890269335075,
+                "z_dist_to_pregrasp": 0.013614428165878767,
+                "z_dist_to_grasp": 0.13638554799226332,
+                "gripper_state": -0.9811148006630668,
+                "gripper_recent_std": 0.00013992852578122356,
+                "xy_dist_to_release": 0.31594060221653136,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.08518006414240076,
+                "z_above_object": 0.15957972506461815,
+                "z_dist_to_pregrasp": 0.010803609715516416,
+                "z_dist_to_grasp": 0.13919636644262567,
+                "gripper_state": -0.9811942602202919,
+                "gripper_recent_std": 0.00017026607681602668,
+                "xy_dist_to_release": 0.31127722334590935,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.07152154296636581,
+            0.21176347136497498
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 318,
+          "phase_trace_tail": [
+            {
+              "t": 288,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.00860554335076001,
+                "z_above_object": 0.1459871396702287,
+                "z_dist_to_pregrasp": 0.0005643118430158633,
+                "z_dist_to_grasp": 0.149435723919771,
+                "gripper_state": -0.9840313984956031,
+                "gripper_recent_std": 0.0002955459984546967,
+                "xy_dist_to_release": 0.4683992391079862,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 289,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.008834085503186121,
+                "z_above_object": 0.14658278070868913,
+                "z_dist_to_pregrasp": 3.13291954445738e-05,
+                "z_dist_to_grasp": 0.15003136495823144,
+                "gripper_state": -0.9839567166907168,
+                "gripper_recent_std": 0.00027880309164602957,
+                "xy_dist_to_release": 0.4679392791406352,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 290,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.00905983978594997,
+                "z_above_object": 0.14714005995460788,
+                "z_dist_to_pregrasp": 0.0005886084413633252,
+                "z_dist_to_grasp": 0.1505886442041502,
+                "gripper_state": -0.9838864922690678,
+                "gripper_recent_std": 0.00026238898706446663,
+                "xy_dist_to_release": 0.46752729131725795,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 291,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.00927971323978746,
+                "z_above_object": 0.1476592857663216,
+                "z_dist_to_pregrasp": 0.0011078342530770335,
+                "z_dist_to_grasp": 0.1511078700158639,
+                "gripper_state": -0.9838203654602586,
+                "gripper_recent_std": 0.00024661396565879725,
+                "xy_dist_to_release": 0.46715828318098007,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 292,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.00949318689842767,
+                "z_above_object": 0.14814165018706527,
+                "z_dist_to_pregrasp": 0.0015901986738207086,
+                "z_dist_to_grasp": 0.15159023443660757,
+                "gripper_state": -0.983758031606303,
+                "gripper_recent_std": 0.0002316796655448106,
+                "xy_dist_to_release": 0.46682603653398086,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 293,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.009699808191263771,
+                "z_above_object": 0.14858879100804734,
+                "z_dist_to_pregrasp": 0.002037339494802781,
+                "z_dist_to_grasp": 0.15203737525758965,
+                "gripper_state": -0.9836991542610434,
+                "gripper_recent_std": 0.0002177098358134785,
+                "xy_dist_to_release": 0.4665253294653151,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 294,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.009897803220126098,
+                "z_above_object": 0.1490027665566337,
+                "z_dist_to_pregrasp": 0.002451315043389135,
+                "z_dist_to_grasp": 0.152451350806176,
+                "gripper_state": -0.9836434382190049,
+                "gripper_recent_std": 0.00020473417294463933,
+                "xy_dist_to_release": 0.46625306065800326,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 295,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.010086375231813213,
+                "z_above_object": 0.14938596057015896,
+                "z_dist_to_pregrasp": 0.0028345090569144027,
+                "z_dist_to_grasp": 0.15283454481970127,
+                "gripper_state": -0.9835906501692091,
+                "gripper_recent_std": 0.00019274015546682323,
+                "xy_dist_to_release": 0.46600606912077336,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 296,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.010265434130310022,
+                "z_above_object": 0.14974082703873426,
+                "z_dist_to_pregrasp": 0.0031893755254897016,
+                "z_dist_to_grasp": 0.15318941128827657,
+                "gripper_state": -0.9835405902577061,
+                "gripper_recent_std": 0.0001816843305713749,
+                "xy_dist_to_release": 0.46578127941509523,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 297,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.010435168015299087,
+                "z_above_object": 0.15006972673494057,
+                "z_dist_to_pregrasp": 0.00351827522169601,
+                "z_dist_to_grasp": 0.15351831098448288,
+                "gripper_state": -0.983493080899295,
+                "gripper_recent_std": 0.00017149766054730907,
+                "xy_dist_to_release": 0.46557597552908175,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 298,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.010595838412458196,
+                "z_above_object": 0.15037485254618643,
+                "z_dist_to_pregrasp": 0.0038234010329418755,
+                "z_dist_to_grasp": 0.15382343679572874,
+                "gripper_state": -0.9834479631880424,
+                "gripper_recent_std": 0.00016210226013495333,
+                "xy_dist_to_release": 0.46538787628973405,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 299,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.01074768787937484,
+                "z_above_object": 0.15065820526652496,
+                "z_dist_to_pregrasp": 0.004106753753280401,
+                "z_dist_to_grasp": 0.15410678951606727,
+                "gripper_state": -0.98340509546917,
+                "gripper_recent_std": 0.0001534171326922577,
+                "xy_dist_to_release": 0.46521512359702905,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 300,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.010890957504143784,
+                "z_above_object": 0.1509215937330225,
+                "z_dist_to_pregrasp": 0.004370142219777939,
+                "z_dist_to_grasp": 0.1543701779825648,
+                "gripper_state": -0.9833643523200688,
+                "gripper_recent_std": 0.00014536323719332585,
+                "xy_dist_to_release": 0.46505618452105274,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 301,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011026013129783704,
+                "z_above_object": 0.15116663765589677,
+                "z_dist_to_pregrasp": 0.004615186142652217,
+                "z_dist_to_grasp": 0.15461522190543908,
+                "gripper_state": -0.9833256228614236,
+                "gripper_recent_std": 0.00013786632647455716,
+                "xy_dist_to_release": 0.46490966269512213,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 302,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011153333169845483,
+                "z_above_object": 0.151394764996453,
+                "z_dist_to_pregrasp": 0.0048433134832084335,
+                "z_dist_to_grasp": 0.1548433492459953,
+                "gripper_state": -0.9832888042949768,
+                "gripper_recent_std": 0.00013085326341668056,
+                "xy_dist_to_release": 0.46477425340039014,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 303,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011273342278455667,
+                "z_above_object": 0.15160722281283012,
+                "z_dist_to_pregrasp": 0.005055771299585565,
+                "z_dist_to_grasp": 0.15505580706237243,
+                "gripper_state": -0.9832537972186883,
+                "gripper_recent_std": 0.000124265609732821,
+                "xy_dist_to_release": 0.46464886090896806,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 304,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011386354765203636,
+                "z_above_object": 0.1518051124827432,
+                "z_dist_to_pregrasp": 0.005253660969498641,
+                "z_dist_to_grasp": 0.1552536967322855,
+                "gripper_state": -0.9832205072645659,
+                "gripper_recent_std": 0.0001180593758528585,
+                "xy_dist_to_release": 0.464532621759938,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 305,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011492614261469827,
+                "z_above_object": 0.15198942943127636,
+                "z_dist_to_pregrasp": 0.0054379779180318,
+                "z_dist_to_grasp": 0.15543801368081867,
+                "gripper_state": -0.9831888458188096,
+                "gripper_recent_std": 0.00011219898032142652,
+                "xy_dist_to_release": 0.46442484248922594,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 306,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011592357345351065,
+                "z_above_object": 0.15216108828861385,
+                "z_dist_to_pregrasp": 0.005609636775369298,
+                "z_dist_to_grasp": 0.15560967253815616,
+                "gripper_state": -0.9831587295322728,
+                "gripper_recent_std": 0.00010665500014358775,
+                "xy_dist_to_release": 0.4643249186023554,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 307,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.01168583758376263,
+                "z_above_object": 0.1523209351775353,
+                "z_dist_to_pregrasp": 0.005769483664290753,
+                "z_dist_to_grasp": 0.15576951942707762,
+                "gripper_state": -0.9831300797084555,
+                "gripper_recent_std": 0.00010140325864434981,
+                "xy_dist_to_release": 0.46423229568477037,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 308,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011773316268541015,
+                "z_above_object": 0.15246975640326765,
+                "z_dist_to_pregrasp": 0.005918304890023096,
+                "z_dist_to_grasp": 0.15591834065280996,
+                "gripper_state": -0.9831028217522972,
+                "gripper_recent_std": 9.6424077828569e-05,
+                "xy_dist_to_release": 0.46414646648200175,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 309,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011855059695617242,
+                "z_above_object": 0.1526082857541896,
+                "z_dist_to_pregrasp": 0.006056834240945053,
+                "z_dist_to_grasp": 0.15605687000373192,
+                "gripper_state": -0.9830768848958136,
+                "gripper_recent_std": 9.170131431149268e-05,
+                "xy_dist_to_release": 0.46406696392266705,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 310,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.011931339153984996,
+                "z_above_object": 0.15273720984334827,
+                "z_dist_to_pregrasp": 0.006185758330103708,
+                "z_dist_to_grasp": 0.15618579409289057,
+                "gripper_state": -0.9830522020189116,
+                "gripper_recent_std": 8.722110821437405e-05,
+                "xy_dist_to_release": 0.46399335322859525,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 311,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.01200242744964109,
+                "z_above_object": 0.1528571721233477,
+                "z_dist_to_pregrasp": 0.006305720610103149,
+                "z_dist_to_grasp": 0.15630575637289001,
+                "gripper_state": -0.983028709469238,
+                "gripper_recent_std": 8.297050207432817e-05,
+                "xy_dist_to_release": 0.46392522894157046,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 312,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.01206859617774696,
+                "z_above_object": 0.15296877604056303,
+                "z_dist_to_pregrasp": 0.006417324527318469,
+                "z_dist_to_grasp": 0.15641736029010533,
+                "gripper_state": -0.9830063469127821,
+                "gripper_recent_std": 7.893698232487925e-05,
+                "xy_dist_to_release": 0.463862212346688,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 313,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.012130113385912186,
+                "z_above_object": 0.15307258754704922,
+                "z_dist_to_pregrasp": 0.006521136033804664,
+                "z_dist_to_grasp": 0.15652117179659153,
+                "gripper_state": -0.9829850571900602,
+                "gripper_recent_std": 7.510883888256423e-05,
+                "xy_dist_to_release": 0.46380394941751313,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 314,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.012187241539739031,
+                "z_above_object": 0.1531691371736369,
+                "z_dist_to_pregrasp": 0.006617685660392336,
+                "z_dist_to_grasp": 0.1566177214231792,
+                "gripper_state": -0.9829647861715693,
+                "gripper_recent_std": 7.14752097158674e-05,
+                "xy_dist_to_release": 0.4637501091992919,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 315,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.012240235799671274,
+                "z_above_object": 0.1532589218328858,
+                "z_dist_to_pregrasp": 0.006707470319641251,
+                "z_dist_to_grasp": 0.15670750608242812,
+                "gripper_state": -0.9829454826115138,
+                "gripper_recent_std": 6.802592508025117e-05,
+                "xy_dist_to_release": 0.463700382488952,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 316,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.01228934263130247,
+                "z_above_object": 0.15334240647464592,
+                "z_dist_to_pregrasp": 0.006790954961401363,
+                "z_dist_to_grasp": 0.15679099072418823,
+                "gripper_state": -0.9829270980009521,
+                "gripper_recent_std": 6.475136615182519e-05,
+                "xy_dist_to_release": 0.46365448068582626,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 317,
+              "phase": "PRE_GRASP",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.012334798755207975,
+                "z_above_object": 0.1534200256733781,
+                "z_dist_to_pregrasp": 0.006868574160133534,
+                "z_dist_to_grasp": 0.1568686099229204,
+                "gripper_state": -0.9829095864221906,
+                "gripper_recent_std": 6.164237676243304e-05,
+                "xy_dist_to_release": 0.4636121347235202,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.058990079909563065,
+            0.20287293195724487
+          ]
+        }
+      ]
+    },
+    "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+      "success_rate": 0.0,
+      "successes": 0,
+      "num_episodes": 1,
+      "episodes": [
+        {
+          "success": false,
+          "final_phase": "DONE",
+          "timeout_reason": "phase_done_no_reward",
+          "control_steps": 201,
+          "phase_trace_tail": [
+            {
+              "t": 171,
+              "phase": "APPROACH",
+              "phase_step_count": 171,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1912787893305644,
+                "z_above_object": -0.05427865611090632,
+                "z_dist_to_pregrasp": 0.204278403549637,
+                "z_dist_to_grasp": 0.05427842739149491,
+                "gripper_state": -0.9832057529475859,
+                "gripper_recent_std": 0.0001184565199141176,
+                "xy_dist_to_release": 0.39533985864764065,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 172,
+              "phase": "APPROACH",
+              "phase_step_count": 172,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19660258257160784,
+                "z_above_object": -0.06437322705438508,
+                "z_dist_to_pregrasp": 0.21437297449311576,
+                "z_dist_to_grasp": 0.06437299833497367,
+                "gripper_state": -0.9833040143270471,
+                "gripper_recent_std": 0.00011345084944418514,
+                "xy_dist_to_release": 0.39981723129254515,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 173,
+              "phase": "APPROACH",
+              "phase_step_count": 173,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19042636245150277,
+                "z_above_object": -0.060048057311387515,
+                "z_dist_to_pregrasp": 0.21004780475011842,
+                "z_dist_to_grasp": 0.06004782859197633,
+                "gripper_state": -0.9831315672414751,
+                "gripper_recent_std": 9.735889975204773e-05,
+                "xy_dist_to_release": 0.40075188730139144,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 174,
+              "phase": "APPROACH",
+              "phase_step_count": 174,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18603012746351555,
+                "z_above_object": -0.05330893358069555,
+                "z_dist_to_pregrasp": 0.20330868101942645,
+                "z_dist_to_grasp": 0.05330870486128436,
+                "gripper_state": -0.9830418986611396,
+                "gripper_recent_std": 0.00010923802499025825,
+                "xy_dist_to_release": 0.3986015457338213,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 175,
+              "phase": "APPROACH",
+              "phase_step_count": 175,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18984910088402024,
+                "z_above_object": -0.05883870913110867,
+                "z_dist_to_pregrasp": 0.20883845656983957,
+                "z_dist_to_grasp": 0.05883848041169748,
+                "gripper_state": -0.9832091183918452,
+                "gripper_recent_std": 0.00010771011911547382,
+                "xy_dist_to_release": 0.39937819220934834,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 176,
+              "phase": "APPROACH",
+              "phase_step_count": 176,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19534639188441508,
+                "z_above_object": -0.06906225294506352,
+                "z_dist_to_pregrasp": 0.21906200038379442,
+                "z_dist_to_grasp": 0.06906202422565233,
+                "gripper_state": -0.98330729863305,
+                "gripper_recent_std": 0.0001104671220182683,
+                "xy_dist_to_release": 0.40419709926224856,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 177,
+              "phase": "APPROACH",
+              "phase_step_count": 177,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18913678191981895,
+                "z_above_object": -0.06502523844207797,
+                "z_dist_to_pregrasp": 0.21502498588080887,
+                "z_dist_to_grasp": 0.06502500972266678,
+                "gripper_state": -0.9831309946518814,
+                "gripper_recent_std": 0.00010171574511999974,
+                "xy_dist_to_release": 0.4053937555081844,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 178,
+              "phase": "APPROACH",
+              "phase_step_count": 178,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18448289516631625,
+                "z_above_object": -0.05847686744155167,
+                "z_dist_to_pregrasp": 0.20847661488028257,
+                "z_dist_to_grasp": 0.058476638722140484,
+                "gripper_state": -0.9830398724652281,
+                "gripper_recent_std": 9.66626163679148e-05,
+                "xy_dist_to_release": 0.40343467175999426,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 179,
+              "phase": "APPROACH",
+              "phase_step_count": 179,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18822009205819307,
+                "z_above_object": -0.06404814669392289,
+                "z_dist_to_pregrasp": 0.2140478941326538,
+                "z_dist_to_grasp": 0.0640479179745117,
+                "gripper_state": -0.9832000116457775,
+                "gripper_recent_std": 9.75273727638118e-05,
+                "xy_dist_to_release": 0.40430452079598317,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 180,
+              "phase": "APPROACH",
+              "phase_step_count": 180,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19373677233308328,
+                "z_above_object": -0.07414892153987851,
+                "z_dist_to_pregrasp": 0.2241486689786094,
+                "z_dist_to_grasp": 0.07414869282046732,
+                "gripper_state": -0.9832947821225337,
+                "gripper_recent_std": 9.470976728163743e-05,
+                "xy_dist_to_release": 0.4092875818448504,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 181,
+              "phase": "APPROACH",
+              "phase_step_count": 181,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1874689964487738,
+                "z_above_object": -0.07024002389680861,
+                "z_dist_to_pregrasp": 0.2202397713355393,
+                "z_dist_to_grasp": 0.0702397951773972,
+                "gripper_state": -0.9831137205379707,
+                "gripper_recent_std": 9.684229647917115e-05,
+                "xy_dist_to_release": 0.4106163841689147,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 182,
+              "phase": "APPROACH",
+              "phase_step_count": 182,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18293765741217097,
+                "z_above_object": -0.06407759496167098,
+                "z_dist_to_pregrasp": 0.21407734240040166,
+                "z_dist_to_grasp": 0.06407736624225957,
+                "gripper_state": -0.9830170047546578,
+                "gripper_recent_std": 9.757094652475909e-05,
+                "xy_dist_to_release": 0.40875785552447735,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 183,
+              "phase": "APPROACH",
+              "phase_step_count": 183,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1866661360610362,
+                "z_above_object": -0.06947003227801729,
+                "z_dist_to_pregrasp": 0.21946977971674797,
+                "z_dist_to_grasp": 0.06946980355860588,
+                "gripper_state": -0.9831696102894987,
+                "gripper_recent_std": 9.757327430694864e-05,
+                "xy_dist_to_release": 0.40964903162919625,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 184,
+              "phase": "APPROACH",
+              "phase_step_count": 184,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1922695805080371,
+                "z_above_object": -0.07936576088452219,
+                "z_dist_to_pregrasp": 0.22936550832325286,
+                "z_dist_to_grasp": 0.07936553216511077,
+                "gripper_state": -0.9832615500669135,
+                "gripper_recent_std": 9.490534379399616e-05,
+                "xy_dist_to_release": 0.41473975795479434,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 185,
+              "phase": "APPROACH",
+              "phase_step_count": 185,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18599976576432137,
+                "z_above_object": -0.07555497581198356,
+                "z_dist_to_pregrasp": 0.22555472325071424,
+                "z_dist_to_grasp": 0.07555474709257215,
+                "gripper_state": -0.983076112559494,
+                "gripper_recent_std": 9.836425800457351e-05,
+                "xy_dist_to_release": 0.41614976012896526,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 186,
+              "phase": "APPROACH",
+              "phase_step_count": 186,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18148979925227599,
+                "z_above_object": -0.06957464551249459,
+                "z_dist_to_pregrasp": 0.21957439295122527,
+                "z_dist_to_grasp": 0.06957441679308318,
+                "gripper_state": -0.9829751032251297,
+                "gripper_recent_std": 9.946750474456354e-05,
+                "xy_dist_to_release": 0.4143466604004108,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 187,
+              "phase": "APPROACH",
+              "phase_step_count": 187,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18535804926313132,
+                "z_above_object": -0.07489290523548431,
+                "z_dist_to_pregrasp": 0.224892652674215,
+                "z_dist_to_grasp": 0.0748926765160729,
+                "gripper_state": -0.9831210904122631,
+                "gripper_recent_std": 9.94808315254696e-05,
+                "xy_dist_to_release": 0.4152948755428011,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 188,
+              "phase": "APPROACH",
+              "phase_step_count": 188,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19108952694321862,
+                "z_above_object": -0.0845760666668589,
+                "z_dist_to_pregrasp": 0.2345758141055896,
+                "z_dist_to_grasp": 0.0845758379474475,
+                "gripper_state": -0.9832101779423073,
+                "gripper_recent_std": 9.768839270503856e-05,
+                "xy_dist_to_release": 0.42047650670602177,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 189,
+              "phase": "APPROACH",
+              "phase_step_count": 189,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18485327290034803,
+                "z_above_object": -0.08085846294663179,
+                "z_dist_to_pregrasp": 0.23085821038536247,
+                "z_dist_to_grasp": 0.08085823422722038,
+                "gripper_state": -0.9830210073134107,
+                "gripper_recent_std": 0.00010207150272415569,
+                "xy_dist_to_release": 0.421943154197968,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 190,
+              "phase": "APPROACH",
+              "phase_step_count": 190,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1802124049046375,
+                "z_above_object": -0.0749593928939285,
+                "z_dist_to_pregrasp": 0.22495914033265918,
+                "z_dist_to_grasp": 0.07495916417451709,
+                "gripper_state": -0.9829151041536845,
+                "gripper_recent_std": 0.00010284557577720161,
+                "xy_dist_to_release": 0.4201312488375991,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 191,
+              "phase": "APPROACH",
+              "phase_step_count": 191,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1840687978553927,
+                "z_above_object": -0.08005035572220742,
+                "z_dist_to_pregrasp": 0.2300501031609381,
+                "z_dist_to_grasp": 0.08005012700279601,
+                "gripper_state": -0.9830552007164179,
+                "gripper_recent_std": 0.00010288320909807547,
+                "xy_dist_to_release": 0.42104355969607177,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 192,
+              "phase": "APPROACH",
+              "phase_step_count": 192,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1898959425119054,
+                "z_above_object": -0.08949116558035675,
+                "z_dist_to_pregrasp": 0.23949091301908743,
+                "z_dist_to_grasp": 0.08949093686094534,
+                "gripper_state": -0.9831429048376044,
+                "gripper_recent_std": 0.0001018332423357221,
+                "xy_dist_to_release": 0.426289750699872,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 193,
+              "phase": "APPROACH",
+              "phase_step_count": 193,
+              "transition_signals": {
+                "xy_dist_to_object": 0.19195259143532806,
+                "z_above_object": -0.09455386667292154,
+                "z_dist_to_pregrasp": 0.24455361411165222,
+                "z_dist_to_grasp": 0.09455363795351013,
+                "gripper_state": -0.9831391478102511,
+                "gripper_recent_std": 9.998829998168701e-05,
+                "xy_dist_to_release": 0.43105552660038154,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 194,
+              "phase": "APPROACH",
+              "phase_step_count": 194,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18706095569147713,
+                "z_above_object": -0.09055235574797771,
+                "z_dist_to_pregrasp": 0.2405521031867086,
+                "z_dist_to_grasp": 0.09055212702856652,
+                "gripper_state": -0.9829738651412725,
+                "gripper_recent_std": 8.761238942199641e-05,
+                "xy_dist_to_release": 0.43118266421785817,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 195,
+              "phase": "APPROACH",
+              "phase_step_count": 195,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18288891289813317,
+                "z_above_object": -0.0844694310407672,
+                "z_dist_to_pregrasp": 0.2344691784794981,
+                "z_dist_to_grasp": 0.08446920232135602,
+                "gripper_state": -0.9828630568193353,
+                "gripper_recent_std": 0.00010583628263303238,
+                "xy_dist_to_release": 0.428479637670407,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 196,
+              "phase": "APPROACH",
+              "phase_step_count": 196,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18629520847268896,
+                "z_above_object": -0.08892246253883251,
+                "z_dist_to_pregrasp": 0.23892220997756364,
+                "z_dist_to_grasp": 0.08892223381942155,
+                "gripper_state": -0.9830416216458115,
+                "gripper_recent_std": 0.00010350852033448859,
+                "xy_dist_to_release": 0.42974152769934637,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 197,
+              "phase": "APPROACH",
+              "phase_step_count": 197,
+              "transition_signals": {
+                "xy_dist_to_object": 0.1919065962686569,
+                "z_above_object": -0.09766582900774345,
+                "z_dist_to_pregrasp": 0.24766557644647458,
+                "z_dist_to_grasp": 0.09766560028833249,
+                "gripper_state": -0.9831520568713421,
+                "gripper_recent_std": 0.00010607082302224354,
+                "xy_dist_to_release": 0.435670562396315,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 198,
+              "phase": "APPROACH",
+              "phase_step_count": 198,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18583561951143318,
+                "z_above_object": -0.09379360663376679,
+                "z_dist_to_pregrasp": 0.24379335407249791,
+                "z_dist_to_grasp": 0.09379337791435582,
+                "gripper_state": -0.9829685545309266,
+                "gripper_recent_std": 9.398503446629388e-05,
+                "xy_dist_to_release": 0.43641785635721914,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 199,
+              "phase": "APPROACH",
+              "phase_step_count": 199,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18133348726956713,
+                "z_above_object": -0.08837759582215354,
+                "z_dist_to_pregrasp": 0.23837734326088444,
+                "z_dist_to_grasp": 0.08837736710274235,
+                "gripper_state": -0.9828961138611187,
+                "gripper_recent_std": 0.0001019461823499192,
+                "xy_dist_to_release": 0.4343863205055739,
+                "trajectory_progress": 0.0
+              }
+            },
+            {
+              "t": 200,
+              "phase": "APPROACH",
+              "phase_step_count": 200,
+              "transition_signals": {
+                "xy_dist_to_object": 0.18500380008471115,
+                "z_above_object": -0.09307863404406302,
+                "z_dist_to_pregrasp": 0.24307838148279393,
+                "z_dist_to_grasp": 0.09307840532465184,
+                "gripper_state": -0.9830641110120797,
+                "gripper_recent_std": 9.706357961110178e-05,
+                "xy_dist_to_release": 0.43605808231845183,
+                "trajectory_progress": 0.0
+              }
+            }
+          ],
+          "demo_id": "demo_0",
+          "target_obj": "akita_black_bowl_1",
+          "release_xy": [
+            0.05312104895710945,
+            0.18596117198467255
+          ]
+        }
+      ]
+    }
+  }
+}
