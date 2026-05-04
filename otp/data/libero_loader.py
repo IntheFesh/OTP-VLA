@@ -14,19 +14,23 @@ Data sources:
 Per-sample dict keys:
   image                   (3, H, W)         uint8   RGB
   instruction             str
-  action                  (7,)              float32 LIBERO action
+  action_chunk            (H_act, 7)        float32 LIBERO action sequence
   ee_pose                 (4, 4)            float32 EE world pose
   object_poses            (N_obj, 4, 4)     float32 object world poses
   object_names            list[str]                 instance names (with _N suffix)
   grasp_affordance        (N_obj, K, 7)     float32 [pos | quat] per grasp
   grasp_affordance_mask   (N_obj, K)        bool    True = valid grasp
   object_point_clouds     (N_obj, P, 3)     float32 mesh vertices
+  gt_trajectory           (N_obj, H_act, 6) float32 SE(3) Lie algebra windows
 
 Calibration contracts:
   §3.3 — view_keys resolved at init time; raises if no camera.
   §5.1 — normalizer JSON must exist; raises FileNotFoundError otherwise.
   §5.1 — grasp affordance npz must exist for every object_name encountered;
          silent zero-fill is forbidden — caller must regenerate cache.
+  §B   — action_chunk covers [t, t+horizon); _build_index caps at T-horizon+1.
+  §C   — gt_trajectory: H-step SE(3) window from HDF5 obs, converted via
+         se3_to_lie.  Requires torch (lazy import inside _load_trajectory_window).
 """
 
 from __future__ import annotations
@@ -46,22 +50,19 @@ class LIBEROOTPDataset:
     PyTorch-style dataset over LIBERO demos.
 
     Args:
-        root:                    Pre-extracted object-pose cache directory
-                                 (data/object_poses/) — REQUIRED.  Each demo
-                                 is one .npz file under <root>/<task>/<demo>.npz.
-        suite:                   Suite name (e.g. 'libero_spatial').
-        libero_hdf5_root:        LIBERO original hdf5 directory (e.g.
-                                 /root/autodl-tmp/libero_data/libero_spatial/)
-                                 — REQUIRED for loading images.  npz files do
-                                 not contain image data.
-        grasp_affordance_dir:    Directory holding precomputed per-object
-                                 grasp affordance npz files.  REQUIRED.
-        view_keys:               Camera names to load images from.  Resolved
-                                 automatically if None.
-        normalizer_path:         Override for normalizer JSON.  Defaults to
-                                 <root>/meta/stats_qpace.json.
-        num_grasps_per_object:   K — pad/clip per-object grasps to this count.
-        num_points:              P — point cloud vertex count per object.
+        root:                 Directory containing .hdf5 demo files.
+        suite:                Suite name (e.g. 'libero_spatial').
+        grasp_affordance_dir: Directory holding precomputed per-object grasp
+                              affordance npz files (one file per unique
+                              object name, written by
+                              precompute_all_affordances).  REQUIRED.
+        view_keys:            Camera names to load images from.  Resolved
+                              automatically if None (§3.3).
+        normalizer_path:      Override for normalizer JSON.  Defaults to
+                              <root>/meta/stats_qpace.json (§5.1).
+        num_grasps_per_object: K — pad/clip per-object grasps to this count.
+        num_points:           P — point cloud vertex count per object.
+        horizon:              H — action/trajectory window length (§B, §C).
     """
 
     def __init__(
@@ -74,11 +75,13 @@ class LIBEROOTPDataset:
         normalizer_path: Optional[Path] = None,
         num_grasps_per_object: int = 8,
         num_points: int = 256,
+        horizon: int = 8,
     ) -> None:
         self.root = Path(root)
         self.suite = suite
         self.num_grasps_per_object = num_grasps_per_object
         self.num_points = num_points
+        self.horizon = horizon
 
         if not self.root.exists():
             raise FileNotFoundError(
@@ -135,8 +138,8 @@ class LIBEROOTPDataset:
         # View-key resolution from the first hdf5.
         self.view_keys = view_keys if view_keys is not None else self._resolve_view_keys()
 
-        # Per-frame index across all demos.
-        self._index: List[Tuple[int, int]] = self._build_index()
+        # Per-frame index across all demos (§B: capped at T - horizon + 1).
+        self._index: List[Tuple[Path, int]] = self._build_index()
 
         # Per-object affordance cache (lazy, populated on first use).
         self._affordance_cache: Dict[str, Dict[str, np.ndarray]] = {}
@@ -173,20 +176,33 @@ class LIBEROOTPDataset:
         with h5py.File(record["hdf5_path"], "r") as f:
             obs = f["data"][record["demo_key"]]["obs"]
             image = self._load_image(obs, frame_idx)
+            instruction = self._read_instruction(f)
 
-        # 3. Affordance lookup (fail-loud).
+            # §B: action chunk — horizon consecutive steps.
+            action_chunk = actions[frame_idx:frame_idx + self.horizon].astype(np.float32)
+
+            ee_pose = self._load_ee_pose(obs, frame_idx)
+            object_poses, object_names = self._load_object_poses(obs, frame_idx)
+
+            # §C: trajectory window — H SE(3) poses per object, in Lie algebra.
+            gt_trajectory = self._load_trajectory_window(
+                obs, frame_idx, self.horizon, object_names
+            )
+
+        # Affordance lookup (fail-loud per §5.1).
         affordance, affordance_mask, point_clouds = self._lookup_affordance(object_names)
 
         return {
             "image":                 image,
             "instruction":           instruction,
-            "action":                action,
+            "action_chunk":          action_chunk,
             "ee_pose":               ee_pose,
             "object_poses":          object_poses,
             "object_names":          object_names,
             "grasp_affordance":      affordance,
             "grasp_affordance_mask": affordance_mask,
             "object_point_clouds":   point_clouds,
+            "gt_trajectory":         gt_trajectory,
         }
 
     # ------------------------------------------------------------------
@@ -253,14 +269,27 @@ class LIBEROOTPDataset:
             return sorted(preferred) + sorted(k for k in candidates if k not in preferred)
         return sorted(candidates)
 
-    def _build_index(self) -> List[Tuple[int, int]]:
-        """Per-frame index using npz `actions` length (== T per demo)."""
-        index: List[Tuple[int, int]] = []
-        for demo_idx, record in enumerate(self.demo_records):
-            with np.load(record["npz_path"]) as npz:
-                T = len(npz["actions"])
-            for i in range(T):
-                index.append((demo_idx, i))
+    def _build_index(self) -> List[Tuple[Path, int]]:
+        """
+        Build (demo_path, frame_idx) pairs.
+
+        §B: frame_idx is capped so that [frame_idx, frame_idx+horizon) always
+        lies within the demo.  Demos shorter than horizon are skipped.
+        """
+        try:
+            import h5py
+        except ImportError:
+            return []
+
+        index: List[Tuple[Path, int]] = []
+        for path in self.demo_paths:
+            with h5py.File(path, "r") as f:
+                key = sorted(f["data"].keys())[0]
+                T = len(f["data"][key]["actions"])
+            # Need at least horizon frames; valid start indices: [0, T-horizon].
+            num_valid = max(0, T - self.horizon + 1)
+            for i in range(num_valid):
+                index.append((path, i))
         return index
 
     # ------------------------------------------------------------------
@@ -291,6 +320,83 @@ class LIBEROOTPDataset:
         T[:3, :3] = R
         T[:3, 3] = pos
         return T
+
+    @staticmethod
+    def _load_object_poses(obs, frame_idx: int) -> Tuple[np.ndarray, List[str]]:
+        from otp.data.object_pose_extractor import ObjectPoseExtractor
+        names = ObjectPoseExtractor._discover_object_names(obs)
+        poses = []
+        for n in names:
+            pose_key = f"{n}_pose"
+            if pose_key in obs:
+                poses.append(np.asarray(obs[pose_key][frame_idx], dtype=np.float32))
+            else:
+                from otp.utils.lie_algebra import quat_to_so3
+                import torch
+                pos = np.asarray(obs[f"{n}_pos"][frame_idx], dtype=np.float32)
+                quat = np.asarray(obs[f"{n}_quat"][frame_idx], dtype=np.float32)
+                R = quat_to_so3(torch.from_numpy(quat).unsqueeze(0)).squeeze(0).numpy()
+                T = np.eye(4, dtype=np.float32)
+                T[:3, :3] = R
+                T[:3, 3] = pos
+                poses.append(T)
+        if poses:
+            return np.stack(poses, axis=0), names
+        return np.zeros((0, 4, 4), dtype=np.float32), names
+
+    @staticmethod
+    def _load_trajectory_window(
+        obs,
+        frame_idx: int,
+        horizon: int,
+        object_names: List[str],
+    ) -> np.ndarray:
+        """
+        Load a horizon-step SE(3) trajectory window for each object and
+        convert to Lie algebra representation (§C).
+
+        Args:
+            obs:          HDF5 obs group (open file handle).
+            frame_idx:    Start frame; caller ensures frame_idx+horizon <= T.
+            horizon:      Window length H.
+            object_names: Object name list in the same order as object_poses.
+
+        Returns:
+            gt_trajectory: (N_obj, H, 6) float32  SE(3) Lie algebra.
+        """
+        from otp.utils.lie_algebra import quat_to_so3, se3_to_lie
+        import torch
+
+        N = len(object_names)
+        H = horizon
+        trajectories = np.zeros((N, H, 6), dtype=np.float32)
+
+        for i, name in enumerate(object_names):
+            pose_key = f"{name}_pose"
+            if pose_key in obs:
+                # (H, 4, 4) directly stored.
+                T_mats = np.asarray(
+                    obs[pose_key][frame_idx:frame_idx + H], dtype=np.float32
+                )                                                           # (H, 4, 4)
+            else:
+                # Build from pos + quat fields.
+                pos = np.asarray(
+                    obs[f"{name}_pos"][frame_idx:frame_idx + H], dtype=np.float32
+                )                                                           # (H, 3)
+                quat = np.asarray(
+                    obs[f"{name}_quat"][frame_idx:frame_idx + H], dtype=np.float32
+                )                                                           # (H, 4)
+                R = quat_to_so3(
+                    torch.from_numpy(quat)
+                ).numpy()                                                   # (H, 3, 3)
+                T_mats = np.tile(np.eye(4, dtype=np.float32), (H, 1, 1))
+                T_mats[:, :3, :3] = R
+                T_mats[:, :3, 3] = pos
+
+            xi = se3_to_lie(torch.from_numpy(T_mats)).numpy()              # (H, 6)
+            trajectories[i] = xi
+
+        return trajectories                                                  # (N, H, 6)
 
     # ------------------------------------------------------------------
     # Grasp affordance loader (cache-backed)
