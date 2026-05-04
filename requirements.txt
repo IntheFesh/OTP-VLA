@@ -34,6 +34,10 @@ wandb>=0.17.0
 imageio>=2.34.0
 opencv-python>=4.9.0
 
+# --- Data IO ---
+h5py>=3.10.0
+pyyaml>=6.0
+
 # --- Plotting / analysis ---
 matplotlib>=3.8.0
 seaborn>=0.13.0

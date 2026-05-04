@@ -136,6 +136,68 @@ Sets: `MUJOCO_GL=egl`, `PYOPENGL_PLATFORM=egl`, `PYTHONPATH`, `HF_ENDPOINT`.
 
 ---
 
+---
+
+### `otp/data/object_pose_extractor.py`
+**Status**: Stage 3
+**Purpose**: Extract per-frame object SE(3) poses from a LIBERO demo HDF5 file.
+
+| Method | Input | Output |
+|---|---|---|
+| `ObjectPoseExtractor(suite, bddl_root=None)` | — | — |
+| `extract(demo_path)` | `Path` | `dict{object_names, object_poses(N,T,4,4), actions(T,7), instruction}` |
+
+**Caller**: `scripts/03_extract_object_poses.py`. Lazy-imports `h5py`.
+
+---
+
+### `otp/data/libero_loader.py`
+**Status**: Stage 3
+**Purpose**: PyTorch-style dataset over LIBERO demo HDF5 files.
+
+| Method | Input | Output |
+|---|---|---|
+| `LiberoDataset(root, suite, view_keys=None, normalizer_path=None)` | — | — |
+| `__getitem__(idx)` | `int` | `dict{image, instruction, action, ee_pose, object_poses, object_names}` |
+
+**Contracts**: §3.3 — `_resolve_view_keys()` runs at init; raises if no camera key.
+§5.1 — normalizer JSON `<root>/meta/stats_qpace.json` must exist; else `FileNotFoundError`.
+
+---
+
+### `otp/data/perturbation_protocol.py`
+**Status**: Stage 3
+**Purpose**: Structured perturbation generation + validation + manifest writer.
+Backs paper §V.B "controlled perturbation suite". Five types:
+`instruction_rephrase`, `object_referent_swap`, `distractor_inject`,
+`spatial_relation_perturb`, `visual_style`.
+
+| Method | Input | Output |
+|---|---|---|
+| `gen_<type>(...)` | type-specific | candidate string / image (raises `NoPerturbationAvailable`) |
+| `validate_<type>(...)` | original + candidate | `(ok: bool, reason: str)` |
+| `generate_full_suite(libero_demos, output_dir)` | `list[dict]`, `Path` | `dict{manifest_path, stats}` |
+
+**Vocab table**: `configs/perturbation_vocab.yaml` — public, version-controlled.
+**Output layout**: `output_dir/manifest.json`, `output_dir/samples/<task>_<type>_<idx>.json|.npy`.
+
+---
+
+### `scripts/03_extract_object_poses.py` & `scripts/03b_generate_perturbation_suite.py`
+**Status**: Stage 3
+Both print §1.2 startup snapshot (`[ENV]`/`[CFG]`/`[CKPT]`/`[DATA]`) and exit
+non-zero with a clear hint when prerequisite data is missing.
+
+---
+
+### `notebooks/01_motivation_figure.ipynb`
+**Status**: Stage 3
+Measures OpenVLA-OFT "mismatch ratio" per perturbation type using the public
+checkpoint `openvla/openvla-7b-oft`. Skips early with `[SKIP]` line if
+prerequisite data, CUDA, or checkpoint is missing — never silently fails.
+
+---
+
 ## Change Log
 
 | Stage | Files Added / Modified | Contract |
@@ -143,3 +205,4 @@ Sets: `MUJOCO_GL=egl`, `PYOPENGL_PLATFORM=egl`, `PYTHONPATH`, `HF_ENDPOINT`.
 | 0 | `otp/**/__init__.py`, `requirements.txt`, `pyproject.toml`, `.gitignore`, `README.md`, `scripts/01_setup_env.sh` | Initial skeleton |
 | 1 | `otp/utils/lie_algebra.py`, `otp/utils/flow_matching.py`, `tests/test_lie_algebra.py`, `tests/test_flow_matching.py`, `REPO_LAYOUT.md` | §3.4 action dims, §2.2 LossOutput, M1 interface contracts |
 | 2 | `otp/models/otp_head.py`, `otp/controllers/components/` (6 files), `otp/controllers/fixed_manipulation_controller.py`, `tests/test_otp_head.py`, `tests/test_phase_scheduler.py`, `tests/test_osc_target_generator.py`, `tests/test_fixed_manipulation_controller.py`, `REPO_LAYOUT.md` | §2.2 LossOutput, M1 interface contracts, M7 no short-circuit, M8 discrete gripper |
+| 3 | `otp/data/perturbation_protocol.py`, `otp/data/object_pose_extractor.py`, `otp/data/libero_loader.py`, `configs/perturbation_vocab.yaml`, `scripts/03_extract_object_poses.py`, `scripts/03b_generate_perturbation_suite.py`, `tests/test_perturbation_protocol.py`, `notebooks/01_motivation_figure.ipynb`, `requirements.txt`, `REPO_LAYOUT.md` | §V.B perturbation suite, §3.3 view-key resolution, §5.1 normalizer contract, §1.2 startup snapshot |
