@@ -34,9 +34,10 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import logging
 import sys
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import torch
 import torch.nn as nn
@@ -56,22 +57,17 @@ class _TinyBackboneStub(nn.Module):
     """
     Minimal stand-in for an OpenVLA-OFT backbone.
 
-    Maps (pixel_values, input_ids) → hidden states matching OpenVLA's
-    hidden_dim=4096.  Intentionally crude; used only for sanity checks.
+    Accepts the same interface as OpenVLABackboneWrapper:
+      forward(image, instruction) → dict{'hidden_states', 'attention_mask'}
 
     Parameter budget (< 5 M):
-      pixel_proj  Linear(3, 4096)     ≈  16 K
+      pixel_proj  Linear(3, 4096)       ≈  16 K
       token_embed Embedding(1024, 4096) ≈ 4.2 M
-      total                           ≈ 4.2 M  ✓
-
-    Determinism: no dropout, no random ops; output is fully determined by
-    the input tensors and the module's weight matrices.
-
-    Input IDs are hashed into [0, vocab_size) via modulo so the caller
-    need not worry about range.
+      total                             ≈ 4.2 M  ✓
     """
 
     _VOCAB_SIZE = 1024  # small table keeps param count < 5 M
+    _SEQ_LEN = 32       # fixed text sequence length
 
     def __init__(self, hidden_dim: int = 4096) -> None:
         super().__init__()
@@ -79,29 +75,38 @@ class _TinyBackboneStub(nn.Module):
         self.pixel_proj = nn.Linear(3, hidden_dim)
         self.token_embed = nn.Embedding(self._VOCAB_SIZE, hidden_dim)
 
+    @staticmethod
+    def _hash_instruction(instruction: str) -> torch.Tensor:
+        """Hash each word to [0, _VOCAB_SIZE) and pack into (_SEQ_LEN,)."""
+        tokens = torch.zeros(_TinyBackboneStub._SEQ_LEN, dtype=torch.long)
+        for j, word in enumerate(instruction.split()[: _TinyBackboneStub._SEQ_LEN]):
+            tokens[j] = int(hashlib.md5(word.encode()).hexdigest(), 16) % _TinyBackboneStub._VOCAB_SIZE
+        return tokens
+
     def forward(
         self,
-        pixel_values: torch.Tensor,           # (B, 3, H, W)
-        input_ids: torch.Tensor,              # (B, S)
-        attention_mask: Optional[torch.Tensor] = None,
+        image: torch.Tensor,          # (B, 3, H, W) uint8 or float
+        instruction: List[str],       # B task description strings
+        **kwargs,
     ) -> dict:
-        B = pixel_values.shape[0]
-        # Image: global-avg-pool then project → 1 image token.
-        img_pooled = pixel_values.mean(dim=(-2, -1))                  # (B, 3)
-        img_tok = self.pixel_proj(img_pooled).unsqueeze(1)            # (B, 1, D)
-        # Text: hash IDs into vocab range, then embed.
-        ids_in_range = input_ids % self._VOCAB_SIZE                   # (B, S)
-        txt_tok = self.token_embed(ids_in_range)                      # (B, S, D)
-        hidden = torch.cat([img_tok, txt_tok], dim=1)                 # (B, S+1, D)
-        if attention_mask is not None:
-            mask = torch.cat(
-                [torch.ones(B, 1, dtype=attention_mask.dtype,
-                            device=attention_mask.device),
-                 attention_mask],
-                dim=1,
-            )
-        else:
-            mask = None
+        B = image.shape[0]
+        device = image.device
+
+        # Image: normalise → global-avg-pool → project → 1 image token.
+        img_f = image.float()
+        if img_f.max() > 1.5:        # uint8 [0, 255]
+            img_f = img_f / 255.0
+        img_pooled = img_f.mean(dim=(-2, -1))                 # (B, 3)
+        img_tok = self.pixel_proj(img_pooled).unsqueeze(1)    # (B, 1, D)
+
+        # Text: hash words into vocab range, then embed.
+        input_ids = torch.stack(
+            [self._hash_instruction(inst) for inst in instruction]
+        ).to(device)                                           # (B, S)
+        txt_tok = self.token_embed(input_ids)                  # (B, S, D)
+
+        hidden = torch.cat([img_tok, txt_tok], dim=1)          # (B, S+1, D)
+        mask = torch.ones(B, hidden.shape[1], dtype=torch.long, device=device)
         return {"hidden_states": hidden, "attention_mask": mask}
 
 
@@ -134,8 +139,17 @@ class OTPSoftModel(nn.Module):
         self.config = dict(config)
 
         backbone_dim: int = config.get("backbone_dim", 4096)
+        backbone_mode: str = config.get("backbone_mode", "stub")
         if backbone is None:
-            backbone = _TinyBackboneStub(hidden_dim=backbone_dim)
+            if backbone_mode in ("frozen", "lora", "full"):
+                from otp.models.openvla_wrapper import OpenVLABackboneWrapper
+                _ckpt = config.get(
+                    "backbone_checkpoint",
+                    "moojink/openvla-7b-oft-finetuned-libero-spatial",
+                )
+                backbone = OpenVLABackboneWrapper(checkpoint=_ckpt, mode=backbone_mode)
+            else:  # "stub" or any unrecognised value
+                backbone = _TinyBackboneStub(hidden_dim=backbone_dim)
         self.backbone = backbone
 
         # ---- OTP head ---- #
@@ -185,25 +199,13 @@ class OTPSoftModel(nn.Module):
 
     # ------------------------------------------------------------------
     def _run_backbone(self, batch: Dict[str, Any]) -> tuple:
-        """
-        Run the backbone and return (hidden_states, attention_mask).
-
-        Tolerates both the _TinyBackboneStub return format and HuggingFace-style
-        ModelOutput objects (uses last_hidden_state / hidden_states[-1]).
-        """
+        """Run backbone → (hidden_states, attention_mask)."""
         out = self.backbone(
-            pixel_values=batch["pixel_values"],
-            input_ids=batch["input_ids"],
-            attention_mask=batch.get("attention_mask"),
+            image=batch["image"],
+            instruction=batch["instruction"],
         )
-        if isinstance(out, dict):
-            hidden = out.get("hidden_states", None)
-            attn_mask = out.get("attention_mask", None)
-            if hidden is None and "last_hidden_state" in out:
-                hidden = out["last_hidden_state"]
-        else:
-            hidden = getattr(out, "last_hidden_state", None) or out.hidden_states[-1]
-            attn_mask = batch.get("attention_mask")
+        hidden = out["hidden_states"]
+        attn_mask = out.get("attention_mask")
         return hidden, attn_mask
 
     # ------------------------------------------------------------------
@@ -211,9 +213,8 @@ class OTPSoftModel(nn.Module):
         """
         Args:
             batch: dict with keys:
-              pixel_values         (B, 3, H, W)
-              input_ids            (B, S)
-              attention_mask       (B, S) optional
+              image                (B, 3, H, W) uint8 or float
+              instruction          List[str]  B task descriptions
               object_indices       (B, N_obj)  positions of object tokens
               object_point_clouds  (B, N_obj, N_pts, 3)
               proprioception       (B, 8)
@@ -328,12 +329,11 @@ def _sanity_check() -> None:
     model = OTPSoftModel(config).eval()
     print(f"  parameters: {sum(p.numel() for p in model.parameters()):_}")
 
-    B, S, N_obj, K, N_pts, H = 2, 8, 2, 4, 16, 4
+    B, N_obj, K, N_pts, H = 2, 2, 4, 16, 4
     batch = {
-        "pixel_values":        torch.randn(B, 3, 16, 16),
-        "input_ids":           torch.randint(0, 1000, (B, S)),
-        "attention_mask":      torch.ones(B, S, dtype=torch.long),
-        "object_indices":      torch.randint(0, S, (B, N_obj)),
+        "image":               torch.rand(B, 3, 16, 16),
+        "instruction":         ["pick up the cube and place it on the plate"] * B,
+        "object_indices":      torch.arange(N_obj).unsqueeze(0).expand(B, -1),
         "object_point_clouds": torch.randn(B, N_obj, N_pts, 3),
         "proprioception":      torch.randn(B, 8),
         "grasp_affordance":    torch.randn(B, N_obj, K, 7),
