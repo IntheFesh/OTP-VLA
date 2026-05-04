@@ -49,11 +49,23 @@ class PhaseScheduler:
     examines it.  This prevents short-circuit evaluation from hiding signal
     computation bugs.
 
+    Defaults are tuned for LIBERO Spatial OSC_POSE controller at 20Hz with
+    output_max=[0.05, 0.05, 0.05, 0.5, 0.5, 0.5] — meaning the EE cannot
+    move more than 5cm per step in Cartesian space, and PD overshoot makes
+    sub-5cm threshold tracking unreliable.
+
     Args:
         xy_approach_threshold:    XY distance [m] to object that triggers
-                                  APPROACH → PRE_GRASP.
-        z_pregrasp_threshold:     Z distance [m] to grasp target that triggers
-                                  PRE_GRASP → GRASP.
+                                  APPROACH → PRE_GRASP.  0.10 ≈ 2× max EE step.
+        approach_min_steps:       Minimum steps in APPROACH before allowing
+                                  transition (lets EE settle into hover).
+        pregrasp_xy_threshold:    XY distance [m] for PRE_GRASP → GRASP.
+                                  Must be tight (EE precisely above object xy).
+        pregrasp_min_steps:       Minimum steps in PRE_GRASP before
+                                  PRE_GRASP → GRASP (lets EE align in xy then
+                                  GRASP phase handles z descent).
+        z_pregrasp_threshold:     Legacy threshold (kept for API compat); not
+                                  used in current PRE_GRASP transition logic.
         gripper_hold_threshold:   Minimum gripper state value (−1..+1) to
                                   consider the object held.
         grasp_min_steps:          Minimum steps in GRASP before allowing
@@ -69,20 +81,28 @@ class PhaseScheduler:
 
     def __init__(
         self,
-        xy_approach_threshold: float = 0.05,
+        xy_approach_threshold: float = 0.10,
+        approach_min_steps: int = 5,
+        pregrasp_xy_threshold: float = 0.03,
+        pregrasp_min_steps: int = 8,
         z_pregrasp_threshold: float = 0.03,
         gripper_hold_threshold: float = 0.5,
         grasp_min_steps: int = 5,
-        transport_xy_threshold: float = 0.05,
+        grasp_z_tolerance: float = 0.025,
+        transport_xy_threshold: float = 0.08,
         trajectory_done_threshold: float = 0.9,
         release_min_steps: int = 5,
         gripper_open_threshold: float = -0.5,
         max_phase_steps: int = 200,
     ) -> None:
         self.xy_approach_threshold = xy_approach_threshold
+        self.approach_min_steps = approach_min_steps
+        self.pregrasp_xy_threshold = pregrasp_xy_threshold
+        self.pregrasp_min_steps = pregrasp_min_steps
         self.z_pregrasp_threshold = z_pregrasp_threshold
         self.gripper_hold_threshold = gripper_hold_threshold
         self.grasp_min_steps = grasp_min_steps
+        self.grasp_z_tolerance = grasp_z_tolerance
         self.transport_xy_threshold = transport_xy_threshold
         self.trajectory_done_threshold = trajectory_done_threshold
         self.release_min_steps = release_min_steps
@@ -133,7 +153,6 @@ class PhaseScheduler:
 
         # ------------------------------------------------------------------ #
         # 1. Compute ALL signals — no early return, no short-circuit.         #
-        #    Every key in _SIGNAL_KEYS must be populated unconditionally.     #
         # ------------------------------------------------------------------ #
         ee_pos = ee_pose[:3, 3]
         obj_pos = object_pose[:3, 3]
@@ -146,6 +165,8 @@ class PhaseScheduler:
 
         z_dist_to_pregrasp = float(abs(ee_pos[2] - pre_grasp_pos[2]))
         z_dist_to_grasp = float(abs(ee_pos[2] - grasp_pos[2]))
+        # New: xy distance to grasp target (for PRE_GRASP → GRASP).
+        xy_dist_to_grasp = float(np.linalg.norm(ee_pos[:2] - grasp_pos[:2]))
 
         self._gripper_history.append(float(gripper_state))
         if len(self._gripper_history) > 10:
@@ -165,6 +186,7 @@ class PhaseScheduler:
             "z_above_object":      z_above_object,
             "z_dist_to_pregrasp":  z_dist_to_pregrasp,
             "z_dist_to_grasp":     z_dist_to_grasp,
+            "xy_dist_to_grasp":    xy_dist_to_grasp,
             "gripper_state":       float(gripper_state),
             "gripper_recent_std":  gripper_recent_std,
             "xy_dist_to_release":  xy_dist_to_release,
@@ -187,17 +209,30 @@ class PhaseScheduler:
         new_phase = entry_phase
 
         if entry_phase == "APPROACH":
+            # Wait until EE is roughly above the object (xy aligned within
+            # threshold, z hovering above) AND has spent at least some steps
+            # in this phase (so PD-overshoot oscillations have settled).
             if (xy_dist_to_object < self.xy_approach_threshold
-                    and z_above_object > 0.05):
+                    and z_above_object > 0.05
+                    and entry_step_count >= self.approach_min_steps):
                 new_phase = "PRE_GRASP"
 
         elif entry_phase == "PRE_GRASP":
-            if z_dist_to_grasp < self.z_pregrasp_threshold:
+            # PRE_GRASP target is the hover pose ABOVE the grasp pose.
+            # Transition to GRASP when xy is precisely aligned with the grasp
+            # target AND we've spent enough steps stabilising at hover.
+            # (z descent happens in GRASP phase, not here.)
+            if (xy_dist_to_grasp < self.pregrasp_xy_threshold
+                    and entry_step_count >= self.pregrasp_min_steps):
                 new_phase = "GRASP"
 
         elif entry_phase == "GRASP":
-            # Multi-condition guard: gripper must be stable AND holding for min steps.
-            if (gripper_state > self.gripper_hold_threshold
+            # Multi-condition guard: EE must have descended to grasp height
+            # AND gripper must be stable AND holding for min steps.
+            # Without the z-descent check, the gripper closes in mid-air
+            # before EE reaches the object, and we transport empty.
+            if (z_dist_to_grasp < self.grasp_z_tolerance
+                    and gripper_state > self.gripper_hold_threshold
                     and gripper_recent_std < 0.1
                     and entry_step_count >= self.grasp_min_steps):
                 new_phase = "TRANSPORT"

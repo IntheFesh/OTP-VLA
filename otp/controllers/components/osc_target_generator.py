@@ -33,16 +33,25 @@ class OSCTargetGenerator:
 
     Args:
         approach_height_offset: Metres above the object to hover during APPROACH.
-        release_lift_offset:    Metres above the release XY plane for RELEASE target.
+        release_lift_offset:    Metres above the release table z for RELEASE
+                                target.  Object is dropped from this height
+                                onto the receptacle.
+        release_table_z:        Absolute world-frame z [m] of the release
+                                receptacle's top surface.  Used as the base
+                                from which release_lift_offset is added when
+                                computing the RELEASE target z.  For LIBERO
+                                Spatial the plate top is at ~0.92 m.
     """
 
     def __init__(
         self,
         approach_height_offset: float = 0.10,
         release_lift_offset: float = 0.05,
+        release_table_z: float = 0.92,
     ) -> None:
         self.approach_height_offset = approach_height_offset
         self.release_lift_offset = release_lift_offset
+        self.release_table_z = release_table_z
 
     # ------------------------------------------------------------------
     def get_target(
@@ -82,7 +91,8 @@ class OSCTargetGenerator:
             target = grasp_targets["pre_grasp_ee_pose"].copy()
 
         elif phase == "GRASP":
-            # Invariant: hold at grasp_ee_pose; EE does not move, gripper closes.
+            # Invariant: hold at grasp_ee_pose; EE descends to grasp height
+            # while gripper is gated open until EE.z reaches grasp_pose.z.
             target = grasp_targets["grasp_ee_pose"].copy()
 
         elif phase == "TRANSPORT":
@@ -95,12 +105,15 @@ class OSCTargetGenerator:
                 target = ee_pose.copy()
 
         elif phase == "RELEASE":
-            # Invariant: hover above the release XY position.
+            # Invariant: hover at a FIXED absolute height above the release
+            # receptacle.  Using a fixed world-frame z (release_table_z +
+            # release_lift_offset) prevents the EE from continuously rising
+            # — the previous "ee_pose.z + lift_offset" formula caused the EE
+            # to spiral upward indefinitely, never depositing the object.
             target = np.eye(4, dtype=np.float64)
             target[:3, :3] = _R_TOPDOWN
             target[:2, 3] = release_target_xy[:2]
-            # Use current EE z + lift offset (keeps EE from slamming down).
-            target[2, 3] = ee_pose[2, 3] + self.release_lift_offset
+            target[2, 3] = self.release_table_z + self.release_lift_offset
 
         else:
             # DONE or unknown: hold current pose.
