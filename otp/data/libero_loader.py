@@ -1,13 +1,23 @@
 """
 LIBEROOTPDataset: PyTorch dataset for LIBERO demos with grasp affordance.
 
+Data sources:
+  - data/object_poses/<task_stem>/demo_X.npz  (REQUIRED)
+        Pre-extracted GT object poses, actions, ee state, instruction
+        (produced by scripts/03_extract_object_poses.py via sim replay).
+  - <libero_root>/<suite>/*.hdf5              (REQUIRED for image loading)
+        Original LIBERO hdf5 demo files (agentview_rgb / eye_in_hand_rgb).
+  - data/grasp_affordances/<obj_class>.npz    (REQUIRED)
+        Pre-computed grasp affordance per object class
+        (produced by scripts/03c_extract_grasp_affordances.py).
+
 Per-sample dict keys:
   image                   (3, H, W)         uint8   RGB
   instruction             str
   action_chunk            (H_act, 7)        float32 LIBERO action sequence
   ee_pose                 (4, 4)            float32 EE world pose
   object_poses            (N_obj, 4, 4)     float32 object world poses
-  object_names            list[str]
+  object_names            list[str]                 instance names (with _N suffix)
   grasp_affordance        (N_obj, K, 7)     float32 [pos | quat] per grasp
   grasp_affordance_mask   (N_obj, K)        bool    True = valid grasp
   object_point_clouds     (N_obj, P, 3)     float32 mesh vertices
@@ -37,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 class LIBEROOTPDataset:
     """
-    PyTorch-style dataset over LIBERO demo files with grasp affordance cache.
+    PyTorch-style dataset over LIBERO demos.
 
     Args:
         root:                 Directory containing .hdf5 demo files.
@@ -59,6 +69,7 @@ class LIBEROOTPDataset:
         self,
         root: Path,
         suite: str = "libero_spatial",
+        libero_hdf5_root: Optional[Path] = None,
         grasp_affordance_dir: Optional[Path] = None,
         view_keys: Optional[List[str]] = None,
         normalizer_path: Optional[Path] = None,
@@ -72,6 +83,12 @@ class LIBEROOTPDataset:
         self.num_points = num_points
         self.horizon = horizon
 
+        if not self.root.exists():
+            raise FileNotFoundError(
+                f"Object-pose cache root not found: {self.root}.  Run "
+                f"scripts/03_extract_object_poses.py first."
+            )
+
         if grasp_affordance_dir is None:
             raise ValueError(
                 "LIBEROOTPDataset requires `grasp_affordance_dir`. "
@@ -84,9 +101,27 @@ class LIBEROOTPDataset:
                 f"Run scripts/03c_extract_grasp_affordances.py."
             )
 
-        self.demo_paths = self._scan_demo_paths()
+        # libero_hdf5_root resolution: prefer explicit arg, then guess from
+        # /root/autodl-tmp/libero_data/<suite>/, else require explicit pass.
+        if libero_hdf5_root is None:
+            guess = Path("/root/autodl-tmp/libero_data") / suite
+            if guess.exists():
+                libero_hdf5_root = guess
+            else:
+                raise FileNotFoundError(
+                    f"libero_hdf5_root not provided and default {guess} "
+                    f"does not exist.  Pass `libero_hdf5_root` explicitly."
+                )
+        self.libero_hdf5_root = Path(libero_hdf5_root)
+        if not self.libero_hdf5_root.exists():
+            raise FileNotFoundError(
+                f"libero_hdf5_root not found: {self.libero_hdf5_root}"
+            )
 
-        # §5.1 normalizer.
+        # Discover npz demos and their corresponding hdf5 files.
+        self.demo_records = self._scan_demos()
+
+        # Normalizer (currently unused by __getitem__; kept for forward compat).
         norm_path = (
             Path(normalizer_path)
             if normalizer_path is not None
@@ -100,7 +135,7 @@ class LIBEROOTPDataset:
         with open(norm_path, "r") as f:
             self.norm_stats: Dict[str, Any] = json.load(f)
 
-        # §3.3 view-key resolution.
+        # View-key resolution from the first hdf5.
         self.view_keys = view_keys if view_keys is not None else self._resolve_view_keys()
 
         # Per-frame index across all demos (§B: capped at T - horizon + 1).
@@ -118,16 +153,28 @@ class LIBEROOTPDataset:
             import h5py
         except ImportError as e:
             raise ImportError(
-                "LIBEROOTPDataset.__getitem__ requires h5py. "
-                "Install with: pip install h5py"
+                "LIBEROOTPDataset.__getitem__ requires h5py."
             ) from e
 
-        demo_path, frame_idx = self._index[idx]
+        demo_idx, frame_idx = self._index[idx]
+        record = self.demo_records[demo_idx]
 
-        with h5py.File(demo_path, "r") as f:
-            obs = f["data"][sorted(f["data"].keys())[0]]["obs"]
-            actions = np.asarray(f["data"][sorted(f["data"].keys())[0]]["actions"])
+        # 1. Load all per-frame data from npz cache.
+        npz = np.load(record["npz_path"], allow_pickle=False)
+        action = np.asarray(npz["actions"][frame_idx], dtype=np.float32)
+        ee_pose = self._build_ee_pose(
+            npz["ee_pos"][frame_idx], npz["ee_ori"][frame_idx],
+        )
+        # object_poses npz layout: (N_obj, T, 4, 4) — transpose to (N_obj, 4, 4)
+        object_poses_full = np.asarray(npz["object_poses"], dtype=np.float32)
+        object_poses = object_poses_full[:, frame_idx, :, :]
+        object_names = [str(n) for n in npz["object_names"]]
+        instruction = str(npz["instruction"].item()) if npz["instruction"].ndim == 0 \
+                      else str(npz["instruction"])
 
+        # 2. Load image from hdf5 (npz doesn't store images).
+        with h5py.File(record["hdf5_path"], "r") as f:
+            obs = f["data"][record["demo_key"]]["obs"]
             image = self._load_image(obs, frame_idx)
             instruction = self._read_instruction(f)
 
@@ -162,16 +209,41 @@ class LIBEROOTPDataset:
     # Init helpers
     # ------------------------------------------------------------------
 
-    def _scan_demo_paths(self) -> List[Path]:
-        if not self.root.exists():
-            raise FileNotFoundError(f"Dataset root not found: {self.root}")
-        paths = sorted(self.root.glob("**/*.hdf5"))
-        if not paths:
+    def _scan_demos(self) -> List[Dict[str, Any]]:
+        """
+        Walk root/<task>/demo_X.npz; for each, locate the corresponding
+        hdf5 and demo key.  A demo with missing hdf5 is skipped with warning.
+        """
+        records: List[Dict[str, Any]] = []
+        npz_paths = sorted(self.root.glob("*/demo_*.npz"))
+        if not npz_paths:
             raise FileNotFoundError(
-                f"No .hdf5 demos under {self.root}. "
-                f"Run scripts/03_extract_object_poses.py first."
+                f"No demo_*.npz under {self.root}/<task>/.  Run "
+                f"scripts/03_extract_object_poses.py first."
             )
-        return paths
+
+        for npz_path in npz_paths:
+            task_stem = npz_path.parent.name
+            demo_id = npz_path.stem                          # e.g. "demo_3"
+            hdf5_path = self.libero_hdf5_root / f"{task_stem}_demo.hdf5"
+            if not hdf5_path.exists():
+                logger.warning(
+                    "Skipping %s — hdf5 not found: %s", npz_path.name, hdf5_path,
+                )
+                continue
+            records.append({
+                "npz_path":  npz_path,
+                "hdf5_path": hdf5_path,
+                "demo_key":  demo_id,
+            })
+
+        if not records:
+            raise FileNotFoundError(
+                f"No demos resolved.  Checked {len(npz_paths)} npz files "
+                f"under {self.root}; none had a corresponding hdf5 in "
+                f"{self.libero_hdf5_root}."
+            )
+        return records
 
     def _resolve_view_keys(self) -> List[str]:
         try:
@@ -181,14 +253,20 @@ class LIBEROOTPDataset:
                 "LIBEROOTPDataset requires h5py to resolve view keys."
             ) from e
 
-        with h5py.File(self.demo_paths[0], "r") as f:
-            obs = f["data"][sorted(f["data"].keys())[0]]["obs"]
-            candidates = [k for k in obs.keys() if k.endswith("_rgb") or k.endswith("_image")]
+        first = self.demo_records[0]
+        with h5py.File(first["hdf5_path"], "r") as f:
+            obs = f["data"][first["demo_key"]]["obs"]
+            candidates = [k for k in obs.keys()
+                          if k.endswith("_rgb") or k.endswith("_image")]
             if not candidates:
                 raise KeyError(
-                    f"No image-like keys in obs of {self.demo_paths[0]}. "
+                    f"No image-like keys in obs of {first['hdf5_path']}. "
                     f"Found keys: {list(obs.keys())}"
                 )
+        # Prefer agentview / front-view if present, else first sorted.
+        preferred = [k for k in candidates if "agentview" in k]
+        if preferred:
+            return sorted(preferred) + sorted(k for k in candidates if k not in preferred)
         return sorted(candidates)
 
     def _build_index(self) -> List[Tuple[Path, int]]:
@@ -226,22 +304,18 @@ class LIBEROOTPDataset:
         return img.astype(np.uint8)
 
     @staticmethod
-    def _read_instruction(f) -> str:
-        if "instruction" in f.attrs:
-            return str(f.attrs["instruction"])
-        if "language_instruction" in f:
-            return str(np.asarray(f["language_instruction"]).item())
-        return ""
+    def _build_ee_pose(pos: np.ndarray, ori: np.ndarray) -> np.ndarray:
+        """
+        Compose SE(3) from ee_pos (3,) + ee_ori (3,) axis-angle.
 
-    @staticmethod
-    def _load_ee_pose(obs, frame_idx: int) -> np.ndarray:
-        if "ee_pose" in obs:
-            return np.asarray(obs["ee_pose"][frame_idx], dtype=np.float32)
-        from otp.utils.lie_algebra import quat_to_so3
+        LIBERO npz stores ee_ori as axis-angle (3,) in world frame, not quat.
+        """
+        from otp.utils.lie_algebra import so3_exp
         import torch
-        pos = np.asarray(obs["ee_pos"][frame_idx], dtype=np.float32)
-        quat = np.asarray(obs["ee_quat"][frame_idx], dtype=np.float32)
-        R = quat_to_so3(torch.from_numpy(quat).unsqueeze(0)).squeeze(0).numpy()
+
+        pos = np.asarray(pos, dtype=np.float32)
+        ori = np.asarray(ori, dtype=np.float32)
+        R = so3_exp(torch.from_numpy(ori).unsqueeze(0)).squeeze(0).numpy()
         T = np.eye(4, dtype=np.float32)
         T[:3, :3] = R
         T[:3, 3] = pos
@@ -335,11 +409,15 @@ class LIBEROOTPDataset:
         """
         For each object name, look up the cached affordance npz.
 
+        LIBERO instance names are like "akita_black_bowl_1"; the affordance
+        cache is keyed by base class "akita_black_bowl".  Strip a trailing
+        "_<digit>+" suffix to map instance -> base.
+
         Raises:
-            FileNotFoundError: If any object name has no corresponding npz
-                               under self.grasp_affordance_dir.  Silent
-                               zero-fill is explicitly forbidden by §5.1.
+            FileNotFoundError: If any base name has no corresponding npz.
         """
+        import re as _re_strip
+
         K = self.num_grasps_per_object
         P = self.num_points
         N = len(object_names)
@@ -351,11 +429,12 @@ class LIBEROOTPDataset:
         for i, name in enumerate(object_names):
             cached = self._affordance_cache.get(name)
             if cached is None:
-                npz_path = self.grasp_affordance_dir / f"{name}.npz"
+                base_name = _re_strip.sub(r"_\d+$", "", name)
+                npz_path = self.grasp_affordance_dir / f"{base_name}.npz"
                 if not npz_path.exists():
                     raise FileNotFoundError(
-                        f"Grasp affordance file missing for object {name!r}: "
-                        f"{npz_path}.  Re-run "
+                        f"Grasp affordance file missing for object {name!r} "
+                        f"(base={base_name!r}): {npz_path}.  Re-run "
                         f"scripts/03c_extract_grasp_affordances.py "
                         f"to populate the cache (§5.1: silent zero-fill forbidden)."
                     )
@@ -371,16 +450,13 @@ class LIBEROOTPDataset:
             vm = cached["valid_mask"]
             mv = cached["mesh_vertices"]
 
-            # Pad / truncate per-object grasps to K.
             k_avail = min(g.shape[0], K)
             affordance[i, :k_avail] = g[:k_avail]
             affordance_mask[i, :k_avail] = vm[:k_avail]
 
-            # Pad / truncate point cloud to P.
             p_avail = min(mv.shape[0], P)
             point_clouds[i, :p_avail] = mv[:p_avail]
             if p_avail < P:
-                # Repeat the last vertex to fill the buffer (deterministic).
                 point_clouds[i, p_avail:] = mv[-1:]
 
         return affordance, affordance_mask, point_clouds
