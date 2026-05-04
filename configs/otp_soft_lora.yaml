@@ -1,0 +1,73 @@
+# =============================================================================
+# OTP-Soft training configuration — LoRA backbone
+#
+# The VLA backbone has LoRA adapters injected into all attention projections.
+# OTP head, decoder, and geometry encoder train at full rank.
+# Use this profile for the §IV main results column.
+# =============================================================================
+
+model:
+  type: otp_soft
+  backbone_mode: lora             # one of: frozen, lora, full
+  backbone_dim: 4096
+
+  lora:
+    r: 16
+    alpha: 32
+    dropout: 0.05
+    target_modules: [q_proj, k_proj, v_proj, o_proj]
+
+  otp_head:
+    hidden_dim: 1024
+    num_objects: 5
+    horizon: 8
+    num_heads: 8
+    num_layers: 4
+    vel_hidden_dim: 1024
+    vel_num_layers: 3
+    use_shortcut: true
+    num_shortcut_levels: 4
+    consistency_weight: 1.0
+    num_sample_steps: 16
+
+  decoder:
+    trajectory_dim: 6
+    affordance_dim: 7
+    proprio_dim: 8
+    hidden_dim: 512
+    num_decoder_layers: 4
+    num_heads: 8
+    num_grasps_per_object: 8
+    action_dim: 7
+    use_flow_matching: true
+    consistency_weight: 1.0
+    num_sample_steps: 8
+
+  geometry_encoder:
+    num_points: 256
+    output_dim: 64
+    hidden_dim: 128
+
+  otp_head_loss_weight: 1.0
+  decoder_loss_weight: 1.0
+
+train:
+  precision: bf16
+  optimizer: adamw
+  lr: 2.0e-4                      # lower than frozen — backbone LoRA active
+  weight_decay: 1.0e-4
+  warmup_steps: 1000
+  lr_schedule: cosine
+  batch_size: 16
+  num_epochs: 80
+  grad_clip: 1.0
+  gradient_checkpointing: true    # backbone gradients increase memory
+
+  log_every: 25
+  ckpt_every: 1000
+  eval_every: 2500
+
+data:
+  suite: libero_spatial
+  view_keys: [agentview_rgb, eye_in_hand_rgb]
+  normalizer_path: data/object_poses/meta/stats_qpace.json
