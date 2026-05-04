@@ -12,7 +12,8 @@ __pycache__/
 third_party/
 
 # Data — too large for git, regenerate with scripts/
-data/
+# Anchored to repo root so it does NOT shadow otp/data/ source files.
+/data/
 
 # Results — keep in branch but exclude large binary artifacts
 # (We DO want gt_replay_smoke*.json in this branch as evidence)
