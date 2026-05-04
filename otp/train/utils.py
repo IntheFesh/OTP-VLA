@@ -8,7 +8,6 @@ Safe to import from tests.
 from __future__ import annotations
 
 import csv
-import hashlib
 import math
 import time
 from pathlib import Path
@@ -19,9 +18,6 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
 
-# Stub tokenizer constants.
-STUB_SEQ_LEN = 32
-STUB_VOCAB = 1024
 
 
 # ---------------------------------------------------------------------------
@@ -98,24 +94,6 @@ _collate = collate_fn
 
 
 # ---------------------------------------------------------------------------
-# Stub tokenizer
-# ---------------------------------------------------------------------------
-
-def _stable_hash(s: str) -> int:
-    return int(hashlib.md5(s.encode()).hexdigest(), 16)
-
-
-def tokenize_stub(instructions: List[str]) -> torch.Tensor:
-    """Hash each word to [0, STUB_VOCAB) and pack into (B, STUB_SEQ_LEN)."""
-    B = len(instructions)
-    tokens = torch.zeros(B, STUB_SEQ_LEN, dtype=torch.long)
-    for i, inst in enumerate(instructions):
-        for j, word in enumerate(inst.split()[:STUB_SEQ_LEN]):
-            tokens[i, j] = _stable_hash(word) % STUB_VOCAB
-    return tokens
-
-
-# ---------------------------------------------------------------------------
 # Batch assembly
 # ---------------------------------------------------------------------------
 
@@ -129,26 +107,20 @@ def assemble_batch(
     Map LIBEROOTPDataset / SyntheticDataset output → OTPSoftModel.forward input.
 
     Conversions:
-      image        uint8 (B,3,H,W)  →  pixel_values  float [0,1]
-      instruction  list[str]         →  input_ids     (B, STUB_SEQ_LEN)
+      image        uint8 (B,3,H,W)  →  passed as-is; backbone preprocesses internally
+      instruction  list[str]         →  passed as-is; backbone tokenises internally
       action_chunk (B, H, 7)         →  gt_action     (B, H, 7)
       ee_pose      (B, 4, 4)         →  proprioception (B, 8)
-      object_names list[list]        →  object_indices (B, N_obj)  [dummy]
+      object_names list[list]        →  object_indices (B, N_obj)  [0…N_obj-1]
     """
     from otp.utils.lie_algebra import so3_to_quat
 
     B = raw["image"].shape[0]
-    seq_total = STUB_SEQ_LEN + 1  # stub backbone prepends 1 image token
 
-    pixel_values = raw["image"].float() / 255.0
+    image: torch.Tensor = raw["image"]                # (B, 3, H, W) uint8
+    instruction: List[str] = raw["instruction"]       # list[str], no device move
 
-    instructions: List[str] = raw["instruction"]
-    input_ids = tokenize_stub(instructions)
-    attention_mask = (input_ids != 0).long()
-
-    object_indices = (
-        torch.arange(num_objects).unsqueeze(0).expand(B, -1) % seq_total
-    )
+    object_indices = torch.arange(num_objects).unsqueeze(0).expand(B, -1)
 
     ee = raw["ee_pose"].float()
     pos = ee[:, :3, 3]
@@ -157,9 +129,8 @@ def assemble_batch(
     proprio = torch.cat([pos, quat, gripper], dim=-1)
 
     return {
-        "pixel_values":        pixel_values.to(device, amp_dtype),
-        "input_ids":           input_ids.to(device),
-        "attention_mask":      attention_mask.to(device),
+        "image":               image.to(device),
+        "instruction":         instruction,
         "object_indices":      object_indices.to(device),
         "object_point_clouds": raw["object_point_clouds"].to(device, amp_dtype),
         "proprioception":      proprio.to(device, amp_dtype),

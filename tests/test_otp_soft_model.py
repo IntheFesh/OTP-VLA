@@ -39,12 +39,11 @@ DEFAULT_CFG = {
 
 
 def _make_batch(B: int = 2, training: bool = True):
-    S, N_obj, K, N_pts, H = 8, 2, 4, 16, 4
+    N_obj, K, N_pts, H = 2, 4, 16, 4
     batch = {
-        "pixel_values":        torch.randn(B, 3, 16, 16),
-        "input_ids":           torch.randint(0, 1000, (B, S)),
-        "attention_mask":      torch.ones(B, S, dtype=torch.long),
-        "object_indices":      torch.randint(0, S, (B, N_obj)),
+        "image":               torch.rand(B, 3, 16, 16),
+        "instruction":         ["pick up the cube and place it on the plate"] * B,
+        "object_indices":      torch.arange(N_obj).unsqueeze(0).expand(B, -1),
         "object_point_clouds": torch.randn(B, N_obj, N_pts, 3),
         "proprioception":      torch.randn(B, 8),
         "grasp_affordance":    torch.randn(B, N_obj, K, 7),
@@ -110,11 +109,12 @@ class TestTrainingForward:
 class TestNaNGuard:
 
     def test_nan_pixel_propagates_to_head_loss_none(self):
-        """NaN pixel values cascade into NaN backbone hidden, OTP head guard fires."""
+        """NaN image values cascade into NaN backbone hidden, OTP head guard fires."""
         torch.manual_seed(0)
         model = OTPSoftModel(DEFAULT_CFG)
         batch = _make_batch(B=2, training=True)
-        batch["pixel_values"] = torch.full_like(batch["pixel_values"], float("nan"))
+        # uint8 cannot hold NaN; replace with float NaN tensor.
+        batch["image"] = torch.full((2, 3, 16, 16), float("nan"))
         out = model(batch)
         assert out["otp_head_loss"] is None
 
@@ -205,8 +205,15 @@ class TestTinyBackboneStub:
     def test_output_shape(self):
         bb = _TinyBackboneStub(hidden_dim=64)
         out = bb(
-            pixel_values=torch.randn(2, 3, 16, 16),
-            input_ids=torch.randint(0, 1000, (2, 8)),
-            attention_mask=torch.ones(2, 8, dtype=torch.long),
+            image=torch.rand(2, 3, 16, 16),
+            instruction=["pick up the cube", "place the block on the plate"],
         )
-        assert out["hidden_states"].shape == (2, 9, 64)         # +1 image token
+        # 1 image token + _SEQ_LEN=32 text tokens = 33 total
+        assert out["hidden_states"].shape == (2, 33, 64)
+
+    def test_uint8_image_accepted(self):
+        """Stub must handle uint8 images without error."""
+        bb = _TinyBackboneStub(hidden_dim=64)
+        img = torch.randint(0, 256, (2, 3, 16, 16), dtype=torch.uint8)
+        out = bb(image=img, instruction=["pick up the cube", "place it"])
+        assert torch.isfinite(out["hidden_states"]).all()
