@@ -5,11 +5,27 @@
 # language-agnostic decoder, and the geometry encoder receive gradient.
 # Use this profile for fast experimentation and the §IV ablation column
 # "frozen backbone".
+#
+# Minimal required overrides when launching with real data:
+#   data.root=<path/to/object_poses>
+#   data.grasp_affordance_dir=<path/to/grasp_affordances>
+#
+# Synthetic (no real data) quick sanity run:
+#   synthetic_data=true train.num_steps=100 train.batch_size=4
 # =============================================================================
 
+# ---------------------------------------------------------------------------
+# Synthetic-data shortcut
+# ---------------------------------------------------------------------------
+synthetic_data: false          # true → skip real DataLoader, use random tensors
+synthetic_steps: 500           # how many synthetic batches per "epoch"
+
+# ---------------------------------------------------------------------------
+# Model
+# ---------------------------------------------------------------------------
 model:
   type: otp_soft
-  backbone_mode: frozen           # one of: frozen, lora, full
+  backbone_mode: frozen           # one of: stub, frozen, lora, full
   backbone_dim: 4096              # OpenVLA-OFT hidden width
 
   otp_head:
@@ -46,6 +62,9 @@ model:
   otp_head_loss_weight: 1.0
   decoder_loss_weight: 1.0
 
+# ---------------------------------------------------------------------------
+# Training
+# ---------------------------------------------------------------------------
 train:
   precision: bf16                 # all computation in bfloat16 (paper §IV)
   optimizer: adamw
@@ -55,15 +74,36 @@ train:
   lr_schedule: cosine
   batch_size: 16
   num_epochs: 50
+  num_steps: null                 # if set, stop after this many optimizer steps
   grad_clip: 1.0
-  gradient_checkpointing: false   # decoder + head together < 50M params
+  gradient_checkpointing: false
 
   # Logging cadence (§2.4 — CSV every ≤50 steps)
   log_every: 25
   ckpt_every: 1000
   eval_every: 2500
 
+# ---------------------------------------------------------------------------
+# Data
+# ---------------------------------------------------------------------------
 data:
   suite: libero_spatial
+  root: data/object_poses                    # override on CLI
+  grasp_affordance_dir: data/grasp_affordances  # override on CLI
   view_keys: [agentview_rgb, eye_in_hand_rgb]
   normalizer_path: data/object_poses/meta/stats_qpace.json
+  num_workers: 4
+
+# ---------------------------------------------------------------------------
+# Output / checkpoints
+# ---------------------------------------------------------------------------
+output_dir: results/otp_soft_frozen
+
+# ---------------------------------------------------------------------------
+# Weights & Biases (optional)
+# ---------------------------------------------------------------------------
+wandb:
+  enabled: false
+  project: otp-vla
+  entity: null                    # set to your W&B username/team
+  run_name: null                  # auto-generated if null

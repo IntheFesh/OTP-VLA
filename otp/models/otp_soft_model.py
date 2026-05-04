@@ -56,16 +56,28 @@ class _TinyBackboneStub(nn.Module):
     """
     Minimal stand-in for an OpenVLA-OFT backbone.
 
-    Maps (pixel_values, input_ids) → hidden states with deterministic shape.
-    Intentionally crude — only used when a real VLA isn't available.
+    Maps (pixel_values, input_ids) → hidden states matching OpenVLA's
+    hidden_dim=4096.  Intentionally crude; used only for sanity checks.
+
+    Parameter budget (< 5 M):
+      pixel_proj  Linear(3, 4096)     ≈  16 K
+      token_embed Embedding(1024, 4096) ≈ 4.2 M
+      total                           ≈ 4.2 M  ✓
+
+    Determinism: no dropout, no random ops; output is fully determined by
+    the input tensors and the module's weight matrices.
+
+    Input IDs are hashed into [0, vocab_size) via modulo so the caller
+    need not worry about range.
     """
 
-    def __init__(self, hidden_dim: int = 256, vocab_size: int = 32_000) -> None:
+    _VOCAB_SIZE = 1024  # small table keeps param count < 5 M
+
+    def __init__(self, hidden_dim: int = 4096) -> None:
         super().__init__()
         self.hidden_dim = hidden_dim
-        # Project pixels (3, 224, 224) globally pooled → hidden via avg pool.
         self.pixel_proj = nn.Linear(3, hidden_dim)
-        self.token_embed = nn.Embedding(vocab_size, hidden_dim)
+        self.token_embed = nn.Embedding(self._VOCAB_SIZE, hidden_dim)
 
     def forward(
         self,
@@ -75,14 +87,16 @@ class _TinyBackboneStub(nn.Module):
     ) -> dict:
         B = pixel_values.shape[0]
         # Image: global-avg-pool then project → 1 image token.
-        img_pooled = pixel_values.mean(dim=(-2, -1))          # (B, 3)
-        img_tok = self.pixel_proj(img_pooled).unsqueeze(1)    # (B, 1, hidden)
-        # Text tokens.
-        txt_tok = self.token_embed(input_ids)                 # (B, S, hidden)
-        hidden = torch.cat([img_tok, txt_tok], dim=1)         # (B, S+1, hidden)
+        img_pooled = pixel_values.mean(dim=(-2, -1))                  # (B, 3)
+        img_tok = self.pixel_proj(img_pooled).unsqueeze(1)            # (B, 1, D)
+        # Text: hash IDs into vocab range, then embed.
+        ids_in_range = input_ids % self._VOCAB_SIZE                   # (B, S)
+        txt_tok = self.token_embed(ids_in_range)                      # (B, S, D)
+        hidden = torch.cat([img_tok, txt_tok], dim=1)                 # (B, S+1, D)
         if attention_mask is not None:
             mask = torch.cat(
-                [torch.ones(B, 1, dtype=attention_mask.dtype, device=attention_mask.device),
+                [torch.ones(B, 1, dtype=attention_mask.dtype,
+                            device=attention_mask.device),
                  attention_mask],
                 dim=1,
             )
@@ -119,7 +133,7 @@ class OTPSoftModel(nn.Module):
         super().__init__()
         self.config = dict(config)
 
-        backbone_dim: int = config.get("backbone_dim", 256)
+        backbone_dim: int = config.get("backbone_dim", 4096)
         if backbone is None:
             backbone = _TinyBackboneStub(hidden_dim=backbone_dim)
         self.backbone = backbone

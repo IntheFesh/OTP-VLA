@@ -1,0 +1,68 @@
+# =============================================================================
+# OTP-Soft stub sanity config
+#
+# Runs 100 steps on synthetic data using _TinyBackboneStub.
+# Verifies loss decreases > 67% before any real backbone is used.
+#
+# Usage:
+#   python -m otp.train.train_otp_soft --config-name otp_soft_stub
+# =============================================================================
+
+defaults:
+  - otp_soft_frozen          # inherit full config, override below
+
+synthetic_data: true
+synthetic_steps: 200         # enough batches for 100 steps at batch_size=4
+
+model:
+  backbone_mode: stub
+  backbone_dim: 4096          # stub matches real OpenVLA hidden dim
+
+  # Small dims so the 100-step run is fast on CPU.
+  otp_head:
+    hidden_dim: 64
+    num_objects: 5
+    horizon: 8
+    num_heads: 4
+    num_layers: 2
+    vel_hidden_dim: 64
+    vel_num_layers: 2
+    use_shortcut: true
+    num_shortcut_levels: 4
+    consistency_weight: 1.0
+    num_sample_steps: 4
+
+  decoder:
+    trajectory_dim: 6
+    affordance_dim: 7
+    proprio_dim: 8
+    hidden_dim: 64
+    num_decoder_layers: 2
+    num_heads: 4
+    num_grasps_per_object: 8
+    action_dim: 7
+    use_flow_matching: true
+    consistency_weight: 1.0
+    num_sample_steps: 4
+
+  geometry_encoder:
+    num_points: 256
+    output_dim: 64
+    hidden_dim: 128
+
+train:
+  precision: fp32              # CPU-safe (no bf16 on CPU)
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  warmup_steps: 0
+  batch_size: 4
+  num_steps: 100               # exactly 100 optimiser steps
+  grad_clip: 1.0
+  log_every: 10
+  ckpt_every: 999999           # no checkpoints during sanity run
+  eval_every: 999999
+
+output_dir: results/stub_sanity
+
+wandb:
+  enabled: false

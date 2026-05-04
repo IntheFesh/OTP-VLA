@@ -1,0 +1,81 @@
+# =============================================================================
+# OCLD-Strict training configuration — frozen backbone (ablation baseline)
+#
+# Language is injected into the decoder (C3 violation).  Use to compare
+# against otp_soft_frozen.yaml in the §IV ablation study.
+# =============================================================================
+
+synthetic_data: false
+synthetic_steps: 500
+
+model:
+  type: ocld_strict
+  backbone_mode: frozen
+  backbone_dim: 4096
+
+  otp_head:
+    hidden_dim: 1024
+    num_objects: 5
+    horizon: 8
+    num_heads: 8
+    num_layers: 4
+    vel_hidden_dim: 1024
+    vel_num_layers: 3
+    use_shortcut: true
+    num_shortcut_levels: 4
+    consistency_weight: 1.0
+    num_sample_steps: 16
+
+  decoder:
+    trajectory_dim: 6
+    affordance_dim: 7
+    proprio_dim: 8
+    hidden_dim: 512
+    num_decoder_layers: 4
+    num_lang_layers: 2            # extra cross-attention blocks for language
+    num_heads: 8
+    num_grasps_per_object: 8
+    action_dim: 7
+    use_flow_matching: true
+    consistency_weight: 1.0
+    num_sample_steps: 8
+
+  geometry_encoder:
+    num_points: 256
+    output_dim: 64
+    hidden_dim: 128
+
+  otp_head_loss_weight: 1.0
+  decoder_loss_weight: 1.0
+
+train:
+  precision: bf16
+  optimizer: adamw
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  warmup_steps: 500
+  lr_schedule: cosine
+  batch_size: 16
+  num_epochs: 50
+  num_steps: null
+  grad_clip: 1.0
+  gradient_checkpointing: false
+  log_every: 25
+  ckpt_every: 1000
+  eval_every: 2500
+
+data:
+  suite: libero_spatial
+  root: data/object_poses
+  grasp_affordance_dir: data/grasp_affordances
+  view_keys: [agentview_rgb, eye_in_hand_rgb]
+  normalizer_path: data/object_poses/meta/stats_qpace.json
+  num_workers: 4
+
+output_dir: results/ocld_strict_frozen
+
+wandb:
+  enabled: false
+  project: otp-vla
+  entity: null
+  run_name: null
