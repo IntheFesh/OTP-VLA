@@ -89,6 +89,63 @@ Sets: `MUJOCO_GL=egl`, `PYOPENGL_PLATFORM=egl`, `PYTHONPATH`, `HF_ENDPOINT`.
 
 ---
 
+### `otp/models/language_agnostic_decoder.py`
+**Status**: Stage 4 (otp-soft-implementation branch)
+**Purpose**: Decoder φ_θ(z, w(o)) → a^(H) implementing Theorem 2 (revised).
+Strictly independent of the language instruction ℓ — C3 (Causal
+Counterfactual Compatibility) is enforced both statically (forbidden
+parameter / submodule name fragments) and at runtime (locals + dir asserts).
+
+**Forward signature** (frozen by tests; do not modify without C3 review):
+```
+forward(trajectory:        (B, N_obj, H, 6),
+        proprioception:    (B, 8),
+        grasp_affordance:  (B, N_obj, K, 7),
+        object_geometry:   (B, N_obj, D_geom),
+        gt_action: Optional[(B, H, 7)] = None) -> dict
+```
+
+**Forbidden name fragments** (assertion at __init__): `instruction`,
+`language`, `lang_`, `text`, `backbone`, `hidden_state`, `input_ids`.
+
+---
+
+### `otp/models/grasp_affordance_encoder.py`
+**Status**: Stage 4
+**Purpose**: PointNet-style `GeometryEncoder` mapping object meshes to
+D_geom features.  Permutation invariant via per-point MLP + max pool.
+Independent of ℓ — qualifies as a component of `w(o)`.
+
+---
+
+### `otp/models/otp_soft_model.py`
+**Status**: Stage 4
+**Purpose**: Composes backbone (frozen / LoRA / full), `OTPHead`,
+`GeometryEncoder`, and `LanguageAgnosticDecoder` into the OTP-Soft policy.
+Total loss = α·L_head + β·L_decoder.  CLI: `python -m otp.models.otp_soft_model --sanity-check`.
+
+**C3 boundary**: `model.decoder(...)` does not touch backbone state — verified
+by the `TestC3DecoderBoundary` regression test.
+
+---
+
+### `configs/otp_soft_frozen.yaml`, `configs/otp_soft_lora.yaml`
+**Status**: Stage 4
+Hydra-compatible training configs for the two main backbone modes.
+Both train in bf16 (§IV).
+
+---
+
+### Removed in Stage 4
+- `otp/controllers/fixed_manipulation_controller.py`
+- `otp/controllers/components/` (6 files)
+- Their corresponding tests (`test_phase_scheduler.py`, `test_osc_target_generator.py`, `test_fixed_manipulation_controller.py`)
+
+These are preserved on the **`otp-fixed-phi-validation`** branch as the
+empirical anchor for paper §III.
+
+---
+
 ### `otp/models/otp_head.py`
 **Status**: Stage 2  
 **Purpose**: Cross-attention OTP head predicting (B, N_obj, H, 6) Lie algebra trajectories via Shortcut Flow Matching.
@@ -206,3 +263,4 @@ prerequisite data, CUDA, or checkpoint is missing — never silently fails.
 | 1 | `otp/utils/lie_algebra.py`, `otp/utils/flow_matching.py`, `tests/test_lie_algebra.py`, `tests/test_flow_matching.py`, `REPO_LAYOUT.md` | §3.4 action dims, §2.2 LossOutput, M1 interface contracts |
 | 2 | `otp/models/otp_head.py`, `otp/controllers/components/` (6 files), `otp/controllers/fixed_manipulation_controller.py`, `tests/test_otp_head.py`, `tests/test_phase_scheduler.py`, `tests/test_osc_target_generator.py`, `tests/test_fixed_manipulation_controller.py`, `REPO_LAYOUT.md` | §2.2 LossOutput, M1 interface contracts, M7 no short-circuit, M8 discrete gripper |
 | 3 | `otp/data/perturbation_protocol.py`, `otp/data/object_pose_extractor.py`, `otp/data/libero_loader.py`, `configs/perturbation_vocab.yaml`, `scripts/03_extract_object_poses.py`, `scripts/03b_generate_perturbation_suite.py`, `tests/test_perturbation_protocol.py`, `notebooks/01_motivation_figure.ipynb`, `requirements.txt`, `REPO_LAYOUT.md` | §V.B perturbation suite, §3.3 view-key resolution, §5.1 normalizer contract, §1.2 startup snapshot |
+| 4 | `otp/models/language_agnostic_decoder.py`, `otp/models/grasp_affordance_encoder.py`, `otp/models/otp_soft_model.py`, `tests/test_language_agnostic_decoder.py`, `tests/test_otp_soft_model.py`, `configs/otp_soft_frozen.yaml`, `configs/otp_soft_lora.yaml`, **removed** `otp/controllers/{components/, fixed_manipulation_controller.py}` and their tests, `REPO_LAYOUT.md` | Theorem 2 (C3) enforcement (static + dynamic), §2.2 LossOutput, M1 interface contracts |
