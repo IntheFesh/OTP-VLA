@@ -1,0 +1,28 @@
+# =============================================================================
+# Stage 4d analysis — long micro run (1000 steps, no oracle)
+#
+# Distinguishes "CFM decoder is slow but learning" from "CFM decoder is
+# stuck". 200-step run was insufficient — at step 200, lr is still in
+# warmup (4e-4 of target 1e-3, 40%) and CFM velocity field has only seen
+# 1600 (B=8) action samples vs the 56-dim distribution it must learn.
+#
+# Pass criterion: decoder Q4 (steps 751-1000) avg < 1.0
+# Fail criterion: decoder Q4 ≥ 1.15 (i.e., effectively flat over 1000 steps)
+# Ambiguous (1.0-1.15): need more analysis.
+# =============================================================================
+defaults:
+  - otp_soft_frozen
+  - _self_
+
+train:
+  num_steps: 1000
+  batch_size: 8
+  log_every: 10
+
+data:
+  num_workers: 2
+
+wandb:
+  enabled: false
+
+output_dir: results/otp_soft_micro_long

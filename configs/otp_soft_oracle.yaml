@@ -1,0 +1,20 @@
+# =============================================================================
+# OTP-Soft Stage 4d-diagnostic — Oracle decoder
+#
+# Diagnostic config that swaps the head-sampled trajectory for the GT
+# trajectory at the decoder input. Distinguishes:
+#   (A) decoder learns once trajectory signal is clean (problem is the
+#       coupling between training head and training decoder)
+#   (B) decoder is broken regardless (problem is decoder/proprio/affordance
+#       wiring, not the head)
+#
+# This is a diagnostic only — not for production training.
+# =============================================================================
+defaults:
+  - otp_soft_micro_run_ext   # inherit 200-step + log_every=5 setup
+  - _self_
+
+model:
+  use_oracle_trajectory: true
+
+output_dir: results/otp_soft_oracle

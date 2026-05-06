@@ -196,6 +196,11 @@ class OTPSoftModel(nn.Module):
 
         self.otp_head_loss_weight = float(config.get("otp_head_loss_weight", 1.0))
         self.decoder_loss_weight = float(config.get("decoder_loss_weight", 1.0))
+        # Oracle decoder diagnostic (Stage 4d): when True, the decoder
+        # receives the GT trajectory instead of the CFM-sampled one. Used
+        # to test whether decoder can learn given a clean trajectory signal.
+        # Production runs leave this False.
+        self.use_oracle_trajectory = bool(config.get("use_oracle_trajectory", False))
 
     # ------------------------------------------------------------------
     def _run_backbone(self, batch: Dict[str, Any]) -> tuple:
@@ -271,6 +276,12 @@ class OTPSoftModel(nn.Module):
         else:
             head_loss = None
             trajectory = head_out["trajectories"]
+        # ---- 2.5 Oracle override (diagnostic only) ---- #
+        if self.use_oracle_trajectory and batch.get("gt_trajectory") is not None:
+            # Replace head-derived trajectory with GT trajectory for diagnostic
+            # runs. The CFM head is still trained against gt_trajectory via
+            # head_loss; only the decoder input is swapped.
+            trajectory = batch["gt_trajectory"]
 
         # ---- 3. Geometry encoder (no ℓ) ---- #
         object_geometry = self.geometry_encoder(batch["object_point_clouds"])

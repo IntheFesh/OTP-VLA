@@ -1,0 +1,27 @@
+# =============================================================================
+# Stage 4d analysis — lower LR sanity check
+#
+# 1000-step run hit head loss = 2.14 at step 1000 (vs 1.51 at step 200) —
+# head appears to be diverging once lr exits warmup. This config tests
+# whether lr=1e-3 was simply too high for the 92M trainable params.
+#
+# Same as otp_soft_micro_run_long but with lr=1e-4 (10x smaller).
+# warmup_steps=500 still, so effective lr ramps 0 -> 1e-4 over 500 steps.
+# =============================================================================
+defaults:
+  - otp_soft_frozen
+  - _self_
+
+train:
+  num_steps: 500
+  batch_size: 8
+  log_every: 10
+  lr: 1.0e-4
+
+data:
+  num_workers: 2
+
+wandb:
+  enabled: false
+
+output_dir: results/otp_soft_lr_low
