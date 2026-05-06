@@ -1,0 +1,32 @@
+# =============================================================================
+# OTP-Soft Stage 4d — 50-step micro run (frozen backbone)
+#
+# Purpose: smallest experiment that distinguishes "the architecture can learn
+# at all" from "the architecture is broken end-to-end". Inherits everything
+# from otp_soft_frozen.yaml (lr=1e-3, warmup=500, cosine, etc) so the result
+# directly characterises the production training trajectory's first 50 steps.
+#
+# Caveat: 50 steps is entirely within the warmup window (warmup_steps=500),
+# so effective lr ramps 0 → 1e-4 over the run. Loss drop will look modest
+# compared to a fully ramped run; that is expected.
+#
+# Usage:
+#   python -m otp.train.train_otp_soft --config-name otp_soft_micro_run
+# =============================================================================
+defaults:
+  - otp_soft_frozen
+  - _self_
+
+train:
+  num_steps: 50         # stop after 50 optimizer steps
+  batch_size: 8         # smaller than prod (16) to keep memory pressure modest
+  # everything else inherited (lr=1e-3, warmup=500, cosine, grad_clip=1.0)
+
+data:
+  num_workers: 2        # micro run, fewer workers fine
+
+# Disable W&B for the micro run (no need to pollute the project with these)
+wandb:
+  enabled: false
+
+output_dir: results/otp_soft_micro_run

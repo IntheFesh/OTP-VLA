@@ -1,0 +1,31 @@
+# =============================================================================
+# OTP-Soft Stage 4d-extended — 200-step micro run with dense logging
+#
+# Same as otp_soft_micro_run.yaml, but:
+#   - 200 steps (instead of 50) — to see what happens AFTER warmup ramps
+#     past the initial 50-step phase
+#   - log every 5 steps (vs default 25) — dense enough to distinguish
+#     "decoder learns slowly after head settles" from "decoder diverges"
+#
+# Reading guide:
+#   * head_loss should continue dropping
+#   * decoder_loss either:
+#       - dips after step ~50-100 (head stable enough for decoder to track)
+#       - keeps rising (architectural concern, redirects 4e plan)
+# =============================================================================
+defaults:
+  - otp_soft_frozen
+  - _self_
+
+train:
+  num_steps: 200
+  batch_size: 8
+  log_every: 5
+
+data:
+  num_workers: 2
+
+wandb:
+  enabled: false
+
+output_dir: results/otp_soft_micro_run_ext
