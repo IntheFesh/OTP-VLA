@@ -30,3 +30,9 @@ venv/
 logs/
 results/
 outputs/
+
+# Local pretest / inspection logs (per-machine, not shared)
+*_output.txt
+inspection_output.txt
+pretest_*.txt
+*.bak

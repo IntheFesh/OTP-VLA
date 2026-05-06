@@ -78,7 +78,8 @@ class OpenVLABackboneWrapper(nn.Module):
     # match, we raise with the actual top-level children listed so the user
     # can update this list (see scripts/inspect_openvla_modules.py).
     _MODULE_CANDIDATES: Tuple[Tuple[str, str, str], ...] = (
-        ("vision_backbone",  "projector",              "llm_backbone"),
+        ("vision_backbone",  "projector",              "language_model"),  # OpenVLA-OFT (HF)
+        ("vision_backbone",  "projector",              "llm_backbone"),    # legacy Prismatic
         ("vision_tower",     "multi_modal_projector",  "language_model"),
         ("vision_model",     "projector",              "language_model"),
     )
@@ -226,20 +227,32 @@ class OpenVLABackboneWrapper(nn.Module):
 
     def _preprocess_image(self, image: torch.Tensor) -> torch.Tensor:
         """
-        (B, 3, H, W) uint8-or-float → (B, 3, 224, 224) bf16, ImageNet-normalised.
+        (B, 3, H, W) uint8-or-float → (B, 6, 224, 224) bf16.
+
+        OpenVLA-OFT uses a DUAL vision encoder (SigLIP + DINOv2). The HF
+        processor fuses both encoders\' inputs along the channel dim, applying
+        each encoder\'s own normalization stats. Output is (B, 6, 224, 224).
+
+        We delegate to ``self.processor.image_processor`` rather than
+        re-implementing the dual-normalization logic, because the two encoders
+        have different mean/std and the fusion ordering is checkpoint-specific.
         """
-        img = image.float()
-        if img.max() > 1.5:
-            img = img / 255.0
-        if img.shape[-2] != IMAGE_SIZE or img.shape[-1] != IMAGE_SIZE:
-            img = F.interpolate(
-                img, size=(IMAGE_SIZE, IMAGE_SIZE),
-                mode="bilinear", align_corners=False,
-            )
-        mean = torch.tensor(_IMAGENET_MEAN, device=img.device).view(1, 3, 1, 1)
-        std  = torch.tensor(_IMAGENET_STD,  device=img.device).view(1, 3, 1, 1)
-        img = (img - mean) / std
-        return img.to(self._model_dtype())
+        from PIL import Image
+        import numpy as np
+
+        # Tensor (B, 3, H, W) → list of PIL.Image (HxWx3 uint8)
+        img = image.detach().cpu()
+        if img.dtype != torch.uint8:
+            if img.max() <= 1.5:
+                img = (img * 255.0).clamp(0, 255)
+            img = img.to(torch.uint8)
+        # CHW → HWC
+        img_np = img.permute(0, 2, 3, 1).numpy()
+        pil_list = [Image.fromarray(img_np[i]) for i in range(img_np.shape[0])]
+
+        out = self.processor.image_processor(pil_list, return_tensors="pt")
+        pixel_values = out["pixel_values"]
+        return pixel_values.to(device=image.device, dtype=self._model_dtype())
 
     @staticmethod
     def _format_prompt(instruction: str) -> str:
