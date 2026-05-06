@@ -1,0 +1,38 @@
+# =============================================================================
+# Stage 4e — full 1-epoch training with lr=1e-4 (post-4d analysis)
+#
+# Stage 4d demonstrated:
+#   - lr=1e-3 (production default) causes head divergence after warmup
+#   - lr=1e-4 produces monotonic head descent
+#   - Decoder shows learning signal (touched 0.94 at step 220) but is
+#     unstable when head is still moving fast
+#
+# Hypothesis tested by this run: with lr=1e-4 over 1 full epoch, head
+# fully converges, and decoder locks onto descent in the second half of
+# the epoch (after head stabilises around its asymptote).
+#
+# Key cfg differences from otp_soft_frozen.yaml:
+#   - lr 1e-3 -> 1e-4
+#   - num_epochs 50 -> 1 (we just need ONE epoch to characterise)
+#   - log_every default -> 25 (denser logging for analysis)
+#
+# Expected runtime: ~30 min (B=16, frozen forward ~150ms/batch, 3672 batches)
+# =============================================================================
+defaults:
+  - otp_soft_frozen
+  - _self_
+
+train:
+  lr: 1.0e-4
+  num_epochs: 1
+  num_steps: null         # let epochs control termination
+  batch_size: 16          # production batch size — gradient noise mgmt
+  log_every: 25
+
+data:
+  num_workers: 4
+
+wandb:
+  enabled: false
+
+output_dir: results/otp_soft_4e
