@@ -204,11 +204,19 @@ def _run(cfg) -> None:
             ckpt_every = getattr(cfg.train, "ckpt_every", 1000)
             if step % ckpt_every == 0:
                 ckpt_path = out_dir / f"ckpt_step{step:07d}.pt"
+                # Only save trainable params — frozen backbone (e.g. OpenVLA-OFT)
+                # is reloaded from its HF checkpoint at eval time.  Saving the
+                # full state_dict would dump 7.5B frozen params per ckpt.
+                trainable_state = {n: p for n, p in model.named_parameters()
+                                   if p.requires_grad}
                 torch.save({"step": step,
-                            "model_state": model.state_dict(),
-                            "optimizer_state": optimizer.state_dict()},
+                            "model_state": trainable_state,
+                            "optimizer_state": optimizer.state_dict(),
+                            "trainable_only": True},
                            ckpt_path)
-                logger.info("Checkpoint saved: %s", ckpt_path)
+                ckpt_mb = ckpt_path.stat().st_size / 1e6
+                logger.info("Checkpoint saved: %s  (%.1f MB, trainable_only)",
+                            ckpt_path, ckpt_mb)
 
         if max_steps is not None and step >= max_steps:
             break
