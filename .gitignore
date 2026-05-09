@@ -36,3 +36,8 @@ outputs/
 inspection_output.txt
 pretest_*.txt
 *.bak
+
+# v3 split-introduction backups (kept locally as safety net)
+*.bak_v3split
+results/smoke_split_*/
+pretest_*.log

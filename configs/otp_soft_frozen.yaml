@@ -93,6 +93,12 @@ data:
   view_keys: [agentview_rgb, eye_in_hand_rgb]
   normalizer_path: data/object_poses/meta/stats_qpace.json
   num_workers: 4
+  # Per-task demo split (leakage-free held-out evaluation).
+  # Mutually exclusive: set exactly one (or neither for full-data training).
+  #   train_end_demo: 45    -> demos[0:45] per task (training set)
+  #   eval_start_demo: 45   -> demos[45:] per task (held-out set)
+  train_end_demo: null
+  eval_start_demo: null
 
 # ---------------------------------------------------------------------------
 # Output / checkpoints

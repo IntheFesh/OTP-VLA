@@ -76,12 +76,21 @@ class LIBEROOTPDataset:
         num_grasps_per_object: int = 8,
         num_points: int = 256,
         horizon: int = 8,
+        train_end_demo: Optional[int] = None,
+        eval_start_demo: Optional[int] = None,
     ) -> None:
+        if train_end_demo is not None and eval_start_demo is not None:
+            raise ValueError(
+                "Specify exactly one of train_end_demo / eval_start_demo, "
+                "not both (they define mutually exclusive splits)."
+            )
         self.root = Path(root)
         self.suite = suite
         self.num_grasps_per_object = num_grasps_per_object
         self.num_points = num_points
         self.horizon = horizon
+        self.train_end_demo = train_end_demo
+        self.eval_start_demo = eval_start_demo
 
         if not self.root.exists():
             raise FileNotFoundError(
@@ -213,7 +222,18 @@ class LIBEROOTPDataset:
         """
         Walk root/<task>/demo_X.npz; for each, locate the corresponding
         hdf5 and demo key.  A demo with missing hdf5 is skipped with warning.
+
+        Per-task demo split (leakage-free):
+          - train_end_demo=K  -> keep demos[0:K] within each task
+          - eval_start_demo=K -> keep demos[K:] within each task
+          - both None         -> keep all demos (default; backward compatible)
+
+        Demos within each task are sorted by NUMERIC demo_id (not lexical),
+        so demo_2 < demo_10 < demo_45 as expected.
         """
+        import re
+        from collections import defaultdict
+
         records: List[Dict[str, Any]] = []
         npz_paths = sorted(self.root.glob("*/demo_*.npz"))
         if not npz_paths:
@@ -222,27 +242,76 @@ class LIBEROOTPDataset:
                 f"scripts/03_extract_object_poses.py first."
             )
 
-        for npz_path in npz_paths:
-            task_stem = npz_path.parent.name
-            demo_id = npz_path.stem                          # e.g. "demo_3"
-            hdf5_path = self.libero_hdf5_root / f"{task_stem}_demo.hdf5"
-            if not hdf5_path.exists():
-                logger.warning(
-                    "Skipping %s — hdf5 not found: %s", npz_path.name, hdf5_path,
-                )
-                continue
-            records.append({
-                "npz_path":  npz_path,
-                "hdf5_path": hdf5_path,
-                "demo_key":  demo_id,
-            })
+        # Group by task.
+        by_task: Dict[str, List[Path]] = defaultdict(list)
+        for p_ in npz_paths:
+            by_task[p_.parent.name].append(p_)
+
+        def demo_num(pp: Path) -> int:
+            m = re.match(r"demo_(\d+)$", pp.stem)
+            if m is None:
+                raise ValueError(f"Unexpected demo filename: {pp}")
+            return int(m.group(1))
+
+        n_total = 0
+        n_kept = 0
+        per_task_kept: Dict[str, List[str]] = {}
+        for task in sorted(by_task.keys()):
+            paths_sorted = sorted(by_task[task], key=demo_num)
+            n_total += len(paths_sorted)
+
+            if self.train_end_demo is not None:
+                paths_kept = paths_sorted[: self.train_end_demo]
+            elif self.eval_start_demo is not None:
+                paths_kept = paths_sorted[self.eval_start_demo :]
+            else:
+                paths_kept = paths_sorted
+            n_kept += len(paths_kept)
+
+            for npz_path in paths_kept:
+                task_stem = npz_path.parent.name
+                demo_id = npz_path.stem
+                hdf5_path = self.libero_hdf5_root / f"{task_stem}_demo.hdf5"
+                if not hdf5_path.exists():
+                    logger.warning(
+                        "Skipping %s — hdf5 not found: %s", npz_path.name, hdf5_path,
+                    )
+                    continue
+                records.append({
+                    "npz_path":  npz_path,
+                    "hdf5_path": hdf5_path,
+                    "demo_key":  demo_id,
+                })
+            per_task_kept[task] = [pp.stem for pp in paths_kept]
 
         if not records:
             raise FileNotFoundError(
-                f"No demos resolved.  Checked {len(npz_paths)} npz files "
-                f"under {self.root}; none had a corresponding hdf5 in "
-                f"{self.libero_hdf5_root}."
+                f"No demos resolved (train_end_demo={self.train_end_demo}, "
+                f"eval_start_demo={self.eval_start_demo}).  Checked "
+                f"{len(npz_paths)} npz files under {self.root}."
             )
+
+        # Diagnostic log: split summary + sample task to catch off-by-one.
+        if self.train_end_demo is not None or self.eval_start_demo is not None:
+            sample_task = sorted(per_task_kept.keys())[0]
+            sample_demos = per_task_kept[sample_task]
+            head = sample_demos[:3]
+            tail = sample_demos[-3:] if len(sample_demos) > 3 else []
+            logger.info(
+                "[SPLIT] train_end_demo=%s, eval_start_demo=%s -> "
+                "kept %d/%d demos across %d tasks. "
+                "Sample task '%s...': head=%s tail=%s (n=%d)",
+                self.train_end_demo, self.eval_start_demo,
+                n_kept, n_total, len(by_task),
+                sample_task[:50],
+                head, tail, len(sample_demos),
+            )
+        else:
+            logger.info(
+                "[SPLIT] No split applied -- using all %d demos across %d tasks.",
+                n_total, len(by_task),
+            )
+
         return records
 
     def _resolve_view_keys(self) -> List[str]:

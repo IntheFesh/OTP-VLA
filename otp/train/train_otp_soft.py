@@ -105,6 +105,8 @@ def _run(cfg) -> None:
             num_grasps_per_object=num_grasps,
             num_points=num_points,
             horizon=horizon,
+            train_end_demo=getattr(cfg.data, "train_end_demo", None),
+            eval_start_demo=getattr(cfg.data, "eval_start_demo", None),
         )
         n_workers = getattr(cfg.data, "num_workers", 4)
         loader = DataLoader(
