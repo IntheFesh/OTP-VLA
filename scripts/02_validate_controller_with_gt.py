@@ -394,8 +394,11 @@ def main() -> None:
 
     os.environ.setdefault("MUJOCO_GL", "egl")
 
+    # Skip 'meta' directory created by later object-pose extraction passes
+    # (data/object_poses/meta/ holds normalisation stats etc., not task data).
+    _NON_TASK_DIRS = {"meta", "_meta", "tmp", "__pycache__"}
     task_dirs = sorted(p for p in args.object_poses_dir.iterdir()
-                       if p.is_dir())
+                       if p.is_dir() and p.name not in _NON_TASK_DIRS)
     if not task_dirs:
         logger.error("No task subdirectories under %s", args.object_poses_dir)
         sys.exit(1)
