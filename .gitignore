@@ -41,3 +41,11 @@ pretest_*.txt
 *.bak_v3split
 results/smoke_split_*/
 pretest_*.log
+
+# Backup files from any patch session
+*.bak_*
+
+# Local pointers (run-specific, not for repo)
+.last_train_pid
+.last_train_run
+.paper_ready_ckpt

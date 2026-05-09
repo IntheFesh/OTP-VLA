@@ -22,10 +22,12 @@ from __future__ import annotations
 
 import logging
 import os
+import random
 import sys
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
@@ -45,8 +47,41 @@ logging.basicConfig(
 logger = logging.getLogger("train_otp_soft")
 
 
+def _set_seed(seed: int) -> None:
+    """Seed all RNG sources for deterministic training (modulo nondeterministic CUDA kernels)."""
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+
+
+def _worker_init_fn(worker_id: int) -> None:
+    """Seed each DataLoader worker with a deterministic per-worker seed.
+
+    PyTorch auto-assigns each worker a different initial_seed() based on the
+    main process generator; we propagate that seed to numpy / random / torch
+    inside the worker so any RNG ops in __getitem__ (current or future) are
+    deterministic and worker-distinct.
+    """
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
+    torch.manual_seed(worker_seed)  # future-proof for any torch ops in dataloader
+
+
 def _run(cfg) -> None:
     """Core training logic; separated so it can be called without Hydra."""
+    # ---- Seeding (BEFORE any model / dataloader construction) ---- #
+    if "seed" not in cfg:
+        raise ValueError(
+            "cfg must define a top-level 'seed' field. "
+            "Add `seed: 0` (or any int) to your config yaml. "
+            "This is required for reproducible training."
+        )
+    seed = int(cfg.seed)
+    _set_seed(seed)
+    logger.info("[SEED] Global seed: %d", seed)
+
     from otp.models.otp_soft_model import OTPSoftModel
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -93,6 +128,7 @@ def _run(cfg) -> None:
         loader = DataLoader(
             dataset, batch_size=cfg.train.batch_size,
             shuffle=True, collate_fn=collate_fn, num_workers=0,
+            generator=torch.Generator().manual_seed(seed),
         )
     else:
         from otp.data.libero_loader import LIBEROOTPDataset
@@ -109,10 +145,14 @@ def _run(cfg) -> None:
             eval_start_demo=getattr(cfg.data, "eval_start_demo", None),
         )
         n_workers = getattr(cfg.data, "num_workers", 4)
+        # Generator controls shuffle order; seed it from cfg.seed for reproducibility.
+        loader_generator = torch.Generator().manual_seed(seed)
         loader = DataLoader(
             dataset, batch_size=cfg.train.batch_size,
             shuffle=True, collate_fn=collate_fn,
             num_workers=n_workers, pin_memory=(device.type == "cuda"),
+            worker_init_fn=_worker_init_fn,
+            generator=loader_generator,
         )
     logger.info("Dataset: %d samples (%d batches/epoch)", len(dataset), len(loader))
 

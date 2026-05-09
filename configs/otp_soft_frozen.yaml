@@ -15,6 +15,14 @@
 # =============================================================================
 
 # ---------------------------------------------------------------------------
+# Reproducibility
+# ---------------------------------------------------------------------------
+# Top-level seed controls all RNG sources: torch global, cuda, numpy, random,
+# DataLoader generator, and DataLoader worker_init_fn. Required field —
+# train script will raise if missing. Override on CLI via `seed=42`.
+seed: 0
+
+# ---------------------------------------------------------------------------
 # Synthetic-data shortcut
 # ---------------------------------------------------------------------------
 synthetic_data: false          # true → skip real DataLoader, use random tensors
