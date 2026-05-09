@@ -45,6 +45,89 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Affordance loading — module-level pure function (single source of truth)
+# ---------------------------------------------------------------------------
+def load_affordance_for_objects(
+    grasp_affordance_dir: Path,
+    object_names: List[str],
+    num_grasps: int,
+    num_points: int,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Pure function: given an object name list, load (mesh, grasps, mask)
+    arrays from per-object npz cache files.
+
+    For each name like "akita_black_bowl_1", strips the trailing "_<digit>+"
+    suffix to map instance -> base class, then loads
+    `<grasp_affordance_dir>/<base>.npz`.
+
+    Required npz keys: 'grasps' (K_npz, 7), 'valid_mask' (K_npz,),
+    'mesh_vertices' (P_npz, 3).
+
+    Pads/clips to fixed K=num_grasps and P=num_points; if mesh has fewer
+    than P points, the last point is repeated (matches the pre-refactor
+    behavior in LIBEROOTPDataset._lookup_affordance).
+
+    This is the single source of truth for affordance loading. Both
+    LIBEROOTPDataset (training) and OTPSoftPredictor (inference) call this
+    function so train/eval conditioning is byte-identical.
+
+    Args:
+        grasp_affordance_dir: directory containing <base>.npz files
+        object_names:         length-N instance names (with _N suffix)
+        num_grasps:           K — pad/clip per-object grasps to this count
+        num_points:           P — point cloud vertex count per object
+
+    Returns:
+        affordance:      (N, K, 7)  float32
+        affordance_mask: (N, K)     bool
+        point_clouds:    (N, P, 3)  float32
+
+    Raises:
+        FileNotFoundError: if any base name has no corresponding npz.
+
+    Note:
+        This function does NOT cache. Callers maintain their own caches
+        and call this on cache miss.
+    """
+    import re as _re_strip
+    K = num_grasps
+    P = num_points
+    N = len(object_names)
+    affordance = np.zeros((N, K, 7), dtype=np.float32)
+    affordance_mask = np.zeros((N, K), dtype=bool)
+    point_clouds = np.zeros((N, P, 3), dtype=np.float32)
+
+    grasp_affordance_dir = Path(grasp_affordance_dir)
+
+    for i, name in enumerate(object_names):
+        base_name = _re_strip.sub(r"_\d+$", "", name)
+        npz_path = grasp_affordance_dir / f"{base_name}.npz"
+        if not npz_path.exists():
+            raise FileNotFoundError(
+                f"Grasp affordance file missing for object {name!r} "
+                f"(base={base_name!r}): {npz_path}.  Re-run "
+                f"scripts/03c_extract_grasp_affordances.py "
+                f"to populate the cache (\u00a75.1: silent zero-fill forbidden)."
+            )
+        data = np.load(npz_path)
+        g = np.asarray(data["grasps"], dtype=np.float32)
+        vm = np.asarray(data["valid_mask"], dtype=bool)
+        mv = np.asarray(data["mesh_vertices"], dtype=np.float32)
+
+        k_avail = min(g.shape[0], K)
+        affordance[i, :k_avail] = g[:k_avail]
+        affordance_mask[i, :k_avail] = vm[:k_avail]
+
+        p_avail = min(mv.shape[0], P)
+        point_clouds[i, :p_avail] = mv[:p_avail]
+        if p_avail < P:
+            point_clouds[i, p_avail:] = mv[-1:]
+
+    return affordance, affordance_mask, point_clouds
+
+
 class LIBEROOTPDataset:
     """
     PyTorch-style dataset over LIBERO demos.
@@ -86,6 +169,13 @@ class LIBEROOTPDataset:
             )
         self.root = Path(root)
         self.suite = suite
+        # CACHE INVARIANT: num_grasps_per_object (K) and num_points (P) define
+        # the padded shape of every entry in self._affordance_cache. They are
+        # set ONCE here and must not be modified post-construction; otherwise
+        # cached entries would be sized for the old K/P. If you need different
+        # K/P, re-instantiate the dataset.
+        assert num_grasps_per_object > 0, "num_grasps_per_object must be positive"
+        assert num_points > 0, "num_points must be positive"
         self.num_grasps_per_object = num_grasps_per_object
         self.num_points = num_points
         self.horizon = horizon
@@ -441,17 +531,24 @@ class LIBEROOTPDataset:
         object_names: List[str],
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        For each object name, look up the cached affordance npz.
+        For each object name, look up cached affordance (loading via
+        `load_affordance_for_objects` on cache miss).
 
-        LIBERO instance names are like "akita_black_bowl_1"; the affordance
-        cache is keyed by base class "akita_black_bowl".  Strip a trailing
-        "_<digit>+" suffix to map instance -> base.
+        Cache key is the original instance name (preserves prior behavior:
+        "akita_black_bowl_1" and "akita_black_bowl_2" each occupy a slot
+        even though they map to the same base npz).
+
+        IMPORTANT cache invariant:
+            Cache stores PADDED arrays sized (K=self.num_grasps_per_object,
+            P=self.num_points). These constants are set once at __init__ and
+            must NOT be changed post-construction (otherwise cached entries
+            are sized for the old K/P). Re-instantiate the dataset if you
+            need different K/P. This is asserted in __init__.
 
         Raises:
-            FileNotFoundError: If any base name has no corresponding npz.
+            FileNotFoundError: If any base name has no corresponding npz
+                (raised by the underlying load_affordance_for_objects call).
         """
-        import re as _re_strip
-
         K = self.num_grasps_per_object
         P = self.num_points
         N = len(object_names)
@@ -460,38 +557,28 @@ class LIBEROOTPDataset:
         affordance_mask = np.zeros((N, K), dtype=bool)
         point_clouds = np.zeros((N, P, 3), dtype=np.float32)
 
-        for i, name in enumerate(object_names):
-            cached = self._affordance_cache.get(name)
-            if cached is None:
-                base_name = _re_strip.sub(r"_\d+$", "", name)
-                npz_path = self.grasp_affordance_dir / f"{base_name}.npz"
-                if not npz_path.exists():
-                    raise FileNotFoundError(
-                        f"Grasp affordance file missing for object {name!r} "
-                        f"(base={base_name!r}): {npz_path}.  Re-run "
-                        f"scripts/03c_extract_grasp_affordances.py "
-                        f"to populate the cache (§5.1: silent zero-fill forbidden)."
-                    )
-                data = np.load(npz_path)
-                cached = {
-                    "grasps":        np.asarray(data["grasps"], dtype=np.float32),
-                    "valid_mask":    np.asarray(data["valid_mask"], dtype=bool),
-                    "mesh_vertices": np.asarray(data["mesh_vertices"], dtype=np.float32),
+        # Identify cache misses; load them in one batched free-function call.
+        uncached: List[str] = [n for n in object_names if n not in self._affordance_cache]
+        if uncached:
+            uncached_aff, uncached_mask, uncached_pc = load_affordance_for_objects(
+                grasp_affordance_dir=self.grasp_affordance_dir,
+                object_names=uncached,
+                num_grasps=K,
+                num_points=P,
+            )
+            for j, name in enumerate(uncached):
+                self._affordance_cache[name] = {
+                    "grasps":        uncached_aff[j],     # (K, 7)
+                    "valid_mask":    uncached_mask[j],    # (K,)
+                    "mesh_vertices": uncached_pc[j],      # (P, 3)
                 }
-                self._affordance_cache[name] = cached
 
-            g = cached["grasps"]
-            vm = cached["valid_mask"]
-            mv = cached["mesh_vertices"]
-
-            k_avail = min(g.shape[0], K)
-            affordance[i, :k_avail] = g[:k_avail]
-            affordance_mask[i, :k_avail] = vm[:k_avail]
-
-            p_avail = min(mv.shape[0], P)
-            point_clouds[i, :p_avail] = mv[:p_avail]
-            if p_avail < P:
-                point_clouds[i, p_avail:] = mv[-1:]
+        # Read all from cache (now guaranteed populated).
+        for i, name in enumerate(object_names):
+            cached = self._affordance_cache[name]
+            affordance[i] = cached["grasps"]
+            affordance_mask[i] = cached["valid_mask"]
+            point_clouds[i] = cached["mesh_vertices"]
 
         return affordance, affordance_mask, point_clouds
 
