@@ -1,0 +1,18 @@
+# =============================================================================
+# 30-epoch full retrain — extended from otp_soft_4e (5 epoch was insufficient
+# for sim-deployable policy; per Phase F2 decisive test 2026-05-10).
+#
+# Same lr=1e-4 (otp_soft_4e proven stable for 5 epochs).
+# Estimated runtime: 30 epochs * ~18 min/epoch = ~9 hours.
+# =============================================================================
+defaults:
+  - otp_soft_frozen
+  - _self_
+
+train:
+  lr: 1.0e-4
+  num_epochs: 30
+  num_steps: null
+  batch_size: 16
+  log_every: 50
+  save_every: 5500   # ~ every 2 epochs (3300 steps/epoch * 2 = 6600, save at ~5500)

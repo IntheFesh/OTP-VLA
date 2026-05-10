@@ -49,3 +49,5 @@ pretest_*.log
 .last_train_pid
 .last_train_run
 .paper_ready_ckpt
+.last_diag_pid
+.last_diag_run
