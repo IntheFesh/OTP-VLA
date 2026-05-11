@@ -1,0 +1,20 @@
+# =============================================================================
+# Path B Step 5b: single-task overfit sanity WITH Cocos source distribution.
+#
+# Inherits otp_soft_pathB_overfit, only differs in decoder.use_cocos_source.
+# Pass criterion: L1 loss → 0.01 within 500 steps (same as 5a).
+# Comparison metric: Cocos variant should show faster convergence (per V7 §IV
+# Step 4 rationale: shifted source improves signal flow).
+# =============================================================================
+
+defaults:
+  - otp_soft_pathB_overfit
+  - _self_
+
+model:
+  decoder:
+    use_cocos_source: true          # Step 5b: Cocos enabled
+    cocos_alpha: 1.0
+    cocos_beta: 1.0
+
+output_dir: results/pathB_step5b_cocos_${now:%Y%m%d_%H%M%S}

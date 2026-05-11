@@ -25,6 +25,10 @@ model:
     # All other otp_head params unused when deterministic=true:
     #   velocity_net, flow_matcher are None
     #   but params still parsed by OTPHead.__init__ for backward compat
+  decoder:
+    use_cocos_source: false         # Step 5a: base Path B (no Cocos)
+    cocos_alpha: 1.0
+    cocos_beta: 1.0
 
 train:
   lr: 1.0e-4                        # V3 memory: 1e-3 diverges, 1e-4 works
