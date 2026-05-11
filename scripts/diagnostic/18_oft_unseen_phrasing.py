@@ -1,14 +1,17 @@
 """
-Phase 0b: OFT Unseen-Phrasing Sim Eval (V7 §III protocol).
+Phase 0b: OFT Unseen-Phrasing Sim Eval (V7 §III protocol) — V2.
+
+V2 changes:
+  - Always pass initial_state to run_episode() to avoid env.get_observation()
+    AttributeError (LIBERO version mismatch in run_libero_eval.py:299).
+    Use task_suite.get_task_init_states(task_id)[ep_idx % len(init_states)].
 
 Adopts OpenVLA-OFT's run_libero_eval.py reference implementation:
   - initialize_model()    → loads model + action_head + proprio_projector
   - run_episode()         → episode loop, takes task_description as parameter
   - get_libero_env()      → LIBERO env construction
 
-We override task_description with paraphrased instructions (6 templates × 10 tasks).
-
-V7 §III protocol:
+V7 §III three stages:
   - Stage 1: Determinism verification (1 task × 5 episodes × 2 runs, bit-exact)
   - Stage 2: Identity SR sanity (≥ 92% gate on 50 episode, 5 tasks × 10 ep)
   - Stage 3: Full ablation (10 tasks × 6 phrasings × 50 episodes = 3000 episodes)
@@ -33,8 +36,6 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CRITICAL: must come BEFORE any HF imports
 os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 os.environ.setdefault("HF_HOME", "/root/autodl-tmp/hf_cache")
 
@@ -133,19 +134,21 @@ def run_determinism_check():
     resize_size = get_image_resize_size(cfg)
     task_suite = benchmark.get_benchmark_dict()[cfg.task_suite_name]()
 
-    task = task_suite.get_task(0)  # task 0
+    task_id = 0
+    task = task_suite.get_task(task_id)
     env, default_desc = get_libero_env(task, cfg.model_family, resolution=cfg.env_img_res)
-    paraphrased = get_paraphrased(0, "P0_identity")
+    init_states = task_suite.get_task_init_states(task_id)
+    paraphrased = get_paraphrased(task_id, "P0_identity")
     print(f"\nDefault task_description: {default_desc!r}")
     print(f"Identity paraphrased:     {paraphrased!r}")
+    print(f"Available init states for task {task_id}: {len(init_states)}")
 
-    # Run 5 episodes twice with same seed, compare success patterns
     n_episodes = 5
     print(f"\nRunning {n_episodes} episodes twice for determinism check...")
 
     results = []
     for run_idx in range(2):
-        set_seed_everywhere(7)  # fixed seed
+        set_seed_everywhere(7)
         successes = []
         for ep_idx in range(n_episodes):
             success, _ = run_episode(
@@ -153,7 +156,7 @@ def run_determinism_check():
                 processor=processor, action_head=action_head,
                 proprio_projector=proprio_projector,
                 noisy_action_projector=noisy_action_projector,
-                initial_state=None,
+                initial_state=init_states[ep_idx % len(init_states)],
             )
             successes.append(bool(success))
             print(f"  run {run_idx} ep {ep_idx}: success={success}")
@@ -211,9 +214,10 @@ def run_identity_sanity():
     overall_successes = 0
     overall_episodes = 0
 
-    for task_id in range(5):  # first 5 LIBERO-Spatial tasks
+    for task_id in range(5):
         task = task_suite.get_task(task_id)
         env, _ = get_libero_env(task, cfg.model_family, resolution=cfg.env_img_res)
+        init_states = task_suite.get_task_init_states(task_id)
         paraphrased = get_paraphrased(task_id, "P0_identity")
 
         task_successes = 0
@@ -223,7 +227,7 @@ def run_identity_sanity():
                 processor=processor, action_head=action_head,
                 proprio_projector=proprio_projector,
                 noisy_action_projector=noisy_action_projector,
-                initial_state=None,
+                initial_state=init_states[ep_idx % len(init_states)],
             )
             task_successes += int(bool(success))
             print(f"  task {task_id} ep {ep_idx}: success={success}")
@@ -297,15 +301,15 @@ def run_full_ablation():
     resize_size = get_image_resize_size(cfg)
     task_suite = benchmark.get_benchmark_dict()[cfg.task_suite_name]()
 
-    # Pre-build envs per task (LIBERO env construction is slow)
-    print("\nPre-building 10 LIBERO envs...")
+    print("\nPre-building 10 LIBERO envs + init states...")
     envs = {}
+    init_states_per_task = {}
     for task_id in range(10):
         task = task_suite.get_task(task_id)
         env, _ = get_libero_env(task, cfg.model_family, resolution=cfg.env_img_res)
         envs[task_id] = env
+        init_states_per_task[task_id] = task_suite.get_task_init_states(task_id)
 
-    # Result storage: per_cell_results[(task_id, phrase_id)] = list of bool
     results = defaultdict(list)
 
     n_total = 0
@@ -315,12 +319,12 @@ def run_full_ablation():
     for phrase_id in PARAPHRASINGS.keys():
         for task_id in range(10):
             env = envs[task_id]
+            init_states = init_states_per_task[task_id]
             paraphrased = get_paraphrased(task_id, phrase_id)
             print(f"\n=== task {task_id} × {phrase_id} ===")
             print(f"  instruction: {paraphrased!r}")
             cell_successes = []
             for ep_idx in range(50):
-                # Episode seed per V7 §III.C: 1000000 + task*10000 + phrase_idx*1000 + ep
                 phrase_idx = list(PARAPHRASINGS.keys()).index(phrase_id)
                 ep_seed = 1000000 + task_id * 10000 + phrase_idx * 1000 + ep_idx
                 set_seed_everywhere(ep_seed)
@@ -330,7 +334,7 @@ def run_full_ablation():
                     processor=processor, action_head=action_head,
                     proprio_projector=proprio_projector,
                     noisy_action_projector=noisy_action_projector,
-                    initial_state=None,
+                    initial_state=init_states[ep_idx % len(init_states)],
                 )
                 cell_successes.append(bool(success))
                 n_total += 1
@@ -346,12 +350,10 @@ def run_full_ablation():
             results[(task_id, phrase_id)] = cell_successes
             print(f"  → cell SR: {sum(cell_successes)}/{len(cell_successes)} = {sum(cell_successes)/len(cell_successes):.0%}")
 
-            # Incrementally save to allow recovery from crashes
             partial = {f"task{t}_{p}": v for (t, p), v in results.items()}
             with open(OUT_DIR / "oft_unseen_phrasing_full_partial.json", "w") as f:
                 json.dump(partial, f, indent=2)
 
-    # Final save
     final = {f"task{t}_{p}": v for (t, p), v in results.items()}
     final["global_sr"] = n_success / n_total
     final["n_total"] = n_total
@@ -364,10 +366,6 @@ def run_full_ablation():
     print(f"DONE. Global SR: {n_success}/{n_total} = {n_success/n_total:.1%}")
     print(f"Wall clock: {(time.time() - t_start)/60:.1f} min")
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Main
-# ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
