@@ -1,5 +1,10 @@
 """
-Phase 0b: OFT Unseen-Phrasing Sim Eval (V7 §III protocol) — V2.
+Phase 0b: OFT Unseen-Phrasing Sim Eval (V7 §III protocol) — V3.
+
+V3 changes (on top of V2):
+  - Monkey-patch torch.load to weights_only=False at script top, before
+    LIBERO/HF imports. PyTorch 2.6+ changed default to weights_only=True
+    which breaks LIBERO's init_states load (uses numpy reconstructor).
 
 V2 changes:
   - Always pass initial_state to run_episode() to avoid env.get_observation()
@@ -38,6 +43,17 @@ from pathlib import Path
 
 os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 os.environ.setdefault("HF_HOME", "/root/autodl-tmp/hf_cache")
+
+# CRITICAL: torch.load weights_only default changed in PyTorch 2.6+. LIBERO's
+# init_states pickled with numpy reconstructors fails under weights_only=True.
+# Monkey-patch torch.load to default to weights_only=False (LIBERO/openvla-oft
+# files are trusted sources from our managed third_party/ tree).
+import torch as _torch_for_patch
+_original_torch_load = _torch_for_patch.load
+def _patched_torch_load(*args, **kwargs):
+    kwargs.setdefault("weights_only", False)
+    return _original_torch_load(*args, **kwargs)
+_torch_for_patch.load = _patched_torch_load
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OFT_REPO = Path("/root/autodl-tmp/third_party/openvla-oft")
