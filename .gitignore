@@ -51,3 +51,6 @@ pretest_*.log
 .paper_ready_ckpt
 .last_diag_pid
 .last_diag_run
+
+# Local working drafts
+notes/*_DRAFT_DO_NOT_COMMIT.md
