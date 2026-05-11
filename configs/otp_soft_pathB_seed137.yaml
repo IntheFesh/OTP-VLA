@@ -1,0 +1,44 @@
+# =============================================================================
+# Path B Step 6: Multi-seed retrain config (seed=137).
+#
+# 50 epochs, lr=1e-4, deterministic head (Step 2) + Cocos source (Step 4).
+# Estimated wall clock: ~12.5 hr per seed on RTX PRO 6000.
+#
+# After Step 5 (5a or 5b) determines optimal architecture, this config is
+# launched per-seed sequentially. Final ckpts compared across seeds via
+# scripts/diagnostic/20_pathB_multiseed_aggregate.py.
+# =============================================================================
+
+defaults:
+  - otp_soft_frozen
+  - _self_
+
+seed: 137
+
+model:
+  otp_head:
+    deterministic: true             # PATH B Step 2
+  decoder:
+    use_cocos_source: false   # PATH B Step 4 (TBD by Step 5 result)
+    cocos_alpha: 1.0
+    cocos_beta: 1.0
+
+train:
+  lr: 1.0e-4
+  num_epochs: 50
+  num_steps: null
+  batch_size: 16
+  log_every: 50
+  ckpt_every: 5000                  # ~ every 1.5 epochs (3300 steps/epoch * 1.5 = 4950)
+  warmup_steps: 500
+  grad_clip: 1.0
+
+data:
+  train_end_demo: 45                # full training set
+
+output_dir: results/pathB_step6_seed137_${now:%Y%m%d_%H%M%S}
+
+wandb:
+  enabled: false
+  project: otp-vla
+  run_name: pathB_step6_seed137
