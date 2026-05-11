@@ -212,12 +212,14 @@ class OTPHead(nn.Module):
         num_shortcut_levels: int = 4,
         consistency_weight: float = 1.0,
         num_sample_steps: int = 16,
+        deterministic: bool = False,
     ) -> None:
         super().__init__()
         self.num_objects = num_objects
         self.horizon = horizon
         self.num_sample_steps = num_sample_steps
         self.use_shortcut = use_shortcut
+        self.deterministic = deterministic
 
         # Learnable object query embeddings.
         self.obj_queries = nn.Parameter(torch.randn(1, num_objects, hidden_dim) * 0.02)
@@ -237,23 +239,34 @@ class OTPHead(nn.Module):
 
         traj_dim = num_objects * horizon * 6
         condition_dim = num_objects * hidden_dim
-        v_hidden = vel_hidden_dim if vel_hidden_dim is not None else hidden_dim
 
-        self.velocity_net = OTPVelocityNet(
-            traj_dim=traj_dim,
-            condition_dim=condition_dim,
-            hidden_dim=v_hidden,
-            num_layers=vel_num_layers,
-        )
-
-        if use_shortcut:
-            self.flow_matcher: FlowMatching = ShortcutFlowMatching(
-                self.velocity_net,
-                num_shortcut_levels=num_shortcut_levels,
-                consistency_weight=consistency_weight,
+        if deterministic:
+            # PATH B: direct trajectory regression. Bypasses flow matching.
+            self.traj_head = nn.Sequential(
+                nn.Linear(condition_dim, condition_dim),
+                nn.GELU(),
+                nn.Linear(condition_dim, condition_dim),
+                nn.GELU(),
+                nn.Linear(condition_dim, traj_dim),
             )
+            self.velocity_net = None
+            self.flow_matcher = None
         else:
-            self.flow_matcher = FlowMatching(self.velocity_net)
+            v_hidden = vel_hidden_dim if vel_hidden_dim is not None else hidden_dim
+            self.velocity_net = OTPVelocityNet(
+                traj_dim=traj_dim,
+                condition_dim=condition_dim,
+                hidden_dim=v_hidden,
+                num_layers=vel_num_layers,
+            )
+            if use_shortcut:
+                self.flow_matcher: FlowMatching = ShortcutFlowMatching(
+                    self.velocity_net,
+                    num_shortcut_levels=num_shortcut_levels,
+                    consistency_weight=consistency_weight,
+                )
+            else:
+                self.flow_matcher = FlowMatching(self.velocity_net)
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -348,6 +361,28 @@ class OTPHead(nn.Module):
             backbone_hidden, backbone_attention_mask, object_indices
         )
 
+        if self.deterministic:
+            # PATH B: direct regression.
+            obj_feats = condition["obj_features"]
+            feat_flat = obj_feats.reshape(B, -1)
+            traj_flat = self.traj_head(feat_flat)
+            trajectories = traj_flat.reshape(
+                B, self.num_objects, self.horizon, 6
+            )
+            if gt_trajectory is not None:
+                loss = F.l1_loss(trajectories, gt_trajectory)
+                return {
+                    "loss_output": LossOutput(
+                        total=loss,
+                        components={"l1": loss.detach()},
+                        diagnostics={
+                            "traj_norm": trajectories.norm(dim=-1).mean().detach(),
+                            "gt_norm": gt_trajectory.norm(dim=-1).mean().detach(),
+                        },
+                    )
+                }
+            return {"trajectories": trajectories}
+
         if gt_trajectory is not None:
             # Training path.
             x_1 = gt_trajectory.reshape(B, -1)           # (B, N_obj*H*6)
@@ -383,10 +418,17 @@ class OTPHead(nn.Module):
             (B, N_obj, H, 6) Lie algebra trajectory tensor.
         """
         B = backbone_hidden.shape[0]
-        steps = num_steps if num_steps is not None else self.num_sample_steps
         condition = self._get_condition(
             backbone_hidden, backbone_attention_mask, object_indices
         )
+
+        if self.deterministic:
+            obj_feats = condition["obj_features"]
+            feat_flat = obj_feats.reshape(B, -1)
+            traj_flat = self.traj_head(feat_flat)
+            return traj_flat.reshape(B, self.num_objects, self.horizon, 6)
+
+        steps = num_steps if num_steps is not None else self.num_sample_steps
         traj_dim = self.num_objects * self.horizon * 6
         samples = self.flow_matcher.sample(
             condition, num_steps=steps, shape=(B, traj_dim)
