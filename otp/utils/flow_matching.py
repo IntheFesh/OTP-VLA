@@ -29,7 +29,7 @@ Interface contracts (M1):
 from __future__ import annotations
 
 import logging
-from typing import Callable, Dict, Optional
+from typing import Optional, Callable, Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -71,6 +71,7 @@ class FlowMatching(nn.Module):
         self,
         x_1: torch.Tensor,
         condition: Condition,
+        x_0_source: Optional[torch.Tensor] = None,
     ) -> LossOutput:
         """
         Compute conditional flow matching loss.
@@ -101,8 +102,11 @@ class FlowMatching(nn.Module):
         B, D = x_1.shape
         device, dtype = x_1.device, x_1.dtype
 
-        # Sample noise and time
-        x_0 = torch.randn_like(x_1)
+        # Sample noise and time — x_0 from N(0, I) unless x_0_source provided
+        if x_0_source is None:
+            x_0 = torch.randn_like(x_1)
+        else:
+            x_0 = x_0_source
         t = torch.rand(B, 1, device=device, dtype=dtype)
 
         # Linear interpolation
@@ -229,6 +233,7 @@ class ShortcutFlowMatching(FlowMatching):
         self,
         x_1: torch.Tensor,
         condition: Condition,
+        x_0_source: Optional[torch.Tensor] = None,
     ) -> LossOutput:
         """
         Compute CFM loss + self-consistency loss.
@@ -255,7 +260,10 @@ class ShortcutFlowMatching(FlowMatching):
         # ------------------------------------------------------------------
         # 1. Standard FM loss (use the model with d ≈ 0 via smallest level)
         # ------------------------------------------------------------------
-        x_0 = torch.randn_like(x_1)
+        if x_0_source is None:
+            x_0 = torch.randn_like(x_1)
+        else:
+            x_0 = x_0_source
         t_fm = torch.rand(B, 1, device=device, dtype=dtype)
         x_t_fm = (1.0 - t_fm) * x_0 + t_fm * x_1
         v_target_fm = x_1 - x_0
