@@ -164,7 +164,10 @@ class OTPSoftModel(nn.Module):
             vel_hidden_dim=head_cfg.get("vel_hidden_dim", None),
             vel_num_layers=head_cfg.get("vel_num_layers", 2),
             use_shortcut=head_cfg.get("use_shortcut", True),
+            num_shortcut_levels=head_cfg.get("num_shortcut_levels", 4),
+            consistency_weight=head_cfg.get("consistency_weight", 1.0),
             num_sample_steps=head_cfg.get("num_sample_steps", 4),
+            deterministic=head_cfg.get("deterministic", False),
         )
 
         # ---- Geometry encoder ---- #
