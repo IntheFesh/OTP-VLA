@@ -130,6 +130,31 @@ class _ActionVelocityNet(nn.Module):
 # LanguageAgnosticDecoder
 # ---------------------------------------------------------------------------
 
+class CocosSourceMLP(nn.Module):
+    """F_phi(c): condition vector -> source distribution mean shift.
+
+    For conditional flow matching with shifted Gaussian source:
+        x_0 ~ N(alpha * F_phi(c), beta^2 * I)
+    instead of the standard N(0, I).
+
+    C3 SAFE: takes only the pooled condition feature (already constructed
+    from non-language inputs in LanguageAgnosticDecoder), no language input.
+    """
+    def __init__(self, condition_dim: int, target_dim: int, hidden_dim: int = 256):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(condition_dim, hidden_dim),
+            nn.GELU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.GELU(),
+            nn.Linear(hidden_dim, target_dim),
+        )
+
+    def forward(self, c: torch.Tensor) -> torch.Tensor:
+        # c: (B, condition_dim) -> (B, target_dim)
+        return self.net(c)
+
+
 class LanguageAgnosticDecoder(nn.Module):
     """
     Language-agnostic decoder φ_θ.
@@ -167,6 +192,9 @@ class LanguageAgnosticDecoder(nn.Module):
         use_flow_matching: bool = True,
         num_sample_steps: int = 8,
         consistency_weight: float = 1.0,
+        use_cocos_source: bool = False,
+        cocos_alpha: float = 1.0,
+        cocos_beta: float = 1.0,
     ) -> None:
         super().__init__()
 
@@ -235,6 +263,19 @@ class LanguageAgnosticDecoder(nn.Module):
             )
         else:
             self.flow_matcher = FlowMatching(self.velocity_net)
+
+        # ---- Cocos source distribution (V7 Step 4) ---- #
+        # When enabled, replaces N(0, I) source with N(alpha*F_phi(c), beta^2*I).
+        self.use_cocos_source = use_cocos_source
+        self.cocos_alpha = cocos_alpha
+        self.cocos_beta = cocos_beta
+        if use_cocos_source:
+            self.cocos_F = CocosSourceMLP(
+                condition_dim=condition_dim,
+                target_dim=action_dim * horizon,
+            )
+        else:
+            self.cocos_F = None
 
         # === C3 STATIC CHECK on submodule names ========================= #
         _check_forbidden(name for name, _ in self.named_modules())
@@ -319,18 +360,36 @@ class LanguageAgnosticDecoder(nn.Module):
         if gt_action is not None:
             assert gt_action.shape == (B, H, self.action_dim)
             x_1 = gt_action.reshape(B, flat_action_dim)
-            loss_output: LossOutput = self.flow_matcher(x_1, condition)
+            # Cocos: build shifted source if enabled, else default N(0, I)
+            if self.use_cocos_source:
+                mean_shift = self.cocos_F(cond_feat)                  # (B, flat_action_dim)
+                x_0_src = self.cocos_alpha * mean_shift + self.cocos_beta * torch.randn_like(x_1)
+            else:
+                x_0_src = None
+            loss_output: LossOutput = self.flow_matcher(x_1, condition, x_0_source=x_0_src)
             return {
                 "loss_output": loss_output,
                 "loss": loss_output.total,
                 "pred_action": None,
             }
 
-        samples = self.flow_matcher.sample(
-            condition,
-            num_steps=self.num_sample_steps,
-            shape=(B, flat_action_dim),
-        )
+        # Cocos: sample with shifted x_0 if enabled
+        if self.use_cocos_source:
+            mean_shift = self.cocos_F(cond_feat)                       # (B, flat_action_dim)
+            x_0_src = self.cocos_alpha * mean_shift + self.cocos_beta * torch.randn(
+                (B, flat_action_dim), device=cond_feat.device, dtype=cond_feat.dtype
+            )
+            samples = self.flow_matcher.sample(
+                condition,
+                num_steps=self.num_sample_steps,
+                x_0=x_0_src,
+            )
+        else:
+            samples = self.flow_matcher.sample(
+                condition,
+                num_steps=self.num_sample_steps,
+                shape=(B, flat_action_dim),
+            )
         pred_action = samples.reshape(B, H, self.action_dim)
         return {"pred_action": pred_action}
 
