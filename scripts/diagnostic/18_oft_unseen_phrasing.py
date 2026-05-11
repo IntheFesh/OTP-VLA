@@ -69,16 +69,16 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 # ─────────────────────────────────────────────────────────────────────────────
 
 SPATIAL_PHRASES = [
-    "between the plate and the ramekin",
-    "from table center",
-    "in the top drawer of the wooden cabinet",
-    "next to the cookie box",
-    "next to the plate",
-    "next to the ramekin",
-    "on the cookie box",
-    "on the ramekin",
-    "on the stove",
-    "on the wooden cabinet",
+    "between the plate and the ramekin",        # task 0
+    "next to the ramekin",                       # task 1
+    "from table center",                         # task 2
+    "on the cookie box",                         # task 3
+    "in the top drawer of the wooden cabinet",   # task 4
+    "on the ramekin",                            # task 5
+    "next to the cookie box",                    # task 6
+    "on the stove",                              # task 7
+    "next to the plate",                         # task 8
+    "on the wooden cabinet",                     # task 9
 ]
 
 PARAPHRASINGS = {
