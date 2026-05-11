@@ -192,6 +192,9 @@ class OTPSoftModel(nn.Module):
             use_flow_matching=dec_cfg.get("use_flow_matching", True),
             num_sample_steps=dec_cfg.get("num_sample_steps", 4),
             consistency_weight=dec_cfg.get("consistency_weight", 1.0),
+            use_cocos_source=dec_cfg.get("use_cocos_source", False),
+            cocos_alpha=dec_cfg.get("cocos_alpha", 1.0),
+            cocos_beta=dec_cfg.get("cocos_beta", 1.0),
         )
 
         self.otp_head_loss_weight = float(config.get("otp_head_loss_weight", 1.0))
