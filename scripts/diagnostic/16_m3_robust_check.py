@@ -190,8 +190,8 @@ def main():
     print("=" * 70)
     print("Robustness verdict:")
     print("=" * 70)
-    print(f"  All 3 representations: r values = "
-          f"{ {n: f'{m[\"r\"]:+.3f}' for n, m in results_per_repr.items()} }")
+    r_summary = ", ".join(f"{n}={m['r']:+.3f}" for n, m in results_per_repr.items())
+    print(f"  All 3 representations: r values = {{{r_summary}}}")
     print(f"  All gaps from r_h (0.7575): {deltas}")
     print(f"  Min gap (Δr): {min_delta:.4f}")
     print(f"  Max r value across representations: {max_r:+.4f}")
