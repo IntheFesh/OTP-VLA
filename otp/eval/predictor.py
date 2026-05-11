@@ -536,6 +536,66 @@ class OTPSoftPredictor(ActionPredictor):
                     f"cache size now {len(self._affordance_cache)}"
                 )
         return self._affordance_cache[object_names]
+        
+    @torch.no_grad()
+    def head_forward_only(
+        self,
+        batch: Dict[str, Any],
+        seed: int,
+    ) -> torch.Tensor:
+        """Run backbone + OTP head sample only, returning trajectory.
+
+        Args:
+            batch: forward-ready batch dict (already collated, tensors on device).
+                Must contain: image, instruction, object_indices, object_point_clouds,
+                proprioception, grasp_affordance.
+                gt_trajectory is NOT required (we sample, not train).
+            seed: deterministic seed for CFM noise. Same seed → identical output.
+
+        Returns:
+            trajectory: (B, N_obj, H, 6) float tensor on self.device.
+
+        Note: This bypasses the decoder entirely for Phase 0 head probes.
+        RNG state is saved before and restored after to avoid drift.
+        """
+        # ----- RNG isolation: save external state ----- #
+        saved_torch_state = torch.get_rng_state()
+        saved_cuda_state = (
+            torch.cuda.get_rng_state_all() if self.device.type == "cuda" else None
+        )
+        saved_np_state = np.random.get_state()
+
+        try:
+            # Per-call reseeding for reproducible CFM noise
+            torch.manual_seed(seed)
+            if self.device.type == "cuda":
+                torch.cuda.manual_seed_all(seed)
+            np.random.seed(seed % (2**32))
+
+            with torch.autocast(
+                device_type=self.device.type,
+                dtype=self.amp_dtype,
+                enabled=self._use_bf16,
+            ):
+                # Run backbone
+                hidden, attn_mask = self.model._run_backbone(batch)
+                # Sample from head only
+                trajectory = self.model.otp_head.sample(
+                    backbone_hidden=hidden,
+                    backbone_attention_mask=attn_mask,
+                    object_indices=batch["object_indices"],
+                )
+            # Cast to fp32 for downstream numpy stability
+            trajectory = trajectory.float()
+
+        finally:
+            # Always restore RNG state
+            torch.set_rng_state(saved_torch_state)
+            if saved_cuda_state is not None:
+                torch.cuda.set_rng_state_all(saved_cuda_state)
+            np.random.set_state(saved_np_state)
+
+        return trajectory
 
     def _build_batch(
         self,

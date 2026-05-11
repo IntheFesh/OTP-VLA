@@ -1,102 +1,218 @@
 """
-Phase 0 Test 0: Sanity check before running the diagnostic battery.
+Phase 0 Test 0: Sanity check (V6.1 — real interface).
 
-V6 status: unchanged from V5 draft. No revisions affect this script.
-
-Three checks:
-1. Probe task split is a subset of the V3 training split (not testing on holdout).
-2. Head z output shape matches expected (N_obj, H, 6) and flatten order is consistent
-   with what the decoder consumes.
-3. Deterministic seeding controls within-task variance — same seed twice gives identical
-   z, different seeds give different z.
+Three checks (revised for actual repo API):
+1. Dataset can be instantiated with train_end_demo=45 (V3 train split), and probe
+   target task name is in the dataset's task list.
+2. predictor.head_forward_only(batch, seed) returns trajectory with shape
+   (1, 5, 8, 6); flatten gives 240-dim.
+3. Same seed twice → identical trajectory (max abs diff < 1e-5).
+   Different seeds → different trajectory (max abs diff > 1e-3).
 
 Run: python scripts/diagnostic/06_test0_sanity.py
-Exit code 0 if all checks pass; nonzero with diagnostic message otherwise.
+Exit 0 if all pass; nonzero with diagnostic message.
 """
 
 import sys
-import json
 import torch
 import numpy as np
 from pathlib import Path
+from torch.utils.data import DataLoader
+from omegaconf import OmegaConf
+from hydra import compose, initialize_config_dir
+from otp.train.utils import collate_fn, assemble_batch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from otp.eval.predictor import OTPSoftPredictor
-from otp.data.libero_loader import build_loader
-
-
+# Repo root
 REPO_ROOT = Path(__file__).resolve().parents[2]
-PAPER_CKPT = REPO_ROOT / ".paper_ready_ckpt"
-CFG_PATH = REPO_ROOT / "configs" / "otp_soft_30e.yaml"
-SPLIT_FILE = REPO_ROOT / "data" / "libero_spatial_split.json"  # adjust to actual path
+sys.path.insert(0, str(REPO_ROOT))
+
+from otp.eval.predictor import OTPSoftPredictor
+from otp.data.libero_loader import LIBEROOTPDataset
+from otp.train.utils import collate_fn
 
 
-def check_split():
-    """Probe must use a subset of training task IDs, not the 5 held-out demos."""
-    with open(SPLIT_FILE) as f:
-        split = json.load(f)
-    train_task_ids = set(split["train_task_ids"])
-    probe_task_ids = set(range(5))
-    if not probe_task_ids.issubset(train_task_ids):
-        return False, f"probe tasks {probe_task_ids - train_task_ids} not in training split"
-    return True, f"all 5 probe tasks in training split (size {len(train_task_ids)})"
+PAPER_CKPT_FILE = REPO_ROOT / ".paper_ready_ckpt"
+CONFIG_PATH = REPO_ROOT / "configs" / "otp_soft_30e.yaml"
+
+# Test probes use task index 0 (first LIBERO-Spatial task)
+PROBE_TASK_NAME = "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate"
 
 
-def check_z_shape(predictor):
-    """Run one forward pass, verify z has shape (N_obj=5, H=8, 6) and flattens row-major."""
-    loader = build_loader(CFG_PATH, batch_size=1, split="train", task_ids=[0])
-    batch = next(iter(loader))
-    with torch.no_grad():
-        z = predictor.head_forward_only(batch, seed=0)
+def load_resolved_config():
+    """Resolve hydra config (otp_soft_30e inherits from otp_soft_frozen)."""
+    config_dir = str(REPO_ROOT / "configs")
+    with initialize_config_dir(config_dir=config_dir, version_base=None):
+        cfg = compose(config_name="otp_soft_30e")
+    return cfg
+
+
+def build_train_dataset(cfg):
+    """Instantiate LIBEROOTPDataset with train_end_demo=45 (V3 train split)."""
+    norm_path = getattr(cfg.data, "normalizer_path", None)
+    dataset = LIBEROOTPDataset(
+        root=Path(cfg.data.root),
+        suite=cfg.data.suite,
+        grasp_affordance_dir=Path(cfg.data.grasp_affordance_dir),
+        normalizer_path=Path(norm_path) if norm_path else None,
+        num_grasps_per_object=cfg.model.decoder.num_grasps_per_object,
+        num_points=cfg.model.geometry_encoder.num_points,
+        horizon=cfg.model.otp_head.horizon,
+        train_end_demo=45,  # V3 training split — probe samples are guaranteed in-train
+    )
+    return dataset
+
+
+def get_one_batch_from_task(dataset, task_name, device, amp_dtype, num_objects=5):
+    """Return a forward-ready single-sample batch (B=1) from a specified task.
+    
+    Pipeline: dataset → collate_fn (stack) → assemble_batch (add object_indices,
+    proprio; move to device). This matches the train loop's exact path.
+    """
+    target_indices = []
+    for i in range(len(dataset)):
+        demo_idx, _frame = dataset._index[i]
+        record = dataset.demo_records[demo_idx]
+        if record["npz_path"].parent.name == task_name:
+            target_indices.append(i)
+            if len(target_indices) >= 5:
+                break
+    if not target_indices:
+        raise RuntimeError(f"No samples from task '{task_name}' in train split")
+
+    sample = dataset[target_indices[0]]
+    raw_batch = collate_fn([sample])  # B=1, post-stack
+    batch = assemble_batch(raw_batch, device, amp_dtype, num_objects)
+    return batch, len(target_indices)
+
+
+def move_batch_to_device(batch, device, amp_dtype):
+    """Move tensors to device, matching predictor's batch conventions."""
+    moved = {}
+    for k, v in batch.items():
+        if torch.is_tensor(v):
+            if v.dtype in (torch.float32, torch.float16, torch.bfloat16):
+                # Float tensors → amp_dtype where applicable
+                if k in ("object_point_clouds", "proprioception", "grasp_affordance"):
+                    moved[k] = v.to(device, amp_dtype)
+                else:
+                    moved[k] = v.to(device)
+            else:
+                moved[k] = v.to(device)
+        else:
+            moved[k] = v
+    return moved
+
+
+def check_dataset_and_split(cfg, dataset):
+    """Verify probe task is in dataset and dataset uses train_end_demo=45."""
+    if dataset.train_end_demo != 45:
+        return False, f"dataset.train_end_demo = {dataset.train_end_demo}, expected 45"
+    
+    # demo_records is per-(task, demo) — 10 task × 45 demo = 450 entries
+    n_demo_records = len(dataset.demo_records)
+    expected_n = 10 * 45  # LIBERO-Spatial 10 tasks, train_end_demo=45
+    
+    # Check probe task is present, and collect first 3 demo IDs for the probe task
+    sample_demos = []
+    for record in dataset.demo_records:
+        if record["npz_path"].parent.name == PROBE_TASK_NAME:
+            sample_demos.append(record["npz_path"].stem)
+            if len(sample_demos) >= 3:
+                break
+    
+    if not sample_demos:
+        return False, f"probe task '{PROBE_TASK_NAME}' not in dataset.demo_records"
+    
+    return True, (
+        f"train_end_demo=45 OK; demo_records={n_demo_records} "
+        f"(expected ~{expected_n}); probe task present; "
+        f"first 3 demos: {sample_demos}"
+    )
+
+
+def check_head_forward_output(predictor, dataset):
+    """Run head_forward_only once; check shape (1, 5, 8, 6) and flatten = 240."""
+    batch, _ = get_one_batch_from_task(
+        dataset, PROBE_TASK_NAME, predictor.device, predictor.amp_dtype
+    )
+    traj = predictor.head_forward_only(batch, seed=0)
     expected = (1, 5, 8, 6)
-    if tuple(z.shape) != expected:
-        return False, f"z shape {tuple(z.shape)} != expected {expected}"
-    flat = z.reshape(z.shape[0], -1)
-    if flat.shape[-1] != 240:
-        return False, f"flatten dim {flat.shape[-1]} != 240"
-    return True, f"z shape {tuple(z.shape)}, flatten dim {flat.shape[-1]}"
+    if tuple(traj.shape) != expected:
+        return False, f"trajectory shape {tuple(traj.shape)} != expected {expected}"
+    flat_dim = traj.reshape(traj.shape[0], -1).shape[-1]
+    if flat_dim != 240:
+        return False, f"flatten dim {flat_dim} != 240"
+    return True, f"trajectory shape {tuple(traj.shape)}, flatten dim {flat_dim}"
 
 
-def check_seeding(predictor):
-    """Same seed twice → identical z. Different seeds → different z."""
-    loader = build_loader(CFG_PATH, batch_size=1, split="train", task_ids=[0])
-    batch = next(iter(loader))
-    with torch.no_grad():
-        z_a1 = predictor.head_forward_only(batch, seed=42)
-        z_a2 = predictor.head_forward_only(batch, seed=42)
-        z_b = predictor.head_forward_only(batch, seed=1337)
-    same_seed_diff = (z_a1 - z_a2).abs().max().item()
-    diff_seed_diff = (z_a1 - z_b).abs().max().item()
-    if same_seed_diff > 1e-5:
-        return False, f"same seed gave different z, max abs diff = {same_seed_diff:.2e}"
-    if diff_seed_diff < 1e-3:
-        return False, f"different seeds gave near-identical z, max abs diff = {diff_seed_diff:.2e} — seeding broken"
-    return True, f"same-seed diff {same_seed_diff:.2e}, diff-seed diff {diff_seed_diff:.2e}"
+def check_deterministic_seeding(predictor, dataset):
+    """Same seed → identical traj. Different seeds → different traj."""
+    batch, _ = get_one_batch_from_task(
+        dataset, PROBE_TASK_NAME, predictor.device, predictor.amp_dtype
+    )
+    t_a1 = predictor.head_forward_only(batch, seed=42)
+    t_a2 = predictor.head_forward_only(batch, seed=42)
+    t_b = predictor.head_forward_only(batch, seed=1337)
+    same_diff = (t_a1 - t_a2).abs().max().item()
+    diff_diff = (t_a1 - t_b).abs().max().item()
+    if same_diff > 1e-5:
+        return False, f"same-seed gave different output, max abs diff = {same_diff:.2e}"
+    if diff_diff < 1e-3:
+        return False, (
+            f"different seeds gave near-identical output, max abs diff = {diff_diff:.2e}; "
+            "seeding might be broken"
+        )
+    return True, f"same-seed diff {same_diff:.2e}, diff-seed diff {diff_diff:.2e}"
 
 
 def main():
-    ckpt = PAPER_CKPT.read_text().strip()
-    print(f"=== Phase 0 Test 0: Sanity Check (V6) ===")
+    print("=== Phase 0 Test 0: Sanity Check (V6.1) ===\n")
+
+    if not PAPER_CKPT_FILE.exists():
+        print(f"[ERROR] {PAPER_CKPT_FILE} not found")
+        sys.exit(1)
+    ckpt = PAPER_CKPT_FILE.read_text().strip()
     print(f"Checkpoint: {ckpt}\n")
 
+    print("Loading config (otp_soft_30e + otp_soft_frozen merge)...")
+    cfg = load_resolved_config()
+    print(f"  data.root           = {cfg.data.root}")
+    print(f"  data.suite          = {cfg.data.suite}")
+    print(f"  data.grasp_affdir   = {cfg.data.grasp_affordance_dir}")
+    print(f"  model.head.horizon  = {cfg.model.otp_head.horizon}")
+    print(f"  model.head.n_obj    = {cfg.model.otp_head.num_objects}")
+    print()
+
+    print("Building dataset (train_end_demo=45)...")
+    dataset = build_train_dataset(cfg)
+    print(f"  dataset size: {len(dataset)} samples\n")
+
+    print("Building predictor...")
     predictor = OTPSoftPredictor(
         ckpt_path=ckpt,
-        config_path=str(CFG_PATH),
-        grasp_affordance_dir=str(REPO_ROOT / "data" / "grasp_affordance"),
-        device="cuda",
+        config_path=str(CONFIG_PATH),
+        grasp_affordance_dir=str(Path(cfg.data.grasp_affordance_dir)),
+        device=torch.device("cuda"),
         log_diagnostics=False,
     )
+    # Predictor must be reset (it tracks episode_seed); for head-only probes we
+    # don't actually use episode tracking, but call reset to satisfy any
+    # internal invariants:
+    predictor.reset(episode_seed=0)
+    print(f"  predictor device: {predictor.device}, amp_dtype: {predictor.amp_dtype}\n")
 
     results = []
     for name, fn in [
-        ("Split membership", lambda: check_split()),
-        ("z shape & flatten", lambda: check_z_shape(predictor)),
-        ("Deterministic seeding", lambda: check_seeding(predictor)),
+        ("Dataset & split", lambda: check_dataset_and_split(cfg, dataset)),
+        ("head_forward_only shape", lambda: check_head_forward_output(predictor, dataset)),
+        ("Deterministic seeding", lambda: check_deterministic_seeding(predictor, dataset)),
     ]:
         try:
             ok, msg = fn()
         except Exception as e:
-            ok, msg = False, f"exception: {type(e).__name__}: {e}"
+            import traceback
+            ok = False
+            msg = f"exception: {type(e).__name__}: {e}\n{traceback.format_exc()}"
         status = "PASS" if ok else "FAIL"
         print(f"[{status}] {name}: {msg}")
         results.append((name, ok, msg))
