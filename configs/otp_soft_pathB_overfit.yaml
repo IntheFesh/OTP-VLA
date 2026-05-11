@@ -1,0 +1,46 @@
+# =============================================================================
+# Path B Step 5: single-task overfit sanity (V7 §IV Step 5).
+#
+# Goal: verify deterministic head + decoder can overfit task 0 in ~500 steps.
+# Pass criterion: L1 loss → 0.01 within 500 steps.
+#
+# Architectural deltas vs otp_soft_frozen.yaml:
+#   - model.otp_head.deterministic: true   (Path B Step 2)
+#   - data: filtered to task 0 only via train_end_demo trick (we'll use the
+#     entire LIBERO-Spatial split but with only 1 task's worth of demos)
+#
+# NOTE: Cocos source distribution (Step 4) NOT yet implemented — Step 5
+# tests the base Path B architecture; Cocos is layered on top later.
+# =============================================================================
+
+defaults:
+  - otp_soft_frozen
+  - _self_
+
+seed: 42
+
+model:
+  otp_head:
+    deterministic: true             # PATH B Step 2: bypass flow matching
+    # All other otp_head params unused when deterministic=true:
+    #   velocity_net, flow_matcher are None
+    #   but params still parsed by OTPHead.__init__ for backward compat
+
+train:
+  lr: 1.0e-4                        # V3 memory: 1e-3 diverges, 1e-4 works
+  num_epochs: 1
+  num_steps: 500                    # V7 Step 5 protocol
+  batch_size: 8                     # smaller — overfit doesn't need full BS
+  log_every: 10                     # frequent logging to watch loss curve
+  ckpt_every: 500                   # save final ckpt only
+  warmup_steps: 50
+  grad_clip: 1.0
+
+data:
+  train_end_demo: 5                 # tiny subset for fast overfit per task
+  # NOTE: LIBERO-Spatial dataset will use all 10 tasks × 5 demos = 50 demos.
+  # Step 5 protocol nominally wants 1 task, but train_otp_soft doesn't have
+  # a per-task filter. Accept slight protocol relaxation: still fast (50
+  # samples * 8 batch ≈ 6 steps/epoch ≈ tight overfit signal at 500 steps).
+
+output_dir: results/pathB_step5_overfit_${now:%Y%m%d_%H%M%S}
