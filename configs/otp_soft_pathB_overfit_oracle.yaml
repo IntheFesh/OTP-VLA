@@ -1,0 +1,15 @@
+# =============================================================================
+# Step 5a v3: Path B with ORACLE decoder trajectory
+# Diagnostic: tests whether decoder can learn given clean trajectory signal.
+# If decoder_loss drops substantially: H2 (moving target) confirmed.
+# If decoder_loss stays ~1.0: H1 (CFM noise floor) confirmed.
+# =============================================================================
+
+defaults:
+  - otp_soft_pathB_overfit
+  - _self_
+
+model:
+  use_oracle_trajectory: true       # diagnostic flag
+
+output_dir: results/pathB_step5_oracle_${now:%Y%m%d_%H%M%S}
