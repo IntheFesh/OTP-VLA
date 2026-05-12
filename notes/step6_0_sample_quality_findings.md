@@ -1,3 +1,19 @@
+# ⚠️ SUPERSEDED — DAY 2 PAPER-PIVOT (2026-05-12 evening)
+
+**Status update (2026-05-12 evening)**: The "decide Step 6 launch" and "V7 amendment to det+det" items at the bottom of this file are **no longer active decisions**. After Day 2 Phase 1 verification revealed `use_flow_matching=False` does not produce deterministic regression (it produces vanilla CFM, not Path C), strategic decision was made to **drop Path C implementation** and pivot to full paper-writing track.
+
+**Current framing** (locked 2026-05-12 evening):
+- Theorem 3' is architecture-agnostic — no architectural choice (deterministic head, Cocos, Path C) bypasses the bound
+- Paper sells the **diagnostic methodology** (Gate 1 + M3 + C1 + §V.C.2 sample-quality test), NOT an architectural fix
+- §V.C v4 framing: "CFM decoder fundamental failure mode under language-orthogonal demonstration supervision" (consistent with this file's empirical findings, but no "Step 6" follow-up)
+- Step 6 / Cocos / Path B variants → 7.5-day GPU sequential ablation plan as comparative baselines, not as proposed fix
+
+**Empirical findings in this file remain valid and authoritative.** The L1/std table, oracle test results, and decoder failure analysis are unchanged. Only the "what to do next" recommendations at the bottom of this file are superseded.
+
+**Authoritative current framing**: `paper/drafts/otp_vla_paper_drafts_consolidated.md` §V.C v4.
+
+---
+
 # Step 6.0 Sample Quality Test Findings (2026-05-12)
 
 ## Test setup
