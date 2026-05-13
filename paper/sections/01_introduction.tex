@@ -1,25 +1,179 @@
 % sections/01_introduction.tex — Section I (Introduction)
-% Source: notes/paper_section_I_draft.md (v2 final, committed f4ecfd0)
-% Integration status: STUB. Full text from notes file to be converted from Markdown to LaTeX in next pass.
+% Source: notes/paper_section_I_draft.md (v2 final, integrating 5-fix reviewer audit)
+% Converted Day 5 2026-05-13.
 
 \section{Introduction}
 \label{sec:introduction}
 
-% TODO: Convert notes/paper_section_I_draft.md content from Markdown to LaTeX.
-% Source markdown is fully drafted. This stub awaits integration.
+% --- §I.0 Hook ---
+Vision-Language-Action models (VLAs) achieve up to 97\% task success rate on standard
+simulation manipulation benchmarks~\cite{kim2025openvla_oft, black2024pi0}. They are
+typically evaluated by task success rate (SR) and paraphrase invariance --- the latter
+interpreted as evidence that the model ``understands'' instructions rather than memorizing
+surface forms. Together, these benchmarks suggest that contemporary VLAs have largely
+solved the language-conditioning problem in robot manipulation.
 
-% Key elements to preserve in LaTeX integration:
-% - §I.0 Hook: r(h_OFT, ℓ) = +0.76 vs r(demo trajectory, ℓ) = -0.27 displayed equation
-% - §I.1 Background: VLA paradigm + paraphrase invariance interpretation
-% - §I.2 Five contributions:
-%   1. Signal-flow diagnostic methodology
-%   2. Theorem 3' formal bound
-%   3. Empirical 8× squared-correlation gap
-%   4. Diagnostic insight (high SR ≠ language conditioning)
-%   5. CFM decoder sample-quality collapse
-% - §I.3 Scope and falsifiability
-% - §I.4 Organization
+This paper questions that interpretation. Through a three-layer signal-flow diagnostic
+on a strong VLA backbone (OpenVLA-OFT) trained on LIBERO-Spatial demonstrations, we find:
+\begin{equation}
+r(h_{\mathrm{backbone}},\, \ell) \;=\; \mathbf{+0.76}\;\;\text{(backbone)},
+\quad
+r(\text{demo traj},\, \ell) \;=\; \mathbf{-0.27}\;\;\text{(demonstrations)}.
+\label{eq:hook}
+\end{equation}
+The pretrained backbone preserves language conditioning at strong correlation; the
+demonstration data on which VLAs are trained is approximately language-orthogonal.
+\textbf{The information loss happens during demonstration supervision, not during pretraining.}
+Theorem~\ref{thm:bound} (\S\ref{sec:theory}) formalizes the consequence: any policy
+trained by distribution-matching losses on language-orthogonal demonstrations is bounded
+by the demonstration-level signal --- regardless of architecture, decoder family, or
+representation size. High task SR is then achieved despite --- not because of ---
+language conditioning at the policy level.
 
-[Content placeholder — convert from notes/paper_section_I_draft.md]
+% --- §I.1 Background ---
+\subsection{Background}
+\label{sec:intro:background}
 
+VLAs combine pretrained vision-language backbones~\cite{driess2023palm_e, karamcheti2024prismatic}
+with action heads trained on robot demonstration datasets~\cite{brohan2023rt2, kim2024openvla,
+kim2025openvla_oft, black2024pi0}. State-of-the-art models --- OpenVLA-OFT, RT-2, $\pi$-0 ---
+achieve high task SR on simulation benchmarks (LIBERO, RoboCasa) and increasingly on real-world
+bimanual platforms.
 
+The dominant evaluation axis for whether a VLA ``understands'' language has been task SR
+combined with paraphrase invariance: a model that succeeds at the task and remains robust
+under instruction rewording is interpreted as having learned to ground language in action.
+Recent improvements in VLA architecture --- parallel decoding, action chunking, continuous
+representations~\cite{kim2025openvla_oft} --- have driven SR from $\sim$76\% to $\sim$97\%
+on LIBERO-Spatial while preserving paraphrase robustness.
+
+Two assumptions underlie this evaluation regime. First, that task SR and language
+conditioning are coupled --- high SR implies that language is being used. Second, that
+paraphrase invariance distinguishes ``genuine grounding'' from ``surface memorization.''
+This paper provides evidence that neither assumption holds in the current evaluation
+paradigm: paraphrase-invariant VLAs achieving 97\% SR can do so without policy-level
+language conditioning, as long as scene structure is sufficient for task discrimination.
+
+% --- §I.2 Contributions ---
+\subsection{Contributions}
+\label{sec:intro:contributions}
+
+We make five contributions:
+
+\textbf{1.~Signal-flow diagnostic methodology (\S\ref{sec:results:diagnostic}).} We
+introduce three measurements that together localize where in the VLA stack language
+conditioning is preserved or lost:
+\begin{itemize}
+  \item \textbf{Gate 1}: Mantel correlation $r(h_{\mathrm{backbone}}, \ell)$ between
+        backbone hidden states (last text token) and language embeddings across tasks.
+        Measures backbone-level preservation.
+  \item \textbf{M3}: Mantel correlation $r(\text{demonstration trajectory}, \ell)$ across
+        tasks. Measures whether demonstration data encodes language-action correlation.
+  \item \textbf{C1}: Mantel correlation $r(z_{\mathrm{policy}}, \ell)$ between policy
+        latent representations and language embeddings. Measures policy-level conditioning.
+\end{itemize}
+Among these, \textbf{M3 is the principal methodological contribution}. To our knowledge,
+prior probing literature in language-conditioned robotics focuses on model-internal
+representations after training (probing learned policies for instruction sensitivity,
+e.g.,\ via attribution or representation analysis); M3 instead probes the supervision data
+itself for instruction-trajectory correlation, prior to and independent of any specific
+policy. We are not aware of analogous protocols applied to robot demonstration datasets in
+the language-conditioning literature.
+
+\textbf{2.~Theorem~\ref{thm:bound} (\S\ref{sec:theory}).} A formal bound on policy-level
+language mutual information by demonstration-level language mutual information. For
+policies $\pistar$ minimizing distribution-matching losses with population minimizer
+$\pistar(\cdot \mid o, \ell) = \dataD(\cdot \mid o, \ell)$ a.s., the sampled-action MI
+satisfies
+\begin{equation}
+I(\Astar; \ell \mid o) \;=\; I_{\dataD}(a; \ell \mid o) \;\le\; \eps.
+\label{eq:thm_bound_intro}
+\end{equation}
+The bound is architecture-agnostic: it applies uniformly across $L_2$ regression, $L_1$
+regression, Conditional Flow Matching, Shortcut Flow Matching, and cross-entropy on
+discretized actions. The theorem's mathematical content is modest --- the proof reduces to
+a distributional identity at the population level --- but the substance lies in identifying
+the demonstration-level quantity $I_{\dataD}(a; \ell \mid o)$ that controls policy behavior,
+and in establishing this quantity is empirically small for standard VLA benchmarks
+(Contribution~3).
+
+\textbf{3.~Empirical instantiation (\S\ref{sec:results:correlation}).} On LIBERO-Spatial,
+the squared-correlation gap between backbone-level and demonstration-level language
+conditioning is
+\begin{equation}
+\rho_h^2 \,/\, \rho_{\text{demo}}^2 \;=\; 0.578 \,/\, 0.073 \;\approx\; 8\times,
+\label{eq:gap_intro}
+\end{equation}
+with the demonstration-level correlation $\rho_{\text{demo}}^2 = 0.073$ approaching the
+null-Mantel scale (permutation $p = 0.96$). This is the first quantitative measurement, to
+our knowledge, of the demonstration-level information bottleneck that constrains downstream
+VLA policies under Theorem~\ref{thm:bound}.
+
+\textbf{4.~Diagnostic insight: high task SR does not establish language conditioning
+(\S\ref{sec:results:oft_contrast}).} OpenVLA-OFT achieves 97\% SR on LIBERO-Spatial with
+paraphrase invariance (\S\ref{sec:results:paraphrase}: 9/10 tasks paired-diff CI within
+$\pm$2pp; task 5 sensitivity caveat documented). Under Theorem~\ref{thm:bound}, this
+benchmark performance is consistent with two scenarios: (a) OFT preserves language
+conditioning at low magnitude within the bound and uses that signal robustly, or (b) OFT
+is entirely visual-grounded at the policy level with no language signal. Standard task-SR
+benchmarks cannot distinguish these scenarios; signal-flow diagnostics (Contribution~1)
+can. This reframes a long-standing claim in the VLA literature: paraphrase-invariant high
+SR does not imply that the policy uses language information at the action level.
+
+\textbf{5.~Empirical characterization of CFM-decoder sample-quality collapse
+(\S\ref{sec:results:cfm_collapse}).} Under language-orthogonal demonstration supervision,
+our OTP-Soft V3 architecture (Shortcut Flow Matching head and decoder,
+\S\ref{sec:architecture}) exhibits a distinctive failure mode at the implementation level:
+7/7 action dimensions fail the per-dimension sample-quality threshold
+(\S\ref{sec:results:cfm_collapse}, L1/std ratio 1.88 overall). An oracle ablation replacing
+head output with ground-truth trajectory rules out the moving-target hypothesis: the
+failure persists with perfect upstream signal, localizing it to the decoder family under
+per-sample distribution-matching loss. The CFM decoder is \emph{sufficient} to produce
+this failure under language-orthogonal demonstrations; whether it is the \emph{isolated}
+cause of the SR gap with OFT requires controlled architecture experiments
+(\S\ref{sec:architecture:falsification}, future work).
+
+% --- §I.3 Scope ---
+\subsection{Scope}
+\label{sec:intro:scope}
+
+The empirical findings in this paper are demonstrated on LIBERO-Spatial, a 10-task
+simulated manipulation benchmark with teleoperated demonstrations. The theoretical bound
+(Theorem~\ref{thm:bound}) is benchmark-agnostic --- it depends only on the joint
+distribution $\dataD(\ell, a \mid o)$ of the supervision data, not on the specific task
+suite. We expect the empirical phenomenon (demonstration-trajectory $\perp$ language) to
+hold broadly under standard teleoperated demonstration protocols on the mechanistic
+argument that teleoperators visually perceive the scene and execute motor commands, with
+language serving as a post-hoc label rather than a causal driver of recorded trajectories
+(\S\ref{sec:discussion}).
+
+This prediction is falsifiable on any teleop-collected suite under the same M3 protocol:
+it can be confirmed by observing $\lvert r(\text{traj}, \ell) \rvert \ll \lvert
+r(h_{\text{backbone}}, \ell) \rvert$, or refuted by observing comparable magnitudes. We
+provide one quantitative confirmation on LIBERO-Spatial (\S\ref{sec:results:diagnostic});
+broader empirical validation across suites is left to future work (\S\ref{sec:discussion}).
+
+This paper does not propose a new architectural fix. The OTP-Soft architecture we evaluate
+(\S\ref{sec:architecture}) was originally designed under a working hypothesis --- since
+falsified by Theorem~\ref{thm:bound} --- that a language-agnostic decoder boundary would
+bypass demonstration-induced conditioning collapse. We retain OTP-Soft as the experimental
+platform on the basis of its diagnostic properties (clean component-ablation structure,
+decoder-family contrast with OFT, generalizable measurement infrastructure) rather than as
+a proposed solution. Bypassing Theorem~\ref{thm:bound}'s bound requires interventions
+outside the demonstration-supervised loss --- auxiliary language objectives, contrastive
+language alignment, inference-time conditioning on backbone-derived signals --- and we
+discuss such directions only as future work (\S\ref{sec:discussion}).
+
+% --- §I.4 Paper organization ---
+\subsection{Paper Organization}
+\label{sec:intro:organization}
+
+\S\ref{sec:related_work} reviews related work in CFM-based generative modeling, VLA
+architecture, and language-grounding probing. \S\ref{sec:theory} formalizes the setup,
+introduces the $\eps$-language-orthogonality condition, and proves
+Theorem~\ref{thm:bound}. \S\ref{sec:architecture} describes the OpenVLA-OFT backbone, the
+OTP-Soft architecture, and the diagnostic value of this architecture for the present
+study. \S\ref{sec:results} presents the three signal-flow measurements (Gate~1, M3, C1)
+and the CFM decoder failure characterization. \S\ref{sec:discussion} discusses scope,
+alternative interpretations, single-benchmark caveats, and future directions including
+auxiliary-objective interventions that could bypass the bound established here.

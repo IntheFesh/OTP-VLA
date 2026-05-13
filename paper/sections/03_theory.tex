@@ -1,12 +1,216 @@
-% sections/03_theory.tex — Theory
-% Source: notes/paper_section_IIIA_draft.md
-% Integration status: STUB. Markdown source fully drafted. Awaits LaTeX conversion.
+% sections/03_theory.tex — Section III (Theory)
+% Source: notes/paper_section_IIIA_draft.md + Theorem 3' v3 from userMemories #14
+% Converted Day 5 2026-05-13.
 
-\section{Theory}
+\section{Theory: Architecture Conditions and the Demonstration-Level Bound}
 \label{sec:theory}
 
-% TODO: Convert notes/paper_section_IIIA_draft.md content from Markdown to LaTeX.
+This section formalizes the conditions on policy architecture and demonstration data that
+organize the empirical findings of \S\ref{sec:results}. \S\ref{sec:theory:setup}
+introduces notation and the C2 and C3 conditions on policy architecture.
+\S\ref{sec:theory:bound} (Theorem~\ref{thm:bound}) states the architecture-agnostic upper
+bound on policy-level language conditioning by demonstration-level language conditioning.
 
-[Content placeholder — convert from notes/paper_section_IIIA_draft.md]
+\subsection{Setup and Architectural Conditions}
+\label{sec:theory:setup}
 
+\subsubsection{Notation}
+\label{sec:theory:notation}
 
+We consider a policy $\pi: \actO \times \actL \to \Delta(\actA)$ mapping
+observation-instruction pairs to distributions over robot actions, trained on
+demonstration data $\dataD(o, \ell, a)$ over observation space $\actO$, instruction space
+$\actL$, and action space $\actA$. We decompose the policy as
+\begin{equation}
+\pi(a \mid o, \ell) \;=\; \phitheta(a \mid z, w(o)),
+\label{eq:policy_decomposition}
+\end{equation}
+where $w(o)$ denotes observation-derived features (visual encodings, proprioception,
+geometry, affordance maps; see \S\ref{sec:architecture} for instantiation), and $z =
+\hpsi(o, \ell)$ is an instruction-aware latent produced by an upstream module (the
+\emph{head} in our architecture). The decoder $\phitheta$ is a stochastic mapping that
+produces actions conditional on the latent $z$ and observation features $w(o)$.
+
+This decomposition is sufficiently general to cover most VLA architectures considered in
+\S\ref{sec:related:vla}: in OpenVLA~\cite{kim2024openvla} and RT-2~\cite{brohan2023rt2},
+$z$ corresponds to the LLM hidden state at the last text token, $w(o)$ is implicit in
+visual tokenization, and $\phitheta$ is a softmax over discretized action tokens; in
+OFT~\cite{kim2025openvla_oft}, $z$ is the same LLM hidden state and $\phitheta$ is a
+deterministic regression head; in $\pi_0$~\cite{black2024pi0}, $\phitheta$ is a
+flow-matching head; in OTP-Soft (this paper, \S\ref{sec:architecture}), $z$ is an
+object-pose trajectory and $\phitheta$ is a Shortcut Flow Matching decoder.
+
+We use $a \sim \dataD(\cdot \mid o, \ell)$ for action samples from the demonstration
+distribution conditional on $(o, \ell)$, and $\Astar \sim \pistar(\cdot \mid o, \ell)$ for
+action samples from a policy at the same conditioning.
+
+\subsubsection{Condition C2: Task-Discriminative Latent}
+\label{sec:theory:c2}
+
+The first condition concerns whether the latent $z$ carries task-discriminative
+information beyond what is determined by the observation alone.
+
+\begin{condition}[Task-discriminative latent]
+\label{cond:c2}
+Let $\tau(\ell)$ denote the instruction equivalence class of $\ell$ under semantic
+paraphrase --- that is, $\tau(\ell) = \tau(\ell')$ if and only if $\ell$ and $\ell'$ are
+paraphrases referring to the same intended task. We require
+\begin{equation}
+I(z; \tau \mid o) \;>\; 0.
+\label{eq:c2}
+\end{equation}
+\end{condition}
+
+In words: the latent $z$ must carry information about the task identity (instruction
+equivalence class) beyond what the observation $o$ already provides. C2 is a necessary
+condition for the policy to behave differently across paraphrased instructions referring
+to different tasks while sharing the same observation context.
+
+The use of $\tau$ rather than the raw instruction $\ell$ is important. Two paraphrased
+instructions referring to the same task (``pick up the black bowl'' and ``grasp the dark
+bowl'') should produce the same conditioning on the policy, even though the language
+embeddings of $\ell$ and $\ell'$ differ in surface form. Requiring $I(z; \tau \mid o) > 0$
+targets the \emph{semantic} content of language, not the surface form. An earlier
+formulation requiring only $H(z \mid o) > 0$ is insufficient: it is satisfied by injecting
+any task-independent noise into $z$, which carries no information about the intended task.
+
+C2 is a property of the policy under evaluation, not of the supervision data. In
+\S\ref{sec:results:diagnostic} (C1 diagnostic) we measure a related quantity --- the Mantel
+correlation $r(z, \ell)$ on policy latents --- as an empirical proxy for whether C2 holds
+substantively after training.
+
+\subsubsection{Condition C3: Decoder Language-Agnosticism}
+\label{sec:theory:c3}
+
+The second condition concerns whether the decoder $\phitheta$ receives the instruction
+$\ell$ directly as input, separately from the routing through $z$.
+
+\begin{condition}[Decoder language-agnosticism]
+\label{cond:c3}
+The decoder $\phitheta$ does not receive $\ell$ as an input:
+\begin{equation}
+\ell \;\notin\; \mathrm{inputs}(\phitheta).
+\label{eq:c3}
+\end{equation}
+\end{condition}
+
+All language information that reaches the decoder must flow through the latent $z$.
+Equivalently, the decoder's action output $\phitheta(a \mid z, w(o))$ is conditionally
+independent of $\ell$ given $(z, w(o))$.
+
+C3 is an \emph{architectural} condition rather than an empirical one. In OTP-Soft
+(\S\ref{sec:architecture}), C3 is enforced by construction: the decoder's \texttt{forward()}
+signature accepts only $(z, w(o))$ inputs, and a \texttt{\_check\_forbidden} guard raises
+\texttt{AssertionError} at both module construction and every forward pass if any
+forbidden name fragment related to $\ell$ appears among parameter names, submodule names,
+or runtime locals.
+
+The motivation for C3 is structural clarity rather than performance. By routing all
+language information through a single bottleneck ($z$), the architecture exposes a clean
+diagnostic target: measuring $I(z; \ell \mid o)$ (or its empirical proxy $r(z, \ell)$ in
+\S\ref{sec:results:diagnostic}) directly assesses whether the upstream head $\hpsi$ has
+preserved language information for the decoder to use. Without C3, the decoder could
+potentially route language information through a second, unobserved pathway, conflating
+the diagnostic target.
+
+C3 is \emph{not} a sufficient condition for the policy to use language at the action
+level. As we show in \S\ref{sec:theory:bound} (Theorem~\ref{thm:bound}) and
+\S\ref{sec:results:cfm_collapse} (empirical instantiation), C3 combined with
+demonstration-supervised training does not guarantee policy-level language conditioning:
+the bound on $I(\Astar; \ell \mid o)$ depends on the demonstration data's language-action
+correlation structure, not on the architectural enforcement of C3.
+
+\subsubsection{Relationship Between C2 and C3}
+\label{sec:theory:c2_c3_relation}
+
+C2 and C3 address different layers of the policy. C2 is a requirement on the latent $z$
+--- it must encode task-discriminative information. C3 is a requirement on the decoder
+$\phitheta$ --- it must not bypass $z$ by reading $\ell$ directly. Together, they specify
+a clean architectural decomposition where:
+\begin{itemize}
+\item The head $\hpsi$ is the only module that consumes $\ell$.
+\item The decoder $\phitheta$ depends on $\ell$ only indirectly through $z$.
+\item The C2 condition's diagnostic ($I(z; \tau \mid o)$) and the policy's empirical
+      language conditioning ($I(\Astar; \ell \mid o)$) can be measured independently.
+\end{itemize}
+
+Under this decomposition, Theorem~\ref{thm:bound} (\S\ref{sec:theory:bound}) provides the
+bound on $I(\Astar; \ell \mid o)$ in terms of demonstration-level signal. The
+\S\ref{sec:results:diagnostic} measurements (Gate~1 on the backbone state, M3 on
+demonstration trajectories, C1 on $z$) then trace how language information propagates from
+the backbone, through the supervision data, into the trained policy's latent.
+
+\subsection{Theorem~3': The Demonstration-Level Upper Bound}
+\label{sec:theory:bound}
+
+\begin{definition}[$\eps$-language-orthogonality of demonstration data]
+\label{def:eps_lang_orthog}
+The demonstration distribution $\dataD$ is $\eps$-language-orthogonal if
+\begin{equation}
+I_{\dataD}(a; \ell \mid o) \;\le\; \eps.
+\label{eq:eps_orthog}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Demonstration-level bound on policy language conditioning]
+\label{thm:bound}
+Let $\pistar$ be a policy that minimizes a distribution-matching loss with population
+minimizer satisfying $\pistar(\cdot \mid o, \ell) = \dataD(\cdot \mid o, \ell)$
+almost-surely. Let $\Astar \sim \pistar(\cdot \mid o, \ell)$. Then
+\begin{equation}
+I(\Astar; \ell \mid o) \;=\; I_{\dataD}(a; \ell \mid o).
+\label{eq:thm_bound}
+\end{equation}
+In particular, if $\dataD$ is $\eps$-language-orthogonal (Def.~\ref{def:eps_lang_orthog}),
+\begin{equation}
+I(\Astar; \ell \mid o) \;\le\; \eps.
+\label{eq:thm_bound_eps}
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Proof]
+By assumption, $\pistar(\cdot \mid o, \ell) = \dataD(\cdot \mid o, \ell)$ a.s. Hence the
+sampled-action distribution under $\pistar$ matches the demonstration-action distribution
+conditional on $(o, \ell)$, so the conditional mutual information of the sampled action
+with $\ell$ given $o$ equals that of the demonstration action: $I(\Astar; \ell \mid o) =
+I_{\dataD}(a; \ell \mid o)$. The bound (\ref{eq:thm_bound_eps}) follows from
+Definition~\ref{def:eps_lang_orthog}.
+\end{proof}
+
+\begin{remark}[Approximate-form bound for empirical policies]
+\label{rem:approx_bound}
+For empirical policies $\hat\pi$ trained on finite samples ($n \approx 1.1 \times 10^{5}$
+demonstration transitions on LIBERO-Spatial), exact recovery $\hat\pi = \dataD$ does not
+hold; rather, $\hat\pi \to \dataD$ in distribution as $n \to \infty$. Under standard
+regularity conditions on the loss and architecture, the data-processing inequality gives
+the approximate-form bound
+\begin{equation}
+I(\hat A; \ell \mid o) \;\le\; \eps \;+\; o(1),
+\label{eq:approx_bound}
+\end{equation}
+where $\hat A \sim \hat\pi(\cdot \mid o, \ell)$ and the $o(1)$ term vanishes as $n \to
+\infty$. Sample-complexity rates are outside the present scope.
+\end{remark}
+
+\begin{remark}[Architecture-agnosticism]
+\label{rem:arch_agnostic}
+Theorem~\ref{thm:bound} applies uniformly to any loss family whose population minimizer
+recovers $\dataD(\cdot \mid o, \ell)$. This includes $L_1$ and $L_2$ regression on
+continuous actions, cross-entropy on discretized actions, Conditional Flow
+Matching~\cite{lipman2023flow_matching}, Shortcut Flow Matching~\cite{frans2024shortcut},
+and denoising score matching for diffusion models~\cite{chi2023diffusion}. Changing the
+decoder family does not change the bound; it changes the empirical character of policy
+behavior within the bound (see \S\ref{sec:results:cfm_collapse} for the CFM-specific
+characterization).
+\end{remark}
+
+\begin{remark}[Bypass requires interventions outside demonstration-supervised loss]
+\label{rem:bypass}
+Theorem~\ref{thm:bound} applies only to losses whose population minimizer matches the
+demonstration distribution. Bypassing the bound requires interventions outside this loss
+family --- for instance, auxiliary language objectives (contrastive
+language--observation alignment, language-prediction heads), inference-time conditioning
+on backbone-derived signals not present in $\dataD$, or supervision data augmented with
+language-conditional reward signals. We discuss such directions only as future work
+(\S\ref{sec:discussion}).
+\end{remark}
