@@ -1,0 +1,98 @@
+% =====================================================================
+% OTP-VLA Paper — main.tex
+% Target venue: IEEE RA-L (Robotics and Automation Letters)
+% Status: Draft skeleton 2026-05-13 (Day 4 P2)
+%
+% Build instructions:
+%   pdflatex main.tex
+%   bibtex main
+%   pdflatex main.tex
+%   pdflatex main.tex
+%
+% Notes:
+%   - IEEE RA-L uses ieeeconf class for submissions
+%   - Section files in paper/sections/ subdirectory
+%   - Bibliography in paper/references.bib
+%   - Figures in paper/figures/ subdirectory
+% =====================================================================
+
+\documentclass[letterpaper, 10pt, conference]{ieeeconf}
+
+% IEEE typesetting
+\IEEEoverridecommandlockouts
+\overrideIEEEmargins
+
+% Required packages
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{corollary}{Corollary}
+\newtheorem{condition}{Condition}
+
+% Custom notation
+\newcommand{\dataD}{p_{\mathcal{D}}}
+\newcommand{\actO}{\mathcal{O}}
+\newcommand{\actA}{\mathcal{A}}
+\newcommand{\actL}{\mathcal{L}}
+\newcommand{\Astar}{A^{*}}
+\newcommand{\pistar}{\pi^{*}}
+\newcommand{\phitheta}{\phi_{\theta}}
+\newcommand{\hpsi}{h_{\psi}}
+\newcommand{\eps}{\varepsilon}
+
+% =====================================================================
+
+\title{\LARGE \bf
+Where Did the Language Go? \\
+Tracing Conditioning Signal Loss in VLA Policies
+}
+
+\author{Yue \texttt{[Author]}% <-- placeholder
+\thanks{Independent researcher. Contact: \texttt{[email]}.}%
+}
+
+% =====================================================================
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+% --- Abstract ---
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+% --- Sections ---
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_theory}
+\input{sections/04_architecture}
+\input{sections/05_results}
+\input{sections/06_discussion}
+
+% --- Acknowledgments (optional) ---
+% \section*{Acknowledgments}
+% [Optional acknowledgments here]
+
+% --- Bibliography ---
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
+
+
