@@ -1,12 +1,176 @@
-% sections/04_architecture.tex — Architecture
-% Source: notes/paper_section_IV_draft.md
-% Integration status: STUB. Markdown source fully drafted. Awaits LaTeX conversion.
+% sections/04_architecture.tex — Section IV (Architecture and Theoretical Grounding)
+% Source: notes/paper_section_IV_draft.md v2 final, frozen 2026-05-12 evening
+%   (Theorem 3' v3 reformulation + 4-fix reviewer audit integrated)
+% Converted Day 5 2026-05-13.
 
-\section{Architecture}
+\section{Architecture and Theoretical Grounding}
 \label{sec:architecture}
 
-% TODO: Convert notes/paper_section_IV_draft.md content from Markdown to LaTeX.
+\subsection{Implications of Theorem~\ref{thm:bound} for VLA Architecture Design}
+\label{sec:architecture:implications}
 
-[Content placeholder — convert from notes/paper_section_IV_draft.md]
+Theorem~\ref{thm:bound} (\S\ref{sec:theory:bound}) provides an architecture-agnostic upper
+bound on the language conditioning of any demonstration-supervised policy:
+\begin{equation}
+I(\Astar; \ell \mid o) \;\le\; I_{\dataD}(a; \ell \mid o) \;\le\; \eps.
+\label{eq:bound_in_arch}
+\end{equation}
+By Remark~\ref{rem:arch_agnostic} of \S\ref{sec:theory:bound}, this bound applies uniformly
+across the standard space of VLA action-decoder families: $L_2$ regression, $L_1$
+regression, Conditional Flow Matching, Shortcut Flow Matching, and cross-entropy on
+discretized actions. The bound is not bypassable through architectural choice within the
+demonstration-supervised paradigm; bypassing it requires interventions outside the
+demonstration loss itself (auxiliary language objectives, contrastive language alignment,
+or inference-time conditioning on backbone-derived signals --- discussed in
+\S\ref{sec:discussion}).
 
+This observation reorients the question that architectural design can answer. The bound
+determines what is \emph{achievable} in terms of policy-level language conditioning; the
+architecture determines what failure mode manifests when the bound is tight. We distinguish
+two architectural axes that operate independently of the bound.
 
+\textbf{Decoder family.} The choice between deterministic action regression,
+flow-matching-based generation, and cross-entropy over discretized actions does not change
+the bound but does change the empirical character of policy behavior when language signal
+is unavailable. Deterministic regression heads can still achieve high task SR by relying on
+visual grounding alone (\S\ref{sec:results:oft_contrast}, OFT existence proof); they appear
+to ``work'' at the SR level while satisfying the bound at the language-MI level.
+Flow-matching-based decoders, in contrast, exhibit a distinctive sample-quality collapse
+under language-orthogonal demonstrations: the matched-flow representation cannot learn to
+discriminate among task-conditioned action distributions when the conditioning signal is
+absent in the supervision data (\S\ref{sec:results:cfm_collapse} documents this empirically).
+
+\textbf{Conditioning input richness.} Independent of decoder family, the set of inputs
+supplied to the decoder --- observation features, proprioception, mesh-derived geometry,
+grasp affordance maps, instruction embeddings --- determines what information the decoder
+\emph{could} use to discriminate among tasks. Theorem~\ref{thm:bound} constrains the
+conditioning that flows through the \emph{language channel}; it does not constrain
+conditioning that flows through observation-derived channels. Component ablations
+(\S\ref{sec:results:component_ablations}) systematically remove conditioning inputs to
+probe the decoder's sensitivity along this axis.
+
+These two axes motivate the architectural design of OTP-Soft, described next, and they
+motivate the comparative evaluation strategy of \S\ref{sec:results}: OFT contrast as a
+cross-architecture qualitative comparison (\S\ref{sec:results:oft_contrast}), and component
+ablations for conditioning-input effects within the OTP-Soft architecture
+(\S\ref{sec:results:component_ablations}).
+
+\subsection{OTP-Soft Architecture}
+\label{sec:architecture:otp_soft}
+
+OTP-Soft inherits the OpenVLA-OFT pretrained backbone and replaces the action head with a
+structured pipeline producing object-pose trajectories followed by language-agnostic action
+decoding.
+
+\paragraph{Backbone.}
+We use the OpenVLA-OFT checkpoint~\cite{kim2025openvla_oft}, a 7.6B-parameter
+vision-language model with a SigLIP+DINOv2 dual-encoder visual frontend fused to a
+6-channel representation internally, and a LLaMA-2-derived language model trunk inherited
+from OpenVLA~\cite{kim2024openvla}. We freeze the backbone (92M trainable parameters under
+our training configuration are confined to downstream modules). Following the OFT
+integration pattern, we access internal modules (\texttt{vision\_backbone},
+\texttt{projector}, \texttt{llm\_backbone}) directly rather than through the outer forward
+path, bypassing OFT's discretized action mask logic.
+
+\paragraph{Object-pose trajectory head.}
+A 138.3M-parameter trajectory head consumes backbone hidden states and emits an 8-step
+trajectory of object poses ($N_{\text{obj}} \times H \times 7$ for $H = 8$ horizon steps
+and 7-DoF pose per object). The head is trained with the shortcut model framework of
+Frans et al.~\cite{frans2024shortcut} applied to the flow-matching
+variant~\cite{lipman2023flow_matching} (denoted Shortcut Flow Matching throughout this
+paper), chosen at design time for its accelerated convergence property under the shortcut
+self-consistency objective relative to vanilla Conditional Flow Matching. We note that the
+choice between Shortcut and vanilla CFM does not affect Theorem~\ref{thm:bound}
+applicability (Remark~\ref{rem:arch_agnostic} of \S\ref{sec:theory:bound});
+\S\ref{sec:results:cfm_collapse} documents that sample-quality collapse occurs under
+Shortcut Flow Matching despite this design choice. We denote the head's stochastic output
+as the latent trajectory $z$.
+
+\paragraph{Language-agnostic decoder.}
+The decoder $\phitheta$ accepts the trajectory $z$, proprioception, grasp affordance maps,
+and object-geometry features, and emits a 7-DoF action chunk of horizon $H$. By
+architectural construction, the instruction $\ell$ is excluded from the decoder's input
+signature: $\ell$ does not appear in \texttt{forward()} arguments or as an input to any
+submodule. This realizes Condition~\ref{cond:c3} of \S\ref{sec:theory:c3} at the
+implementation level: $\ell \notin \mathrm{inputs}(\phitheta)$. The exclusion is enforced
+by a \texttt{\_check\_forbidden} guard that raises \texttt{AssertionError} if any forbidden
+name fragment appears among (i) \texttt{forward()} parameter names at module construction,
+(ii) submodule and parameter names at construction, or (iii) \texttt{locals().keys()} and
+\texttt{dir(self)} at every forward pass --- providing both static and runtime verification
+of the C3 boundary.
+
+The decoder also uses Shortcut Flow Matching as its loss family, matching the head. This
+choice was made for consistency at design time and is empirically consequential:
+\S\ref{sec:results:cfm_collapse} documents that the decoder inherits sample-quality
+collapse independently of the head's behavior (oracle ablation in
+\S\ref{sec:results:cfm_collapse} rules out the moving-target hypothesis).
+
+\paragraph{Proprioception schema.}
+Proprioception is encoded as an 8-dimensional vector: end-effector position (3) +
+orientation quaternion (4) + a structurally zero gripper dimension (1). The zero gripper
+dimension is by design --- gripper actions are predicted as part of the 7-DoF action
+output rather than treated as a proprioception input, reflecting the LIBERO Panda
+gripper's discrete open/close semantics. We frame this as an architectural choice rather
+than a limitation: it preserves the action prediction's autonomy over gripper control
+while keeping the proprioception schema dimensionally consistent across rollouts.
+
+\paragraph{Mesh prior.}
+Object geometry is encoded via a pose-invariant shape descriptor computed offline from
+object meshes, forming a closed-set object library. Training and test splits in our
+LIBERO-Spatial evaluation share five mesh identities. This is a deliberate scoping
+choice --- pose-invariant geometry encoding allows the decoder to reason about object
+affordances independently of pose without requiring per-test mesh generalization. The
+implications of this closed-set assumption for cross-suite generalization are discussed in
+\S\ref{sec:discussion}.
+
+\subsection{Diagnostic Value of the OTP-Soft Architecture for This Study}
+\label{sec:architecture:falsification}
+
+The OTP-Soft architecture was originally designed as a candidate for addressing the
+language conditioning concerns motivating this work. The theoretical analysis presented
+here (\S\ref{sec:theory:bound}) shows that no architecture-internal pathway can reduce the
+bound on policy-level language conditioning within the demonstration-supervised paradigm
+--- a finding that is independent of any specific architecture. We retain OTP-Soft as the
+experimental platform for this paper on the basis of its diagnostic properties rather
+than its original architectural hypothesis:
+
+\textbf{1.~Architectural separation enables component ablation.} The explicit C3 boundary
+at the decoder, together with the well-defined conditioning input set $\{z,
+\text{proprioception}, \text{grasp affordance}, \text{object geometry}\}$, allows
+\S\ref{sec:results:component_ablations} to systematically drop conditioning channels and
+isolate their contribution to decoder behavior. Architectures without such clean separation
+(e.g., end-to-end transformer decoders consuming arbitrary token mixtures) would conflate
+input-ablation effects with attention-allocation effects.
+
+\textbf{2.~Decoder-family qualitative comparison with OFT.} OTP-Soft and OFT share the
+same pretrained backbone but differ in multiple architectural dimensions: decoder family
+(Shortcut Flow Matching vs. deterministic regression), intermediate representation (latent
+trajectory $z$ vs. none), object query mechanism (5 object queries vs. none), conditioning
+input set (mesh and grasp affordance vs. single-image input), and proprioception schema
+(8-dim with structural zero vs. 7-dim). We cannot fully isolate the decoder-family
+contribution from these other architectural differences within the present work. The
+contrast does inform our qualitative claim in \S\ref{sec:results:oft_contrast} that at
+least one demonstration-supervised architecture (OFT) achieves high SR on LIBERO-Spatial
+while at least one other (OTP-Soft V3) fails on the same supervision protocol and same
+backbone --- a contrast that complements but does not isolate the decoder-family axis.
+Controlled architecture experiments designed to isolate this axis are left to future work.
+
+\textbf{3.~Diagnostic infrastructure generalizes.} The Gate~1, M3, and C1 measurements
+developed for OTP-Soft (\S\ref{sec:results:diagnostic}) do not depend on architectural
+specifics beyond access to backbone hidden states, demonstration trajectories, and policy
+latent representations. These measurements apply equally to OFT, RT-2, $\pi_0$, or other
+VLA architectures sharing a comparable structural decomposition. The diagnostic
+methodology is the principal contribution of this paper; OTP-Soft is its first
+instantiation.
+
+A reviewer might reasonably ask whether the architectural complexity of OTP-Soft is
+justified given that the architecture does not solve the conditioning problem it was
+originally designed to address. Our answer is twofold. First, the architecture's
+diagnostic value (above three reasons) holds independently of its original design
+hypothesis --- it serves as a controlled experimental platform regardless of original
+motivation. Second, the absence of an architectural fix in this work --- established
+theoretically by Theorem~\ref{thm:bound} and instantiated empirically by the
+\S\ref{sec:results:diagnostic} Mantel measurements and \S\ref{sec:results:cfm_collapse}
+sample-quality test --- is itself a substantive finding. Future work should pursue
+auxiliary-objective interventions outside the demonstration-supervised loss
+(\S\ref{sec:discussion}), informed by the bound this paper establishes.
