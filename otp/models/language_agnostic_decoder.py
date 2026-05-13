@@ -43,6 +43,7 @@ import inspect
 from typing import Optional
 
 import torch
+import torch.nn.functional as F
 import torch.nn as nn
 
 from otp.utils.flow_matching import FlowMatching, ShortcutFlowMatching
@@ -200,6 +201,10 @@ class LanguageAgnosticDecoder(nn.Module):
         drop_mesh: bool = False,
         drop_grasp: bool = False,
         drop_proprio: bool = False,
+        # ===== Variant (c) deterministic decoder flag =====
+        # When True, bypass flow matching, use direct L1 regression head.
+        # Mirrors otp_head.py PATH B pattern. Name verified vs _FORBIDDEN_FRAGMENTS.
+        deterministic_decoder: bool = False,
     ) -> None:
         super().__init__()
 
@@ -261,21 +266,44 @@ class LanguageAgnosticDecoder(nn.Module):
         self.cond_proj = nn.Linear(hidden_dim, hidden_dim)
         condition_dim = hidden_dim
 
-        # ---- Flow matching action head ---- #
-        self.velocity_net = _ActionVelocityNet(
-            action_dim=action_dim,
-            horizon=horizon,
-            condition_dim=condition_dim,
-            hidden_dim=hidden_dim // 2,
-        )
-        if use_flow_matching:
-            self.flow_matcher: FlowMatching = ShortcutFlowMatching(
-                self.velocity_net,
-                num_shortcut_levels=4,
-                consistency_weight=consistency_weight,
+        # ---- Decoder action head: deterministic regression OR flow matching ---- #
+        # Variant (c) deterministic_decoder path mirrors otp_head.py PATH B pattern.
+        self.deterministic_decoder = deterministic_decoder
+        flat_action_dim = action_dim * horizon
+        if deterministic_decoder:
+            # PATH C: direct action regression. Bypasses flow matching entirely.
+            self.det_action_head = nn.Sequential(
+                nn.Linear(condition_dim, condition_dim),
+                nn.GELU(),
+                nn.Linear(condition_dim, condition_dim),
+                nn.GELU(),
+                nn.Linear(condition_dim, flat_action_dim),
             )
+            self.velocity_net = None
+            self.flow_matcher = None
         else:
-            self.flow_matcher = FlowMatching(self.velocity_net)
+            self.velocity_net = _ActionVelocityNet(
+                action_dim=action_dim,
+                horizon=horizon,
+                condition_dim=condition_dim,
+                hidden_dim=hidden_dim // 2,
+            )
+            self.det_action_head = None
+            if use_flow_matching:
+                self.flow_matcher: FlowMatching = ShortcutFlowMatching(
+                    self.velocity_net,
+                    num_shortcut_levels=4,
+                    consistency_weight=consistency_weight,
+                )
+            else:
+                self.flow_matcher = FlowMatching(self.velocity_net)
+        # Variant (c) mutual exclusion: Cocos source requires flow matching
+        if deterministic_decoder and use_cocos_source:
+            raise ValueError(
+                "use_cocos_source=True is incompatible with deterministic_decoder=True. "
+                "Cocos modifies the source distribution for flow matching, which is "
+                "bypassed in the deterministic regression path."
+            )
 
         # ---- Cocos source distribution (V7 Step 4) ---- #
         # When enabled, replaces N(0, I) source with N(alpha*F_phi(c), beta^2*I).
@@ -377,9 +405,31 @@ class LanguageAgnosticDecoder(nn.Module):
         cond_feat = self.cond_proj(decoded.mean(dim=1))                 # (B, hidden)
         condition = {"feat": cond_feat}
 
-        # ---- Flow matching ---- #
+        # ---- Action head: deterministic regression OR flow matching ---- #
         flat_action_dim = self.action_dim * H
 
+        # PATH C: deterministic regression branch
+        if self.deterministic_decoder:
+            pred_flat = self.det_action_head(cond_feat)
+            pred_action_det = pred_flat.reshape(B, H, self.action_dim)
+            if gt_action is not None:
+                assert gt_action.shape == (B, H, self.action_dim)
+                loss = F.l1_loss(pred_action_det, gt_action)
+                return {
+                    "loss_output": LossOutput(
+                        total=loss,
+                        components={"l1": loss.detach()},
+                        diagnostics={
+                            "pred_norm": pred_action_det.norm(dim=-1).mean().detach(),
+                            "gt_norm": gt_action.norm(dim=-1).mean().detach(),
+                        },
+                    ),
+                    "loss": loss,
+                    "pred_action": pred_action_det,
+                }
+            return {"pred_action": pred_action_det}
+
+        # ---- Flow matching path (existing) ---- #
         if gt_action is not None:
             assert gt_action.shape == (B, H, self.action_dim)
             x_1 = gt_action.reshape(B, flat_action_dim)

@@ -202,6 +202,8 @@ class OTPSoftModel(nn.Module):
             drop_mesh=dec_cfg.get("drop_mesh", False),
             drop_grasp=dec_cfg.get("drop_grasp", False),
             drop_proprio=dec_cfg.get("drop_proprio", False),
+            # ===== Variant (c) deterministic decoder =====
+            deterministic_decoder=dec_cfg.get("deterministic_decoder", False),
         )
 
         self.otp_head_loss_weight = float(config.get("otp_head_loss_weight", 1.0))
