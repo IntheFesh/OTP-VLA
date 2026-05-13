@@ -1,12 +1,275 @@
-% sections/06_discussion.tex — Discussion
-% Source: notes/paper_section_VI_draft.md
-% Integration status: STUB. Markdown source fully drafted. Awaits LaTeX conversion.
+% sections/06_discussion.tex — Section VI (Discussion)
+% Source: notes/paper_section_VI_draft.md v1 (Day 3 P1)
+% Structure: §VI.1 alternative interpretations + §VI.2-5 four pushbacks
+%            (Mantel setup, demo-supervised universality, auxiliary losses,
+%             single benchmark) + §VI.6 future work + §VI.7 limitations.
+% Converted Day 5 2026-05-13.
 
 \section{Discussion}
 \label{sec:discussion}
 
-% TODO: Convert notes/paper_section_VI_draft.md content from Markdown to LaTeX.
+\subsection{Alternative Interpretations of the Findings}
+\label{sec:discussion:alternatives}
 
-[Content placeholder — convert from notes/paper_section_VI_draft.md]
+The empirical findings of \S\ref{sec:results} admit alternative interpretations beyond the
+one offered by Theorem~\ref{thm:bound}. We address the three most plausible.
 
+\textbf{Alternative~1: Demonstration data is biased toward visually-distinctive tasks,
+masking language-action correlation.} It is conceivable that LIBERO-Spatial demonstrations
+exhibit near-zero language-trajectory correlation (M3) not because demonstrations are
+intrinsically language-orthogonal, but because the 10 tasks happen to differ visually in
+ways that dominate the inter-task distance matrix on trajectories. Under this
+interpretation, a demonstration suite with visually-similar tasks differing only in
+instruction semantics would show different M3 results.
 
+This interpretation is partially testable. The mechanistic argument
+(\S\ref{sec:intro:scope}, \S\ref{sec:discussion:single_benchmark}) predicts that
+demonstration-trajectory correlation depends on the teleop protocol --- operators
+executing motor commands based on visual perception, with language as label rather than
+driver --- not on task visual distinctiveness. Within the present work, we cannot
+conclusively distinguish this interpretation, since all our data comes from
+LIBERO-Spatial. We note however that the backbone-capacity check
+(\S\ref{sec:results:diagnostic}) rules out the related concern that high $\rho^2$ at the
+backbone reflects visual rather than language structure: backbone-level $h_{\mathrm{OFT}}$
+correlates with text-token-derived language embeddings (Gate~1 protocol), and the
+F-statistic on action prediction confirms the backbone can produce task-discriminative
+actions when explicitly probed.
+
+\textbf{Alternative~2: The Gaussian MI surrogate underestimates the true MI, and the
+actual demonstration-level language information is substantial.} The surrogate
+$\hat{I} = -\tfrac{1}{2}\log(1 - \rho^2)$ assumes joint Gaussianity. If demonstration
+trajectory and language are dependent through nonlinear or non-Gaussian structure, the
+Mantel correlation $\rho$ underestimates the dependence, and $\hat{I}$ correspondingly
+underestimates the true MI.
+
+This is a real limitation acknowledged in \S\ref{sec:results:cfm_collapse}. We report the
+squared correlation $\rho^2$ as the primary effect size, with the MI surrogate as
+qualitative reference. The interpretation we offer rests on the \emph{gap} between
+backbone-level and demonstration-level squared correlation ($8\times$ ratio), which is
+invariant to monotone transformations of the underlying MI: if the Gaussian surrogate
+underestimates true MI, it likely underestimates it at both backbone and demonstration
+levels, preserving the ratio. The substantive claim --- that language conditioning
+attenuates between backbone and demonstration --- is a relative observation that does not
+depend on absolute MI estimates.
+
+\textbf{Alternative~3: Theorem~\ref{thm:bound} is correct as stated but vacuous, because
+no realistic policy achieves the bound.} It is logically possible that
+demonstration-supervised policies all achieve $I(\Astar; \ell \mid o)$ far below the
+bound, making the bound non-binding and uninformative.
+
+Our empirical findings argue against this. The Gate~1 measurement shows the backbone has
+$\rho_h^2 = 0.578$, equivalent to a Gaussian MI surrogate of $\sim 0.43$ nats. If the
+bound were vacuous, policy-level language MI would substantially exceed the demonstration
+bound of $\sim 0.04$ nats by leveraging the backbone's preserved language signal at no
+cost. The C1 measurement on OTP-Soft V3 instead shows $r(z, \ell) = -0.19$ --- policy
+latent inherits the demonstration-level near-orthogonality, not the backbone-level strong
+correlation. The bound appears to be binding in practice.
+
+\subsection{Pushback~1 --- Mantel Test Setup Validity}
+\label{sec:discussion:pushback_mantel}
+
+A skeptical reviewer may question the Mantel test methodology underpinning Gate~1, M3,
+and C1: (a) the choice of distance metric (Euclidean) on potentially high-dimensional
+representations; (b) the use of mean-pooled language embeddings as the language-side
+distance matrix; (c) the 10-task LIBERO-Spatial set as a small-$N$ inter-task distance
+test.
+
+\textbf{(a) Distance metric choice.} Euclidean distance on per-task mean representations
+is standard for representation-distance probing~\cite{kriegeskorte2008rsa}. The Mantel
+test is invariant to monotone transformations of the distance matrices, so cosine
+distance produces qualitatively identical patterns; we report Euclidean for consistency
+with prior probing literature.
+
+\textbf{(b) Language embedding choice.} We use mean-pooled token embeddings from the
+OpenVLA-OFT tokenizer applied to the raw instruction prompt. This choice keeps the
+language-side measurement aligned with what the backbone-internal text-processing
+pipeline produces; alternative choices (CLIP text encoder, BERT pooling, instruction-tuned
+sentence embeddings) would test slightly different language representations. The SC2
+sanity check (\S\ref{sec:results:diagnostic}) verifies our pipeline is deterministic and
+consistent between Gate~1 and C1 measurements.
+
+\textbf{(c) Inter-task $N=10$.} The Mantel test with $N = 10$ tasks produces
+$\binom{10}{2} = 45$ inter-task pairs and an effective sample size suitable for
+permutation testing with $N_{\text{perm}} = 1000$. The replicated Gate~1 result ($\Delta
+r = 0.0152$ between two independent runs of the same protocol on the same data) is well
+within sampling noise for this $N$; we estimate sampling noise empirically rather than
+relying on asymptotic distributional assumptions. The replication agreement supports the
+robustness of the protocol at this sample size.
+
+\subsection{Pushback~2 --- How Does Any VLA Architecture Achieve High SR?}
+\label{sec:discussion:pushback_universality}
+
+A natural objection to Theorem~\ref{thm:bound} is that it appears too strong: if all
+demonstration-supervised architectures are bounded by demonstration-level language MI,
+and demonstrations are near-language-orthogonal, then no demonstration-supervised policy
+should perform well at language-conditioned tasks. Yet OFT achieves 97\% SR. How does
+this fit?
+
+The answer is in the two-scenario framing of \S\ref{sec:results:oft_contrast}. OFT's
+97\% SR is achieved consistently with the bound: under scenario~(a), OFT carries small
+but non-zero language MI within the bound, sufficient for task discrimination; under
+scenario~(b), OFT carries zero language MI and achieves SR via observation-action mapping
+alone. Both scenarios are consistent with the bound and the paraphrase invariance pattern
+(\S\ref{sec:results:paraphrase}).
+
+The conceptual error a reader might fall into is identifying ``task success'' with
+``language conditioning use.'' Task success only requires the policy to produce correct
+actions given the observation; it does not require the language instruction to causally
+drive action selection. In LIBERO-Spatial (and many similar benchmarks), tasks are
+visually distinctive --- each task has a unique object layout that can be discriminated
+from observation alone. A policy that maps each visual scene to its correct action will
+achieve high SR without using language. Theorem~\ref{thm:bound} bounds the
+language-driven contribution to policy actions; it does not bound the SR-driven
+contribution from observation processing.
+
+We argue this explains why the standard SR + paraphrase-invariance evaluation regime
+cannot detect the distinction. Both visually-grounded (b) and weakly-language-grounded
+(a) policies produce the same SR profile under standard evaluation. Signal-flow
+diagnostics (Gate~1, M3, C1) are needed to distinguish.
+
+\subsection{Pushback~3 --- Auxiliary Language Losses as Bypass Route}
+\label{sec:discussion:pushback_auxiliary}
+
+We claim Theorem~\ref{thm:bound} is architecture-agnostic for any demonstration-supervised
+policy, and that bypassing the bound requires interventions outside the demonstration
+loss (Remark~\ref{rem:bypass}; \S\ref{sec:architecture:implications};
+\S\ref{sec:architecture:falsification}). A reviewer may ask: what specifically counts as
+``outside the demonstration loss,'' and can it actually achieve the bypass?
+
+Several auxiliary objectives have been proposed in adjacent literature that, under our
+framework, would modify the supervision distribution underlying
+Theorem~\ref{thm:bound} and thereby alter the bound.
+
+\textbf{Language reconstruction loss.} Training the policy to additionally reconstruct
+the instruction from intermediate representations (style of~\cite{lynch2020multitask})
+introduces a direct $\ell$-supervision signal that does not flow through demonstration
+trajectories. Under our framework, this modifies the supervision distribution from
+$\dataD(o, \ell, a)$ to a joint $\dataD(o, \ell, a) \cdot p_{\text{aux}}(\ell, z)$,
+lifting the Theorem~\ref{thm:bound} bound on $I(\Astar; \ell \mid o)$ by the auxiliary
+signal's information.
+
+\textbf{Contrastive language-representation alignment.} Aligning policy hidden states
+with backbone-derived language embeddings via contrastive objectives (CLIP-style
+training, but for VLA hidden states) introduces a non-demonstration supervision pathway.
+Backbone-preserved language information (Gate~1 $r = 0.76$) becomes available to the
+policy through alignment rather than through demonstration mediation.
+
+\textbf{Inference-time conditioning on backbone signals.} At test time, augmenting policy
+inference with explicit backbone hidden state injection (analogous to retrieval-augmented
+generation in NLP) bypasses the demonstration-trained policy's bound by drawing on the
+backbone's preserved language signal directly.
+
+These interventions are all \emph{outside} the demonstration-supervised loss in the sense
+Theorem~\ref{thm:bound} targets. Our paper does not implement or empirically evaluate any
+of them --- they are pointers to a research direction informed by
+Theorem~\ref{thm:bound}, not solutions delivered by it.
+
+A common potential confusion: does \emph{fine-tuning} the backbone on demonstrations
+count as outside the demonstration loss? No --- fine-tuning incorporates the backbone
+into the demonstration-supervised optimization, making it subject to
+Theorem~\ref{thm:bound} just as the action head is. The Gate~1 measurement on the
+\emph{frozen} OpenVLA-OFT backbone evidences the preserved language signal; fine-tuning
+that backbone on demonstrations would degrade Gate~1 toward the demonstration-level
+signal magnitude.
+
+\subsection{Pushback~4 --- Single-Benchmark Scope}
+\label{sec:discussion:single_benchmark}
+
+A natural pushback to our diagnostic findings is single-benchmark scope: Gate~1
+($r(h_{\mathrm{OFT}}, \ell) = 0.76$), M3 ($r \in [-0.27, -0.20]$), and the OFT contrast
+(\S\ref{sec:results:oft_contrast}) are all demonstrated on LIBERO-Spatial. We separate
+the theoretical and empirical components of our scope claim.
+
+\textbf{Theoretical scope.} Theorem~\ref{thm:bound} bounds $I(\Astar; \ell \mid o) =
+I_{\dataD}(a; \ell \mid o) \le \eps$. The right-hand side depends only on the joint
+distribution of the supervision data $\dataD(\ell, a \mid o)$, not on the specific task
+suite. The bound is benchmark-agnostic; the question is whether the antecedent
+$I_{\dataD}(a; \ell \mid o) \approx 0$ holds across benchmarks.
+
+\textbf{Empirical scope.} We expect demonstration-trajectory $\perp$ language to hold
+broadly under standard teleoperated demonstration protocols, on a mechanistic argument:
+teleoperators visually perceive the scene and execute motor commands, with language
+serving as a post-hoc label affixed to the recorded trajectory rather than as a causal
+driver of the recorded actions. Under this protocol, the joint distribution
+$\dataD(\ell, a \mid o)$ factors approximately as $p(\ell \mid o) \cdot p(a \mid o)$,
+yielding the language-orthogonality condition independently of task suite.
+
+This mechanistic prediction is empirically testable. We provide one quantitative
+instantiation (LIBERO-Spatial, $r = -0.27$); replication on LIBERO-Goal, LIBERO-Object,
+and non-LIBERO teleoperated suites (e.g., RoboCasa, Bridge) is left to future work
+(\S\ref{sec:discussion:future_work}). We do not claim universal cross-benchmark
+generalization, but we do make a falsifiable mechanistic prediction: any teleop-collected
+suite should yield $\lvert r(\text{traj}, \ell) \rvert \ll \lvert r(h_{\mathrm{backbone}},
+\ell) \rvert$ under the same M3 protocol.
+
+\subsection{Future Work}
+\label{sec:discussion:future_work}
+
+Three directions follow from this work.
+
+\textbf{1.~Cross-benchmark empirical validation of M3.} Applying the M3 protocol to
+LIBERO-Goal, LIBERO-Object, LIBERO-90, RoboCasa, and Bridge would test the mechanistic
+prediction of \S\ref{sec:discussion:single_benchmark} across suites differing in task
+structure, instruction complexity, and demonstration source. If the prediction holds, the
+\S\ref{sec:discussion:single_benchmark} caveat strengthens to a general empirical claim
+about teleop-collected VLA training data. If it fails on some suite, the failure would
+itself be informative --- identifying which protocol features matter for
+demonstration-level language conditioning.
+
+\textbf{2.~Auxiliary-objective interventions to bypass Theorem~\ref{thm:bound}.} The
+three intervention classes identified in \S\ref{sec:discussion:pushback_auxiliary}
+(language reconstruction, contrastive alignment, inference-time conditioning) admit
+concrete experimental designs. The most promising near-term direction is contrastive
+alignment of policy hidden states with frozen backbone language embeddings --- this
+leverages the Gate~1 result (backbone preserves language) without requiring new
+demonstration collection. We expect this to materially lift the
+Theorem~\ref{thm:bound} bound on policy-level language MI; the empirical question is
+whether the resulting policy achieves higher language-driven SR distinguishable from
+visually-grounded high SR under signal-flow diagnostics.
+
+\textbf{3.~Diagnostic-methodology adoption in VLA evaluation.} Beyond the present paper's
+findings, we propose that Gate~1, M3, and C1 measurements be reported alongside standard
+SR + paraphrase-invariance results in future VLA evaluations. The three measurements are
+cheap (each takes $<$~1 hour on a single GPU); they require only access to backbone
+hidden states, demonstration trajectories, and policy latents, which are available for
+nearly all published VLA architectures. Routine reporting would localize
+language-conditioning behavior across the field and inform whether SR improvements
+correspond to genuine language-conditioning gains or to better visual grounding.
+
+\subsection{Limitations}
+\label{sec:discussion:limitations}
+
+We acknowledge five limitations explicitly:
+
+\textbf{1.~Single benchmark.} \S\ref{sec:discussion:single_benchmark} discusses the scope
+caveat in detail. The empirical findings rest on LIBERO-Spatial; cross-benchmark
+validation is future work.
+
+\textbf{2.~Single backbone.} Gate~1 measurements use the OpenVLA-OFT backbone
+exclusively. Other VLAs (RT-2, $\pi_0$, generic LLM-based VLAs) might show different
+Gate~1 magnitudes. We have not measured. The theoretical bound applies regardless of
+backbone; only the empirical instantiation is backbone-specific.
+
+\textbf{3.~Gaussian MI surrogate.} The quantitative MI estimates ($\hat{I}_h \approx
+0.43$, $\hat{I}_{\mathrm{demo}} \approx 0.04$) rely on a Gaussian surrogate and should be
+read as qualitative effect-size references rather than tight MI ceilings. The primary
+effect-size finding is the squared-correlation ratio.
+
+\textbf{4.~OTP-Soft architectural complexity.} OTP-Soft was originally designed under a
+working hypothesis subsequently falsified by Theorem~\ref{thm:bound}
+(\S\ref{sec:architecture:falsification}). It serves the present work as a diagnostic
+platform rather than as an optimal architectural recommendation. Readers interested in
+implementing the diagnostic methodology should adapt it to simpler VLA architectures
+(OFT, RT-2, $\pi_0$) for which the architectural overhead is lower.
+
+\textbf{5.~OFT scenario disambiguation.} \S\ref{sec:results:oft_contrast} leaves open
+which of two scenarios (low-magnitude language preservation vs.\ entirely visual
+grounding) describes OFT's high SR. Distinguishing requires either an OFT-specific
+signal-flow diagnostic measurement (which we have not performed) or controlled
+architecture experiments aligned with OFT's internal structure (future work).
+
+These limitations bound the strength of our claims to: a theoretical bound with broad
+applicability under stated conditions, one quantitative empirical instantiation, and a
+diagnostic methodology proposed for broader adoption. The paper's contribution is
+methodological and theoretical rather than a complete empirical resolution of the
+language-conditioning question in VLAs.
