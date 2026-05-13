@@ -1,0 +1,23 @@
+# =============================================================================
+# Mini E2E test config: Variant (c) — CFM head + deterministic decoder
+# Used by 7-criteria mini E2E gate (preregistration §3).
+# Inherits otp_soft_ablation_variantc_seed42 (deterministic_decoder=true,
+# CFM head, lr=1e-4) but overrides epochs/cadence for short pre-flight run.
+# Expected wall clock: ~30 min on RTX PRO 6000.
+# =============================================================================
+
+defaults:
+  - otp_soft_ablation_variantc_seed42
+  - _self_
+
+train:
+  num_epochs: 2
+  ckpt_every: 100
+  log_every: 10
+  warmup_steps: 50
+
+output_dir: results/minie2e_variantc_${now:%Y%m%d_%H%M%S}
+
+wandb:
+  enabled: false
+  run_name: minie2e_variantc
