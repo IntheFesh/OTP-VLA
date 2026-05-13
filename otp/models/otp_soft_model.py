@@ -198,6 +198,10 @@ class OTPSoftModel(nn.Module):
             use_cocos_source=dec_cfg.get("use_cocos_source", False),
             cocos_alpha=dec_cfg.get("cocos_alpha", 1.0),
             cocos_beta=dec_cfg.get("cocos_beta", 1.0),
+            # ===== §V.D ablation drops =====
+            drop_mesh=dec_cfg.get("drop_mesh", False),
+            drop_grasp=dec_cfg.get("drop_grasp", False),
+            drop_proprio=dec_cfg.get("drop_proprio", False),
         )
 
         self.otp_head_loss_weight = float(config.get("otp_head_loss_weight", 1.0))
