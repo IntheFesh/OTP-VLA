@@ -195,6 +195,11 @@ class LanguageAgnosticDecoder(nn.Module):
         use_cocos_source: bool = False,
         cocos_alpha: float = 1.0,
         cocos_beta: float = 1.0,
+        # ===== §V.D ablation drop flags (init-time attributes) =====
+        # Names verified against _FORBIDDEN_FRAGMENTS — no overlap.
+        drop_mesh: bool = False,
+        drop_grasp: bool = False,
+        drop_proprio: bool = False,
     ) -> None:
         super().__init__()
 
@@ -216,6 +221,14 @@ class LanguageAgnosticDecoder(nn.Module):
         self.num_grasps_per_object = num_grasps_per_object
         self.action_dim = action_dim
         self.num_sample_steps = num_sample_steps
+
+        # ===== §V.D ablation drop flags =====
+        # Stored as plain bools (not Parameters/Modules).
+        # Won't appear in named_modules / named_parameters.
+        # Will appear in dir(self) — verified safe against _FORBIDDEN_FRAGMENTS.
+        self.drop_mesh = drop_mesh
+        self.drop_grasp = drop_grasp
+        self.drop_proprio = drop_proprio
 
         # ---- Modality encoders ---- #
         self.trajectory_encoder = nn.Linear(trajectory_dim, hidden_dim)
@@ -319,6 +332,16 @@ class LanguageAgnosticDecoder(nn.Module):
         # The decoder must not have any attribute that mentions the
         # forbidden fragments — guarded again at call time.
         _check_forbidden(dir(self))
+
+        # ===== §V.D ablation drops (Strategy A: zero raw input) =====
+        # Apply BEFORE shape checks so shapes are preserved via zeros_like.
+        # Drops affect both train and eval (sample() calls forward()).
+        if self.drop_mesh:
+            object_geometry = torch.zeros_like(object_geometry)
+        if self.drop_grasp:
+            grasp_affordance = torch.zeros_like(grasp_affordance)
+        if self.drop_proprio:
+            proprioception = torch.zeros_like(proprioception)
 
         # ---- Shape checks (M1) ---- #
         B = trajectory.shape[0]
