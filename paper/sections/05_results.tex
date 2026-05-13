@@ -1,13 +1,9 @@
 % sections/05_results.tex — Section V (Experimental Results)
-% Source: notes/paper_section_VA_draft.md (§V.A complete this Day 5 pass)
-%         notes/paper_section_VB_draft.md (§V.B pending Day 6 conversion)
-%         notes/paper_section_VD_draft.md (§V.D pending Day 14+ ablation results)
+% Sources:
+%   notes/paper_section_VA_draft.md  → §V.A (Day 5)
+%   notes/paper_section_VB_draft.md  → §V.B (Day 5)
+%   §V.C/§V.D placeholders for Day 6 / Day 14+
 % Converted Day 5 2026-05-13.
-%
-% §V.A status: Converted in full from §V.A draft v1 (Day 3 P1).
-% §V.B/C/D status: Placeholder subsections with anchored labels; content
-%   to be added in subsequent passes once draft conversions and ablation
-%   results complete.
 
 \section{Experimental Results}
 \label{sec:results}
@@ -19,7 +15,8 @@
 \label{sec:results:diagnostic:methodology}
 
 The three-layer signal-flow diagnostic comprises three Mantel tests on inter-task
-distance matrices, applied to different stages of the VLA pipeline (Table~\ref{tab:diagnostic_layers}).
+distance matrices, applied to different stages of the VLA pipeline
+(Table~\ref{tab:diagnostic_layers}).
 
 \begin{table}[t]
 \centering
@@ -48,17 +45,8 @@ $r$ and permutation $p$-value. Distances use Euclidean norm; language embeddings
 are mean-pooled token embeddings from the OpenVLA-OFT tokenizer applied to each task's
 instruction prompt.
 
-The shared protocol enables direct cross-stage comparison of the same quantity --- $r$
-versus language across tasks --- at three pipeline layers. Differences in magnitude across
-the three measurements localize where language conditioning is preserved or lost.
-
 \subsubsection{Gate~1 --- Backbone Language Preservation}
 \label{sec:results:diagnostic:gate1}
-
-\paragraph{Quantity measured.}
-$r(h_{\mathrm{backbone}}, \ell)$, the Mantel correlation between OpenVLA-OFT backbone
-hidden states at the last text token and language embeddings, across 10 tasks of
-LIBERO-Spatial.
 
 \paragraph{Methodology.}
 For each task, we tokenize the instruction prompt with the OpenVLA-OFT processor, forward
@@ -67,63 +55,36 @@ fine-tuning), and extract the LLM hidden state at position $[-1]$ --- the last t
 before the action prediction segment. This position aggregates causal attention over the
 entire visual+text input sequence. Per task, we collect $n_{\text{demos}} = 10$ samples
 drawn from the first frame of 10 demonstration episodes; the per-task representation is
-the mean over these samples. The inter-task distance matrix $D^h$ uses Euclidean distances
-between per-task representations.
+the mean over these samples.
 
 \paragraph{Sanity checks.}
-Three sanity checks (SC1, SC2, SC3) precede the main Gate~1 measurement and are reported
-in the replication log:
-\begin{itemize}
-\item \textbf{SC1 (token position).} Position $[-1]$ corresponds to the last text token
-(token id 29901, surface form \texttt{:}), which has attended over the full visual + text
-sequence via causal LLM attention. This validates the use of position $[-1]$ as a
-representation summarizing the conditioning on $(o, \ell)$.
-
-\item \textbf{SC2 (embedding consistency).} The language embedding pipeline is
-deterministic across two independent runs ($L_2$ norm $= 0.234$, max element-wise diff
-$= 0$). Cross-test comparison between the C1 deep-dive run and the Gate~1 replication run
-confirms byte-identical embedding code path.
-
-\item \textbf{SC3 (replication of original Gate~1).} A replication run produced
-$r(h_{\mathrm{OFT}}, \ell) = +0.7575$ ($p < 0.001$) versus the original result $r =
-+0.7423$, a difference of $\Delta r = 0.0152$ within sampling noise.
-\end{itemize}
+Three sanity checks (SC1, SC2, SC3) precede the main Gate~1 measurement:
+SC1 verifies position $[-1]$ corresponds to the last text token (id~29901, surface form
+\texttt{:}), which aggregates causal attention over the full visual + text sequence;
+SC2 verifies that the language embedding pipeline is deterministic across two
+independent runs ($L_2$ norm $= 0.234$, max element-wise diff $= 0$); SC3 verifies
+replication of the original Gate~1 result ($r = 0.7575$ vs.\ original $r = 0.7423$,
+$\Delta r = 0.015$ within sampling noise).
 
 \paragraph{Result.}
-Averaging across the two runs, the Gate~1 measurement is
 \begin{equation}
 r(h_{\mathrm{backbone}},\, \ell) \;\approx\; +0.76, \qquad p < 0.001.
 \label{eq:gate1_result}
 \end{equation}
 The squared correlation $\rho_h^2 = 0.578$ implies a Gaussian-equivalent MI surrogate of
 $\hat{I}_h \approx 0.43$ nats (qualitative reference only;
-Remark~\ref{rem:approx_bound}).
-
-\paragraph{Interpretation.}
-The OpenVLA-OFT backbone, prior to any demonstration-specific fine-tuning of downstream
-modules, preserves strong correlation between its hidden state and the language
-instruction across tasks. The backbone-level representation is language-discriminative.
+Remark~\ref{rem:approx_bound}). The OpenVLA-OFT backbone, prior to any
+demonstration-specific fine-tuning of downstream modules, preserves strong correlation
+between its hidden state and the language instruction across tasks.
 
 \subsubsection{M3 --- Demonstration-Level Language-Action Correlation}
 \label{sec:results:diagnostic:m3}
 
-\paragraph{Quantity measured.}
-$r(\text{demonstration trajectory}, \ell)$, the Mantel correlation between demonstration
-action sequences and language embeddings, across 10 tasks.
-
 \paragraph{Methodology.}
 For each task we collect $n_{\text{demos}} = 10$ demonstration episodes from
-LIBERO-Spatial and compute three trajectory representations:
-\begin{itemize}
-\item \textbf{Flat representation (primary)}: concatenation of action chunks across the
-      episode, $a \in \mathbb{R}^{T \times 7}$ flattened to a single vector.
-\item \textbf{Endpoint representation}: pair $(a_0, a_T)$ of first and last actions.
-\item \textbf{Waypoint representation}: subsampled actions at regular intervals along the
-      episode.
-\end{itemize}
-Per task, the representation is the mean over 10 episodes. Inter-task distances
-$D^{\text{traj}}$ use Euclidean distances on the chosen representation. The Mantel test
-compares $D^{\text{traj}}$ to $D^{\ell}$ as in Gate~1.
+LIBERO-Spatial and compute three trajectory representations: flat (concatenated action
+chunk, primary), endpoint (first and last actions), and waypoint (subsampled actions).
+Per task, the representation is the mean over 10 episodes.
 
 \paragraph{Result.}
 Across the three representations,
@@ -132,85 +93,44 @@ r(\text{traj}, \ell) \;\in\; [-0.27,\, -0.20], \qquad \rho^2 \le 0.073.
 \label{eq:m3_result}
 \end{equation}
 The maximum-magnitude correlation is on the flat representation: $r = -0.2698$ with
-permutation $p = 0.964$. The high $p$-value indicates the observed correlation is not
-statistically distinguishable from the null distribution; demonstrations are approximately
-language-orthogonal under the Mantel test.
+permutation $p = 0.964$. Mean per-task trajectory $L_2$ norms are tightly clustered
+(range $[20.376, 20.868]$), ruling out a degenerate explanation where M3's near-zero
+correlation arises from trajectory-norm artifacts.
 
-\paragraph{Per-task trajectory characteristics.}
-Mean per-task trajectory $L_2$ norms are tightly clustered (range $[20.376, 20.868]$),
-confirming that the trajectory representations differ across tasks in \emph{direction}
-and \emph{fine-grained shape}, not in overall magnitude. This rules out a degenerate
-explanation where M3's near-zero correlation arises from trajectory-norm artifacts.
-
-\paragraph{Interpretation.}
-Demonstration trajectories on LIBERO-Spatial are approximately uncorrelated with
-instruction embeddings under inter-task distance comparison. This is the empirical
-realization of the $\eps$-language-orthogonality condition
+This is the empirical realization of the $\eps$-language-orthogonality condition
 (Definition~\ref{def:eps_lang_orthog}) with $\eps$ small enough that the Gaussian MI
-surrogate is $\hat{I}_{\dataD}(a; \ell \mid o) \approx 0.04$ nats --- an order of
-magnitude smaller than Gate~1's backbone-level conditioning.
-
-The squared-correlation gap
+surrogate is $\hat{I}_{\dataD}(a; \ell \mid o) \approx 0.04$ nats. The
+squared-correlation gap
 \begin{equation}
 \rho_h^2 \,/\, \rho_{\text{demo}}^2 \;=\; 0.578 \,/\, 0.073 \;\approx\; 8\times
 \label{eq:gap_result}
 \end{equation}
-is the principal effect-size measurement of this paper: language conditioning preserved
-at the backbone is attenuated to near-null at the demonstration-data stage.
+is the principal effect-size measurement of this paper.
 
 \subsubsection{C1 --- Policy-Level Language Correlation in the Trained Latent}
 \label{sec:results:diagnostic:c1}
 
-\paragraph{Quantity measured.}
-$r(z_{\text{policy}}, \ell)$, the Mantel correlation between OTP-Soft's trained latent
-representation $z$ (head output) and language embeddings across tasks. Also reported:
-per-task variance partitioning $\eta^2$ over $z$ slots.
-
 \paragraph{Methodology.}
 We train OTP-Soft V3 (Shortcut Flow Matching head + decoder, full architecture as in
-\S\ref{sec:architecture:otp_soft}) on LIBERO-Spatial demonstrations for the standard
-training schedule. We then forward 10 evaluation samples per task through the trained
-policy, extract the head output $z$, and compute inter-task distance matrices on $z$
-analogous to Gate~1 and M3. Additionally, we compute $\eta^2$ --- the proportion of
-variance in each $z$ slot attributable to task identity --- to assess whether
-task-discriminative signal is present in any slot of $z$, even if the aggregate Mantel
-correlation is small.
+\S\ref{sec:architecture:otp_soft}) on LIBERO-Spatial demonstrations, forward 10
+evaluation samples per task through the trained policy, extract the head output $z$, and
+compute inter-task distance matrices on $z$. We also compute $\eta^2$ ---
+the proportion of variance in each $z$ slot attributable to task identity.
 
 \paragraph{Result.}
 \begin{equation}
 r(z_{\text{OTP}}, \ell) \;=\; -0.19, \qquad p_{\text{Mantel}} = 0.913.
 \label{eq:c1_result}
 \end{equation}
-The negative sign and high $p$-value indicate $z$ is approximately uncorrelated with
-language under the inter-task Mantel test. However, the $\eta^2$ analysis reveals
-structure:
-\begin{itemize}
-\item Median $\eta^2$ across slots: $0.26$
-\item $\eta^2$ range: $[0.05, 0.96]$
-\item 25th percentile: $0.08$; 75th percentile: $0.38$
-\item Median per-slot maximum $\eta^2$ across tasks: $0.67$
-\end{itemize}
-A substantial fraction of $z$ slots carry task-discriminative variance ($\eta^2$ near $1$
-in some slots), but this variance is \textbf{concentrated in slots corresponding to
-non-target object pose encoding} --- visual scene structure unique to each task layout
---- rather than in slots that reflect the linguistic content of the instruction. The
-high-$\eta^2$ slots discriminate tasks via scene geometry (where the bowl and plate are
-positioned), not via what the instruction says about them.
+The $\eta^2$ analysis reveals structure: median $\eta^2$ across slots is $0.26$, range
+$[0.05, 0.96]$, with high-$\eta^2$ slots discriminating tasks via scene geometry (where
+the bowl and plate are positioned) rather than via what the instruction says about them.
+The task-discriminative variance is concentrated in slots corresponding to non-target
+object pose encoding.
 
-\paragraph{Interpretation.}
-The trained policy's latent $z$ does encode task-discriminative information, but this
-information is visually grounded rather than linguistically driven. The aggregate Mantel
-correlation with language embeddings ($r = -0.19$) is small because the dominant variance
-in $z$ is task-specific scene structure unrelated to instruction surface form or
-semantics. This is consistent with the language-orthogonality finding at the demonstration
-level (\S\ref{sec:results:diagnostic:m3}): if demonstrations do not encode
-language-trajectory correlation, the trained policy's latent cannot encode it either,
-except indirectly through scene structure correlated with task identity.
-
-Condition~\ref{cond:c2} of \S\ref{sec:theory:c2} is therefore \emph{not} substantively
-satisfied for the OTP-Soft V3 policy: while $H(z \mid o) > 0$ trivially holds (the latent
-is not constant), the task-discriminative structure of $z$ is observation-derived rather
-than instruction-derived.
+The trained policy's latent encodes task-discriminative information, but this information
+is visually grounded rather than linguistically driven. Condition~\ref{cond:c2} is
+\emph{not} substantively satisfied for the OTP-Soft V3 policy.
 
 \subsubsection{Backbone Capacity Check}
 \label{sec:results:diagnostic:capacity}
@@ -218,88 +138,184 @@ than instruction-derived.
 A potential concern with the Gate~1 result is whether the high backbone correlation
 reflects genuine task-discriminative encoding or merely the encoding of task-correlated
 visual features available in the prompt. We address this by training a width-doubled
-deterministic head on a controlled probe and measuring per-action-dimension
-informativeness:
+deterministic head on a controlled probe:
 \begin{equation}
 \bar{F}^a \;=\; 11.30, \qquad \max_a F^a \;=\; 26.90.
 \label{eq:test4_result}
 \end{equation}
-The mean per-dimension $F$-statistic of $11.30$ across the 7 action dimensions, on 500
-demonstrations per task $\times$ 2 tasks $\times$ 1000 training steps, exceeds the null
-threshold by a substantial margin. This confirms that the backbone has sufficient capacity
-to express task-discriminative actions in the controlled probe setting --- the backbone is
-not capacity-limited in any sense that would explain the M3 finding. The M3 result is a
-property of the supervision distribution, not of the backbone's representational capacity.
+The mean per-dimension $F$-statistic of $11.30$ across 7 action dimensions exceeds the
+null threshold by a substantial margin. The M3 result is a property of the supervision
+distribution, not of the backbone's representational capacity.
 
 \subsubsection{Summary}
 \label{sec:results:diagnostic:summary}
 
-The three measurements together localize where language conditioning is preserved or lost
-across the VLA pipeline (Table~\ref{tab:diagnostic_summary}).
-
 \begin{table}[t]
 \centering
-\caption{\textsc{Three-Layer Signal-Flow Summary.} Language conditioning is preserved at
-backbone, attenuated at demonstration, and inherited by the trained policy latent.}
+\caption{\textsc{Three-Layer Signal-Flow Summary.}}
 \label{tab:diagnostic_summary}
 \small
 \begin{tabular}{lll}
 \toprule
 \textbf{Stage} & \textbf{Correlation with $\ell$} & \textbf{Interpretation} \\
 \midrule
-Backbone (pre-training) & $r = +0.76$  & Language preserved at strong correlation \\
-Demonstration (supervision) & $r = -0.27$ & Language attenuated to near-null \\
-Policy latent (post-training) & $r = -0.19$ & Latent inherits demonstration attenuation \\
+Backbone (pre-training)        & $r = +0.76$  & Language preserved \\
+Demonstration (supervision)    & $r = -0.27$  & Language attenuated \\
+Policy latent (post-training)  & $r = -0.19$  & Inherits demo attenuation \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The transition from $r = +0.76$ to $r = -0.27$ between backbone and demonstrations
-identifies the supervision data as the locus of information loss, not the backbone
-capacity (Test~4) or the trained policy in isolation. The C1 measurement on the trained
-policy ($r = -0.19$) confirms the policy inherits the demonstration-level pattern,
-consistent with Theorem~\ref{thm:bound} bounding policy-level language MI by
-demonstration-level MI.
+identifies the supervision data as the locus of information loss, consistent with
+Theorem~\ref{thm:bound} bounding policy-level language MI by demonstration-level MI.
 
 \subsection{Paraphrase Invariance of OpenVLA-OFT}
 \label{sec:results:paraphrase}
 
-% Source: notes/paper_section_VB_draft.md
-% Status: To be converted Day 6+ from existing markdown draft.
+\subsubsection{Experimental Setup}
+\label{sec:results:paraphrase:setup}
 
-[To be added in subsequent revision: paraphrase invariance results from Stage~3
-OFT ablation; 10 tasks $\times$ 6 phrasing $\times$ 50 episodes; identity 94.6\%,
-paraphrased 93.7\%; aggregate paired-diff $\sim$0.9\,pp; 9/10 tasks paired-diff
-CI within $\pm 2$\,pp; task~5 sensitivity caveat documented. Statistical protocol:
-McNemar with continuity correction + Benjamini-Hochberg FDR adjustment; reporting
-phrased per V7 \S III.F as ``Rule~A supported'' rather than ``fires'' (avoids
-dependence on procedural CI-aware application).]
+To assess the standard interpretation that paraphrase invariance evidences ``language
+understanding'' in VLA policies, we evaluate OpenVLA-OFT~\cite{kim2025openvla_oft} on
+LIBERO-Spatial under controlled instruction rewording. The experimental matrix comprises
+10 tasks $\times$ 6 instruction phrasings $\times$ 50 evaluation episodes per
+task-phrasing cell, totaling 3000 episode evaluations.
+
+The 6 phrasings per task consist of one ``identity'' instruction (the original
+LIBERO-Spatial task description used for training) and 5 semantically-equivalent
+paraphrasings. Paraphrasings vary surface lexical form (e.g., ``pick up'' $\to$
+``grasp''; ``place'' $\to$ ``put'') while preserving semantic content. Each task-phrasing
+cell is evaluated under 50 independent episode rollouts from the LIBERO-Spatial test
+split using the published OpenVLA-OFT checkpoint without further fine-tuning. We report
+point-estimate task success rate over 50 episodes plus Wilson 95\% confidence intervals,
+and aggregate paired identity-vs-paraphrased differences with 95\% CIs across the task
+$\times$ phrasing matrix.
+
+\subsubsection{Aggregate Result --- Paraphrase Invariance}
+\label{sec:results:paraphrase:aggregate}
+
+Across the full 10-task $\times$ 6-phrasing matrix:
+\begin{equation}
+\text{Identity SR} \;=\; 94.6\%, \quad \text{Paraphrased SR} \;=\; 93.7\%, \quad
+\Delta \;=\; 0.9\,\text{pp}.
+\label{eq:paraphrase_aggregate}
+\end{equation}
+
+The aggregate identity-vs-paraphrased difference of 0.9 percentage points is small
+relative to the per-cell sampling variance (with $n = 50$ episodes per cell, the Wilson
+95\% CI half-width is approximately $\pm 9$pp). Under any standard practical-equivalence
+threshold ($\pm 2$pp, $\pm 3$pp, $\pm 5$pp), OFT's performance is statistically
+indistinguishable across paraphrasings.
+
+We formalize this with the Stage~3 statistical protocol of our pre-registration. The
+per-cell BH-FDR-adjusted significance test shows that 0 of 50 task-phrasing cells achieve
+$q < 0.05$ for any pairwise identity-vs-paraphrasing comparison (McNemar test with
+Benjamini--Hochberg adjustment across 50 cells). All 5 paired identity-vs-paraphrased SR
+differences (one per paraphrasing variant, aggregated across tasks) have 95\% confidence
+intervals that include the practical-equivalence threshold $\pm 2$pp. By the
+pre-registered protocol, the joint conditions for ``visual-grounded SR regime'' (the
+policy achieves high SR robust to instruction paraphrasing) are \textbf{supported} by
+these observations.
+
+\subsubsection{Task 5 Sensitivity Caveat}
+\label{sec:results:paraphrase:task5}
+
+One task in the 10-task LIBERO-Spatial suite (``pick up the black bowl on the stove and
+place it on the plate,'' task 5) exhibits an unusual pattern: identity SR is 60\% rather
+than the 90\%+ observed on other tasks, with paraphrased SR also showing increased
+variance. This appears to be a per-task difficulty artifact unrelated to
+language-conditioning behavior --- the same physical task is challenging across all
+phrasing variants --- but it warrants explicit sensitivity analysis.
+
+Excluding task 5 from the aggregate produces:
+\begin{equation}
+\text{Identity SR (9-task)} = 98\%, \quad
+\text{Paraphrased SR (9-task)} = 98\%, \quad
+\Delta = 0\,\text{pp}.
+\end{equation}
+The 9-task subset preserves and strengthens the paraphrase-invariance finding. Excluding
+task 5 does not change any other conclusion in this section. We retain the full 10-task
+analysis as primary and report the 9-task subset as a sensitivity check rather than as a
+post-hoc selected analysis.
+
+\subsubsection{Interpretation Under Theorem~\ref{thm:bound}}
+\label{sec:results:paraphrase:interpretation}
+
+The paraphrase-invariance observation is conventionally read as evidence that the policy
+``understands'' language: a model robust to instruction rewording is interpreted as
+having learned semantic content beyond surface form. Theorem~\ref{thm:bound} sharpens
+this interpretation. Under the bound $I(\Astar; \ell \mid o) \le I_{\dataD}(a; \ell \mid
+o)$ with demonstration-level signal $I_{\dataD}(a; \ell \mid o) \approx 0.04$ nats on
+LIBERO-Spatial (\S\ref{sec:results:diagnostic:m3}), OFT's 94.6\%/93.7\%
+identity-vs-paraphrased SR result is consistent with two distinct scenarios:
+
+\textbf{(a) Low-magnitude language preservation.} OFT does carry some language
+conditioning within the bound, sufficient to discriminate between semantically-different
+instructions but not surface-form variants of the same instruction. Paraphrase invariance
+reflects genuine semantic conditioning at low MI magnitude.
+
+\textbf{(b) Entirely visual grounding.} OFT carries no language conditioning at the
+action level. Paraphrase invariance reflects that the policy ignores language entirely
+and acts based on observation alone. With LIBERO-Spatial's tightly task-correlated visual
+scenes (each task has a distinctive object layout), observation alone is sufficient for
+task discrimination.
+
+The paraphrase-invariance measurement cannot distinguish (a) from (b). Both predict the
+observed pattern: high identity SR, paraphrased SR statistically equivalent to identity
+SR. The two scenarios differ only in the \emph{mechanism} of task success, which is not
+directly probed by the SR metric.
+
+This is the diagnostic methodology contribution made explicit in
+\S\ref{sec:intro:contributions} (Contribution~4): the SR + paraphrase-invariance
+evaluation regime cannot distinguish between language-conditioned and visually-grounded
+high performance. Signal-flow diagnostics (Gate~1, M3, C1) provide complementary
+information that locates the dominant pathway as visual-grounded for the OFT case (b),
+though without ruling out small residual language preservation (a) at low MI magnitude.
+
+\subsubsection{Implications}
+\label{sec:results:paraphrase:implications}
+
+\textbf{1.~Paraphrase invariance is not evidence of language conditioning.} Under
+Theorem~\ref{thm:bound}, any policy with demonstration-supervised training on
+LIBERO-Spatial-like data is bounded to small policy-level language MI. Both
+linguistically-conditioned policies (at low magnitude within the bound) and entirely
+visually-grounded policies predict paraphrase invariance.
+
+\textbf{2.~High SR is not evidence of language conditioning.} OpenVLA-OFT's 97\% SR
+coexists with the Theorem~\ref{thm:bound} bound: the policy achieves task success via
+observation-action mapping; the contribution of language to action selection is bounded
+above by $\sim 0.04$ nats. Standard benchmark SR cannot establish language-driven task
+completion.
+
+\textbf{3.~Signal-flow diagnostics are complementary, not replacements.} Gate~1, M3, and
+C1 measure quantities orthogonal to task SR. They localize where language information is
+preserved, lost, or recovered across the VLA pipeline. We recommend their adoption
+alongside, not in place of, standard SR + paraphrase-invariance evaluations.
 
 \subsection{Correlation Gap, OFT Contrast, and CFM Decoder Collapse}
-\label{sec:results:cfm_collapse}
-\label{sec:results:oft_contrast}
 \label{sec:results:correlation}
+\label{sec:results:oft_contrast}
+\label{sec:results:cfm_collapse}
 
-% Source: To be drafted from existing analysis materials.
-% Status: To be added Day 6+ after §V.A and §V.B are integrated.
+% Source: To be drafted Day 6+ from §V.A and §V.B integrated narrative.
 
-[To be added: (a) detailed correlation-gap calculation; (b) OFT contrast --- both
-within-bound scenarios (low-magnitude language preservation vs.\ entirely visual
-grounding) not distinguishable by SR alone; (c) CFM decoder sample-quality
-collapse --- 7/7 action dimensions fail per-dimension threshold under
-language-orthogonal supervision, oracle ablation (replacing head output with
-ground-truth trajectory) rules out moving-target hypothesis.]
+[To be added Day~6: (a) detailed correlation-gap calculation tying together
+\S\ref{sec:results:diagnostic:m3} and \S\ref{sec:results:paraphrase}; (b) OFT contrast
+formal exposition --- both within-bound scenarios (low-magnitude language preservation
+vs.\ entirely visual grounding) not distinguishable by SR alone; (c) CFM decoder
+sample-quality collapse --- 7/7 action dimensions fail per-dimension threshold (overall
+L1/std $= 1.88$) under language-orthogonal supervision, oracle ablation (replacing head
+output with ground-truth trajectory) rules out moving-target hypothesis.]
 
 \subsection{Component Ablations}
 \label{sec:results:component_ablations}
 
-% Source: notes/paper_section_VD_draft.md
-% Status: Awaiting ablation results (Day 14-16).
+% Source: Awaiting ablation results (Day 14-16).
 
-[To be added once ablation results are available (target Day~14-16,
-\S\ref{sec:results:component_ablations} from
-\texttt{scripts/diagnostic/25\_v\_d\_ablation\_aggregate.py}): 21-cell ablation
-design (Path~B base, Path~B + Cocos, variant~(c), V3 baseline, drop-mesh,
-drop-grasp, drop-proprio; each $\times$ 3 seeds). Statistical protocol per
-preregistration: pairwise McNemar + BH-FDR adjustment, Wilson 95\% CI per
-cell--task, Welch's $t$-test on per-seed SR.]
+[To be added Day~14--16 once ablation results are available, via
+\texttt{scripts/diagnostic/25\_v\_d\_ablation\_aggregate.py}: 21-cell ablation design
+(Path~B base, Path~B + Cocos, variant~(c), V3 baseline, drop-mesh, drop-grasp,
+drop-proprio; each $\times$ 3 seeds). Statistical protocol per preregistration: pairwise
+McNemar + BH-FDR adjustment, Wilson 95\% CI per cell--task, Welch's $t$-test on per-seed
+SR.]
