@@ -60,3 +60,4 @@ notes/*_DRAFT_DO_NOT_COMMIT.md
 
 # Jupyter checkpoints
 **/.ipynb_checkpoints/
+.DS_Store
